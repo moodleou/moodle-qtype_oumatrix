@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/oumatrix/db" VERSION="20230621" COMMENT="XMLDB file for Moodle question/type/oumatrix">
+<XMLDB PATH="question/type/oumatrix/db" VERSION="20230621" COMMENT="XMLDB file for Moodle question/type/oumatrix"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
   <TABLES>
     <TABLE NAME="qtype_oumatrix_options" COMMENT="Options for OU matrix question">
       <FIELDS>
