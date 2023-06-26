@@ -18,7 +18,6 @@
  * Plugin upgrade helper functions are defined here.
  *
  * @package     qtype_oumatrix
- * @category    upgrade
  * @copyright   2023 The Open University
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

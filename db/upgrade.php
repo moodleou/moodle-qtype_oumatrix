@@ -17,10 +17,9 @@
 /**
  * Plugin upgrade steps are defined here.
  *
- * @package     qtype_oumatrix
- * @category    upgrade
- * @copyright   2023 The Open University
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    qtype_oumatrix
+ * @copyright  2023 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

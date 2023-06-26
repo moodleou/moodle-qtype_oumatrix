@@ -17,10 +17,9 @@
 /**
  * Code to be executed after the plugin's database scheme has been installed is defined here.
  *
- * @package     qtype_oumatrix
- * @category    upgrade
- * @copyright   2023 The Open University
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    qtype_oumatrix
+ * @copyright  2023 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**

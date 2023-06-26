@@ -18,7 +18,6 @@
  * Code that is executed before the tables and data are dropped during the plugin uninstallation.
  *
  * @package     qtype_oumatrix
- * @category    upgrade
  * @copyright   2023 The Open University
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

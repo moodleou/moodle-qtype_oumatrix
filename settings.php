@@ -18,7 +18,6 @@
  * Plugin administration pages are defined here.
  *
  * @package     qtype_oumatrix
- * @category    admin
  * @copyright   2023 The Open University
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

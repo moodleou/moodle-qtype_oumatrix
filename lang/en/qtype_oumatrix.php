@@ -29,7 +29,7 @@ $string['answermode'] = 'Answer mode';
 $string['answersingleno'] = 'Multiple response';
 $string['answersingleyes'] = 'Single choice';
 $string['grademethod'] = 'Marking mode';
-$string['grademethod_help'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses. 
+$string['grademethod_help'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
 
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
