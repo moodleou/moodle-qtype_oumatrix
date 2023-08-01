@@ -30,6 +30,7 @@
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references question.id."/>
         <FIELD NAME="number" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="numbered sequentially 1, 2, 3 in a given question"/>
         <FIELD NAME="name" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="single" SEQUENCE="false" COMMENT="Whether single or multiple"/>
+        <FIELD NAME="correctanswers" TYPE="text" LENGTH="small" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="A json-encoded list of correct answerids for a given row."/>
         <FIELD NAME="feedback" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="Feedback shown for the row."/>
         <FIELD NAME="feedbackformat" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>

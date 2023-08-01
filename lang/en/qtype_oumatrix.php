@@ -24,11 +24,16 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
+$string['a'] = 'A {$a}';
+$string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['answermode'] = 'Answer mode';
-$string['answersingleno'] = 'Multiple response';
-$string['answersingleyes'] = 'Single choice';
+$string['answermode_desc'] = 'Answer mode can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
+$string['answermodemultiple'] = 'Multiple response';
+$string['answermodesingle'] = 'Single choice';
+$string['columnshdr'] = 'Matrix columns (answers)';
 $string['grademethod'] = 'Marking mode';
+$string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses. 
+All or nothing: students must get every response correct, otherwise they score zero.';
 $string['grademethod_help'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
 
 All or nothing: students must get every response correct, otherwise they score zero.';
@@ -41,6 +46,10 @@ $string['pluginname_help'] = 'Creating a matrix question requires you to specify
 $string['pluginnameadding'] = 'Adding a Matrix question';
 $string['pluginnameediting'] = 'Editing a Matrix question';
 $string['pluginnamesummary'] = 'A multi-row table that can use single choice or multiple response inputs.';
+$string['r'] = 'Row {$a}';
+$string['rowshdr'] = 'Matrix rows (questions)';
+$string['rowanswerlist'] = 'Select answers';
+$string['rowx'] = 'Row {$a})';
 $string['shuffleanswers'] = 'Shuffle the items?';
 $string['shuffleanswers_desc'] = 'Whether options should be randomly shuffled for each attempt by default.';
 $string['shuffleanswers_help'] = 'If enabled, the order of the row items is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';

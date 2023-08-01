@@ -24,11 +24,24 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($hassiteconfig) {
-    $settings = new admin_settingpage('qtype_oumatrix_settings', new lang_string('pluginname', 'qtype_oumatrix'));
+if ($ADMIN->fulltree) {
+    $inputtype = [
+            'single' => get_string('answermodesingle', 'qtype_oumatrix'),
+            'multiple' => get_string('answermodemultiple', 'qtype_oumatrix')
+    ];
+    $settings->add(new admin_setting_configselect('qtype_oumatrix/inputtype',
+            new lang_string('answermode', 'qtype_oumatrix'),
+            new lang_string('answermode_desc', 'qtype_oumatrix'), 'single', $inputtype));
 
-    // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-    if ($ADMIN->fulltree) {
-        // TODO: Define actual plugin settings page and add it to the tree - {@link https://docs.moodle.org/dev/Admin_settings}.
-    }
+    $grademethod = [
+            'partial' => get_string('gradepartialcredit', 'qtype_oumatrix'),
+            'allnone' => get_string('gradeallornothing', 'qtype_oumatrix')
+    ];
+    $settings->add(new admin_setting_configselect('qtype_oumatrix/grademethod',
+            new lang_string('grademethod', 'qtype_oumatrix'),
+            new lang_string('grademethod_desc', 'qtype_oumatrix'), 'partial', $grademethod));
+
+    $settings->add(new admin_setting_configcheckbox('qtype_oumatrix/shuffleanswers',
+            new lang_string('shuffleanswers', 'qtype_oumatrix'),
+            new lang_string('shuffleanswers_desc', 'qtype_oumatrix'), '1'));
 }
