@@ -37,16 +37,6 @@ defined('MOODLE_INTERNAL') || die();
 abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
 
     /**
-     * The default starting number of rows (answers).
-     */
-    protected const ROW_NUM_START = 4;
-
-    /**
-     * The number of rows (answers) that get added at a time.
-     */
-    protected const ROW_NUM_ADD = 2;
-
-    /**
      * The default starting number of columns (answers).
      */
     protected const COL_NUM_START = 3;
@@ -55,6 +45,16 @@ abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
      * The number of columns (answers) that get added at a time.
      */
     protected const COL_NUM_ADD = 2;
+
+    /**
+     * The default starting number of rows (question row).
+     */
+    protected const ROW_NUM_START = 4;
+
+    /**
+     * The number of rows (question row) that get added at a time.
+     */
+    protected const ROW_NUM_ADD = 2;
 
     /**
      * Add a set of form fields, obtained from get_per_column_fields.
@@ -85,10 +85,11 @@ abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
 
     protected function get_per_column_fields($mform, $label, $repeatedoptions, $columns) {
         $repeated = [];
-       // $repeated[] = $mform->createElement('editor', 'columnname', $label, ['rows' => 2], $this->editoroptions);
+        // $repeated[] = $mform->createElement('editor', 'columnname', $label, ['rows' => 2], $this->editoroptions);
+        // TODO: If needed replace the line below the line above.
         $repeated[] = $mform->createElement('text', 'columnname', $label, ['size' => 40]);
         $repeatedoptions['column']['type'] = PARAM_RAW;
-        $columns['name'] = 'columns';
+        $columns = 'columns';
         return $repeated;
     }
 
@@ -113,41 +114,60 @@ abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
             $repeatsatstart = $minoptions;
         }
 
-        $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions, $rows), $repeatsatstart, $repeatedoptions,
+        $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions, $rows),
+                $repeatsatstart, $repeatedoptions,
                 'norows', 'addrows', $addoptions,
                 $this->get_more_blanks('rows'), true);
     }
 
     /**
-     *
-     * @param $mform
-     * @param $label
-     * @param $repeatedoptions
-     * @param $rows
+     * @param MoodleQuickForm $mform
+     * @param string $label
+     * @param array $repeatedoptions
+     * @param array $rows
      * @return array
      */
-    protected function get_per_row_fields($mform, $label, $repeatedoptions, $rows) {
-        $numberofcolumns = 5;
+    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array $repeatedoptions, array $rows): array {
+        print_object($this->question);
         $repeated = [];
         $rowoptions = [];
-       // $rowoptions[] = $mform->createElement('editor', 'rowname', $label, ['rows' => 2], $this->editoroptions);
+        // $rowoptions[] = $mform->createElement('editor', 'rowname', $label, ['rows' => 2], $this->editoroptions);
+        // TODO: If needed replace the line below the line above.
         $rowoptions[] = $mform->createElement('text', 'rowname', 'Name', ['size' => 40]);
-        for ($i = 1; $i <= $numberofcolumns; $i++) {
-            $anslabel = get_string('a', 'qtype_oumatrix', '{no}');
-            $rowoptions[] = $mform->createElement('checkbox', "a$i", $anslabel);
-        }
 
-        $repeated[] = $mform->createElement('group', 'rowoptions',
-                $label, $rowoptions, null, false);
-        //$rowoptions[] = $mform->createElement('editor', 'feedback',
-        //        get_string('feedback', 'question'), array('rows' => 2"a$i"), $this->editoroptions);
-        $repeated[] = $mform->createElement('text', 'feedback',
-                get_string('feedback', 'question'), ['rows' => 2]);
-        $rows['name'] = 'rows';
+        // Get the list answer input type (radio buttons or checkbexs).
+        $numberofcolumns = 3; // TODO: write a function to get number of columns.
+        $rowanswers = $this->get_answers_for_this_column($mform,$this->question->options->inputtype, $numberofcolumns);
+
+        $rowoptions[] = $mform->createElement('group', 'rowanswers',
+                get_string('rowanswers', 'qtype_oumatrix'), $rowanswers, null, false);
+        $rowoptions[] = $mform->createElement('editor', 'feedback',
+                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
+        $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $repeatedoptions['row']['type'] = PARAM_RAW;
+        $rows = 'rows';
         return $repeated;
     }
 
+    /**
+     * Return array of input type radio button or checkboxes depending on answer mode setting.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $numberofcolumns
+     * @return array
+     */
+    protected function get_answers_for_this_column(MoodleQuickForm $mform, string $inputtype, int $numberofcolumns = self::COL_NUM_START): array {
+        $rowanswers = [];
+        for ($i = 1; $i <= $numberofcolumns; $i++) {
+            $anslabel = get_string('a', 'qtype_oumatrix', $i);
+            if ($inputtype === 'single') {
+                $rowanswers[] = $mform->createElement('radio', "a$i", $anslabel);
+            } else {
+                $rowanswers[]  = $mform->createElement('checkbox', "a$i", $anslabel);
+            }
+        }
+        return $rowanswers;
+    }
 
     /**
      * Language string to use for 'Add {no} more {rows or columns}'.

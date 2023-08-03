@@ -47,8 +47,6 @@ class qtype_oumatrix extends question_type {
 
             $question->options = $this->create_default_options($question);
         }
-        print_object('get_question_options --------------------');
-        print_object($question->options);
         parent::get_question_options($question);
     }
 

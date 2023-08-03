@@ -98,7 +98,7 @@ class qtype_oumatrix_edit_form extends qtype_oumatrix_edit_form_base {
         // Add update field.
         $mform->addElement('submit', 'updateform', get_string('updateform', $qtype));
         $mform->registerNoSubmitButton('updateform');
-        print_object($mform);
+        //print_object($mform);
 
         $this->set_current_rowcolumn_setting($mform);
 
@@ -214,7 +214,7 @@ class qtype_oumatrix_edit_form extends qtype_oumatrix_edit_form_base {
 
         $question = $this->data_preprocessing_combined_feedback($question, true);
         $question = $this->data_preprocessing_hints($question, true, true);
-        print_object($question);
+        //print_object($question);
         return $question;
     }
 
