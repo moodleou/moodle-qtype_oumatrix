@@ -202,11 +202,18 @@ class qtype_oumatrix_edit_form extends qtype_oumatrix_edit_form_base {
 
     public function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);
-        if (!empty($question->options)) {
+        //$question = $this->data_preprocessing_combined_feedback($question, true);
+        //$question = $this->data_preprocessing_hints($question, true, true);
+        print_object("---Before--- $question->options-------------");
+        print_object($question);
+        if (!empty($question->options->shuffleanswers)) {
+            $question->shuffleanswers = $question->options->shuffleanswers;
+        }
+        if (!empty($question->options->inputtype)) {
             $question->inputtype = $question->options->inputtype;
+        }
+        if (!empty($question->options->grademethod)) {
             $question->grademethod = $question->options->grademethod;
-            $question->shuffleanswers = $question->options->shuffleanswers;
-            $question->shuffleanswers = $question->options->shuffleanswers;
         }
         // Get question rows and columns.
         //$question->rows = $this->rowinfo->get_rows();

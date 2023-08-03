@@ -27,6 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 $string['a'] = 'A {$a}';
 $string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['answermode'] = 'Answer mode';
+$string['answermodesingle'] = 'Single';
+$string['answermodemultiple'] = 'Multiple';
 $string['answermode_desc'] = 'Answer mode can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
 $string['answermodemultiple'] = 'Multiple response';
 $string['answermodesingle'] = 'Single choice';
@@ -39,6 +41,7 @@ $string['grademethod_help'] = 'Standard (subpoints): each correct response in th
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
+$string['notenoughquestions'] = 'This type of question requires at least {$a} word';
 $string['numberofcolumns'] = 'Body columns';
 $string['numberofrows'] = 'Body rows';
 $string['pluginname'] = 'oumatrix';

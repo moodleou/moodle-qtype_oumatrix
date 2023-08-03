@@ -88,6 +88,7 @@ abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
         // $repeated[] = $mform->createElement('editor', 'columnname', $label, ['rows' => 2], $this->editoroptions);
         // TODO: If needed replace the line below the line above.
         $repeated[] = $mform->createElement('text', 'columnname', $label, ['size' => 40]);
+        $mform->setType('columnname', PARAM_RAW);
         $repeatedoptions['column']['type'] = PARAM_RAW;
         $columns = 'columns';
         return $repeated;
@@ -144,6 +145,22 @@ abstract class qtype_oumatrix_edit_form_base extends question_edit_form {
         $rowoptions[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
+
+        $mform->setType('rowname', PARAM_RAW);
+        for ($i = 1; $i <= $numberofcolumns; $i++) {
+            $anslabel = get_string('a', 'qtype_oumatrix', "{$i}");
+            $rowoptions[] = $mform->createElement('checkbox', "a$i", $anslabel);
+        }
+
+        $repeated[] = $mform->createElement('group', 'rowoptions',
+                $label, $rowoptions, null, false);
+        //$rowoptions[] = $mform->createElement('editor', 'feedback',
+        //        get_string('feedback', 'question'), array('rows' => 2"a$i"), $this->editoroptions);
+        $repeated[] = $mform->createElement('text', 'feedback',
+                get_string('feedback', 'question'), ['rows' => 2]);
+        $mform->setType('feedback', PARAM_RAW);
+        $rows['name'] = 'rows';
+
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;

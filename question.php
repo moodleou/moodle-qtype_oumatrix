@@ -22,8 +22,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use gtype_oumatirx\oumatrix_info;
-
 defined('MOODLE_INTERNAL') || die();
 
 // For a complete list of base question classes please examine the file
@@ -53,6 +51,11 @@ class qtype_oumatrix_question extends question_graded_automatically {
 
     /** @var int The column number. */
     public $numcolumns;
+
+    public function get_renderer(moodle_page $page) {
+        return $page->get_renderer('qtype_oumatrix', 'single');
+    }
+
 
     public function get_expected_data(): array {
         $rows = new \qtype_oumatrix\oumatirx_info();

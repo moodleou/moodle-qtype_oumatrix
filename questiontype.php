@@ -47,7 +47,9 @@ class qtype_oumatrix extends question_type {
 
             $question->options = $this->create_default_options($question);
         }
-        parent::get_question_options($question);
+        print_object('get_question_options --------------------');
+        print_object($question->options);
+        $question->options = parent::get_question_options($question);
     }
 
     /**
@@ -87,6 +89,10 @@ class qtype_oumatrix extends question_type {
     public function save_question_options($question) {
         global $DB;
         $context = $question->context;
+
+        print_object("save question options***********************");
+        print_object($question);
+
         $options = $DB->get_record('qtype_oumatrix_options',['questionid' => $question->id]);
         if (!$options) {
             $options = new stdClass();
@@ -94,7 +100,7 @@ class qtype_oumatrix extends question_type {
             $options->correctfeedback = '';
             $options->partiallycorrectfeedback = '';
             $options->incorrectfeedback = '';
-            $options->id = $DB->insert_record('question_oumultiresponse', $options);
+            $options->id = $DB->insert_record('qtype_oumatrix_options', $options);
         }
         $options->inputtype = $question->inputtype;
         $options->grademethod = $question->grademethod;
@@ -102,61 +108,128 @@ class qtype_oumatrix extends question_type {
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_oumatrix_options', $options);
 
+        $this->save_rows($question);
+        $this->save_columns($question);
         $this->save_hints($question, true);
     }
 
     public function save_columns($formdata) {
         global $DB;
         $context = $formdata->context;
+        $result = new stdClass();
+        // Old records.
+        $oldcolumnoptions = $DB->get_records('qtype_oumatrix_columns',
+                ['questionid' => $formdata->id], 'id ASC');
 
-        $oldcolumns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $formdata->id], 'id ASC');
+        $numcolumnoptions = count($formdata->columnname);
 
-        for ($i = 0; $i < $numhints; $i += 1) {
-            if (html_is_blank($formdata->hint[$i]['text'])) {
-                $formdata->hint[$i]['text'] = '';
+        // Check if there is atleast one column option.
+        $answercount = 0;
+        for ($i = 0; $i < $numcolumnoptions; $i++) {
+            if ($formdata->columnname[$i] !== '') {
+                $answercount++;
             }
-
-            if ($withparts) {
-                $clearwrong = !empty($formdata->hintclearwrong[$i]);
-                $shownumcorrect = !empty($formdata->hintshownumcorrect[$i]);
-            }
-
-            $showrowfeedback = !empty($formdata->hintshowrowfeedback[$i]);
-
-            if (empty($formdata->hint[$i]['text']) && empty($clearwrong) &&
-                    empty($shownumcorrect) && empty($showrowfeedback)) {
-                continue;
-            }
-
-            // Update an existing hint if possible.
-            $hint = array_shift($oldhints);
-            if (!$hint) {
-                $hint = new stdClass();
-                $hint->questionid = $formdata->id;
-                $hint->hint = '';
-                $hint->id = $DB->insert_record('question_hints', $hint);
-            }
-
-            $hint->hint = $this->import_or_save_files($formdata->hint[$i],
-                    $context, 'question', 'hint', $hint->id);
-            $hint->hintformat = $formdata->hint[$i]['format'];
-            if ($withparts) {
-                $hint->clearwrong = $clearwrong;
-                $hint->shownumcorrect = $shownumcorrect;
-            }
-            $hint->options = $showrowfeedback;
-            $DB->update_record('question_hints', $hint);
         }
 
-        // Delete any remaining old hints.
-        $fs = get_file_storage();
-        foreach ($oldhints as $oldhint) {
-            $fs->delete_area_files($context->id, 'question', 'hint', $oldhint->id);
-            $DB->delete_records('question_hints', array('id' => $oldhint->id));
+        if ($answercount < 1) { // Check there here is atleast one column option.
+            $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
+            return $result;
+        }
+
+        // Insert all the new words.
+        for ($i = 0; $i < $numcolumnoptions; $i++) {
+            if (trim($formdata->columnname[$i]) === '') {
+                continue;
+            }
+            // Update an existing word if possible.
+            $questioncolumn = array_shift($oldcolumnoptions);
+            if (!$questioncolumn) {
+                $questioncolumn = new stdClass();
+                $questioncolumn->questionid = $formdata->id;
+                $questioncolumn->number = $i;
+                $questioncolumn->name = $formdata->columnname[$i];
+                $questioncolumn->id = $DB->insert_record('qtype_oumatrix_columns', $questioncolumn);
+            }
+
+            // Remove old columns.
+            if ($oldcolumnoptions) {
+                $ids = array_map(function($question) {
+                    return $question->id;
+                }, $oldcolumnoptions);
+                list($idssql, $idsparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_QM);
+                //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
+                //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
+                $DB->delete_records_select('qtype_oumatrix_columns', "id $idssql", $idsparams);
+            }
         }
     }
     public function save_rows($formdata) {
+        global $DB;
+        $context = $formdata->context;
+        $result = new stdClass();
+        // Old records.
+        $oldrowquestions = $DB->get_records('qtype_oumatrix_rows',
+                ['questionid' => $formdata->id], 'id ASC');
 
+        $numquestions = count($formdata->rowname);
+
+        // Following hack to check at least 1 words exist.
+        $answercount = 0;
+        for ($i = 0; $i < $numquestions; $i++) {
+            if ($formdata->rowname[$i] !== '') {
+                $answercount++;
+            }
+        }
+
+        if ($answercount < 1) { // Check there are at lest 1 word for crossword.
+            $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
+            return $result;
+        }
+
+        // Insert all the new words.
+        for ($i = 0; $i < $numquestions; $i++) {
+            if (trim($formdata->rowname[$i]) === '') {
+                continue;
+            }
+            // Update an existing word if possible.
+            $questionrow = array_shift($oldrowquestions);
+            if (!$questionrow) {
+                $questionrow = new stdClass();
+                $questionrow->questionid = $formdata->id;
+                $questionrow->number = $i;
+                $questionrow->name = $formdata->rowname[$i];
+                $questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
+                $questionrow->feedback = '';
+                $questionrow->feedbackformat = FORMAT_HTML;
+                $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
+            }
+            /*$word->answer = trim(mb_strtoupper($question->answer[$i]));
+            if (isset($question->feedback[$i])) {
+                $word->feedback = $this->import_or_save_files($question->feedback[$i],
+                        $context, 'qtype_crossword', 'feedback', $word->id);
+                $word->feedbackformat = $question->feedback[$i]['format'];
+            }
+            if (isset($question->clue[$i])) {
+                $word->clue = $this->import_or_save_files($question->clue[$i],
+                        $context, 'qtype_crossword', 'clue', $word->id);
+                $word->clueformat = $question->clue[$i]['format'];
+            }
+            $word->orientation = $question->orientation[$i];
+            $word->startrow = $question->startrow[$i];
+            $word->startcolumn = $question->startcolumn[$i];
+            $DB->update_record('qtype_crossword_words', $word);*/
+        }
+        // Remove remain words.
+        $fs = get_file_storage();
+        if ($oldrowquestions) {
+            $ids = array_map(function($question){
+                return $question->id;
+            }, $oldrowquestions);
+            list($idssql, $idsparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_QM);
+            //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
+            //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
+            $DB->delete_records_select('qtype_oumatrix_rows', "id $idssql", $idsparams);
+        }
     }
 
    public function save_hints($formdata, $withparts = false) {
@@ -237,6 +310,16 @@ class qtype_oumatrix extends question_type {
         }
     }
 
+    protected function make_question_instance($questiondata) {
+        question_bank::load_question_definition_classes($this->name());
+        //if ($questiondata->options->single) {
+            $class = 'qtype_oumatrix_question';
+       // } else {
+        //    $class = 'qtype_multichoice_multi_question';
+        //}
+        return new $class();
+    }
+
     protected function make_hint($hint) {
         return qtype_oumatrix_hint::load_from_record($hint);
     }
@@ -248,8 +331,12 @@ class qtype_oumatrix extends question_type {
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
+        print_object('$question $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+        print_object($question);
+        print_object('$questiondata $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+        print_object($questiondata);
         parent::initialise_question_instance($question, $questiondata);
-        $question->shuffleanswers = $questiondata->options->shuffleanswers;
+        //$question->shuffleanswers = $questiondata->options->shuffleanswers;
         $this->initialise_combined_feedback($question, $questiondata, true);
         $this->initialise_question_answers($question, $questiondata, false);
     }
@@ -347,17 +434,42 @@ class qtype_oumatrix extends question_type {
     }
 
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
+        print_object($question);
         $output = '';
 
         $output .= "    <shuffleanswers>" . $format->get_single(
                         $question->options->shuffleanswers) . "</shuffleanswers>\n";
-        $output .= "    <answernumbering>{$question->options->answernumbering}</answernumbering>\n";
+        //$output .= "    <answernumbering>{$question->options->answernumbering}</answernumbering>\n";
         $output .= "    <showstandardinstruction>{$question->options->showstandardinstruction}</showstandardinstruction>\n";
-
+        $output .= '    <grademethod>' . $format->xml_escape($question->options->grademethod)
+                . "</grademethod>\n";
+        foreach ($question->rows as $word => $value) {
+            $expout .= "    <word>\n";
+            foreach (self::WORD_FIELDS as $xmlfield) {
+                if ($xmlfield === 'clue' || $xmlfield === 'feedback') {
+                    if (!isset($value->{$xmlfield})) {
+                        $value->{$xmlfield} = '';
+                    }
+                    $formatfield = $xmlfield . 'format';
+                    if (!isset($value->{$formatfield})) {
+                        $value->{$formatfield} = FORMAT_HTML;
+                    }
+                    $files = $fs->get_area_files($question->contextid, 'question', $xmlfield, $value->id);
+                    $expout .= "      <{$xmlfield} {$format->format($value->{$formatfield})}>\n";
+                    $expout .= '        ' . $format->writetext($value->{$xmlfield});
+                    $expout .= $format->write_files($files);
+                    $expout .= "      </{$xmlfield}>\n";
+                } else {
+                    $exportedvalue = $format->xml_escape($value->{$xmlfield});
+                    $expout .= "      <$xmlfield>{$exportedvalue}</$xmlfield>\n";
+                }
+            }
+            $expout .= "    </word>\n";
+        }
         $output .= $format->write_combined_feedback($question->options,
                 $question->id,
                 $question->contextid);
-        $output .= $format->write_answers($question->options->answers);
+        $output .= $format->write_answers($question->rows->correctanswers);
 
         return $output;
     }
