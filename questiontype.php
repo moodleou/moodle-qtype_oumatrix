@@ -41,15 +41,13 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
        if ($question->options === false) {
-            // If this has happened, then we have a problem.
-            // For the user to be able to edit or delete this question, we need options.
-            //debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
+           // If this has happened, then we have a problem.
+           // For the user to be able to edit or delete this question, we need options.
+           //debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
 
-            $question->options = $this->create_default_options($question);
-        }
-        print_object('get_question_options --------------------');
-        print_object($question->options);
-        $question->options = parent::get_question_options($question);
+           $question->options = $this->create_default_options($question);
+       }
+       parent::get_question_options($question);
     }
 
     /**

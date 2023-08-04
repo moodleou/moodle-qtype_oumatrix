@@ -204,7 +204,7 @@ class qtype_oumatrix_edit_form extends qtype_oumatrix_edit_form_base {
         $question = parent::data_preprocessing($question);
         //$question = $this->data_preprocessing_combined_feedback($question, true);
         //$question = $this->data_preprocessing_hints($question, true, true);
-        print_object("---Before--- $question->options-------------");
+        print_object('---Before--- $question->options-------------');
         print_object($question);
         if (!empty($question->options->shuffleanswers)) {
             $question->shuffleanswers = $question->options->shuffleanswers;

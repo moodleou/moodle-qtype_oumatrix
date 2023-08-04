@@ -36,11 +36,18 @@ function xmldb_qtype_oumatrix_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
+    if ($oldversion < 2023080300) {
 
-    // For further information please read {@link https://docs.moodle.org/dev/Upgrade_API}.
-    //
-    // You will also have to create the db/install.xml file by using the XMLDB Editor.
-    // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
+        $table = new xmldb_table('qtype_oumatrix_rows');
+        $field = new xmldb_field('correctanswers', XMLDB_TYPE_TEXT, 'small', null, false, false);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Data savepoint reached.
+        upgrade_plugin_savepoint(true, 2023080300, 'qtype', 'oumatrix');
+    }
+
 
     return true;
 }

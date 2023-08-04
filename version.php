@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023070500;
+$plugin->version = 2023080300;
 $plugin->release = '0.1.0';
 $plugin->component = 'qtype_oumatrix';
 $plugin->requires = 2023041800;
