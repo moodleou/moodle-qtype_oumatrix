@@ -33,7 +33,7 @@ use stdClass;
  */
 class row {
     /** @var int The id of the question. */
-    private $question;
+    private $questionid;
 
     /** @var int The row id. */
     private $id;
@@ -56,17 +56,14 @@ class row {
     /** @var stdClass the rows of the current question */
     private $row;
 
-    /** @var int the number of rows (question options) used in the current question */
-    private $numberofrows = 0;
-
     /**
      * Construct the matrix object to be used by rows and colums objects.
      *
-     * @param object $question
+     * @param int $questionid
      * @param int $numberofrows
      * @param int $numberofcolumns
      */
-    public function __construct($question, int $number, string $name, array $correctanswers = [], string $feedback = '', int $feedbackformat = 1) {
+    public function __construct(int $id, int $questionid = 0, int $number = 0, string $name = '', array $correctanswers = [], string $feedback = '', int $feedbackformat = 1) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
@@ -75,9 +72,20 @@ class row {
         $this->feedbackformat = $feedbackformat;
     }
 
-    public function get_correct_answers($rownumber) {
-        return
+    /**
+     * Return a row
+     *
+     * @param int $id
+     * @return stdClass
+     */
+    public function get_a_row_by_id(int $id): ?stdClass {
+        global $DB;
+        if ($column = $DB->get_record('qtype_oumatrix_rows', ['id' => $id])) {
+            return $column;
+        }
+        return null;
     }
+
     public function create_default_row(int $questionid,  int $number = 1, string $name = 'row', string $feedback = '', int $feedbackformat = 2) {
         global $DB;
         $row = new stdClass();

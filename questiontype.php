@@ -37,17 +37,19 @@ require_once($CFG->libdir.'/questionlib.php');
  * in various formats.
  */
 class qtype_oumatrix extends question_type {
+
     public function get_question_options($question) {
         global $DB;
         $question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
-       if ($question->options === false) {
+        if ($question->options === false) {
            // If this has happened, then we have a problem.
            // For the user to be able to edit or delete this question, we need options.
-           //debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
-
-           $question->options = $this->create_default_options($question);
-       }
-       parent::get_question_options($question);
+           debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
+        }
+        $question->options = $this->create_default_options($question);
+        $question->options->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id]);
+        $question->options->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id]);
+        parent::get_question_options($question);
     }
 
     /**
@@ -84,6 +86,13 @@ class qtype_oumatrix extends question_type {
         $this->set_default_value('shownumcorrect', $fromform->shownumcorrect);
     }
 
+    public function save_question($question, $form) {
+        $question = parent::save_question($question, $form);
+
+
+        return $question;
+    }
+
     public function save_question_options($question) {
         global $DB;
         $context = $question->context;
@@ -115,32 +124,28 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $context = $formdata->context;
         $result = new stdClass();
-        // Old records.
-        $oldcolumnoptions = $DB->get_records('qtype_oumatrix_columns',
-                ['questionid' => $formdata->id], 'id ASC');
+        $oldcolumns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $formdata->id], 'id ASC');
+        $numcolumns = count($formdata->columnname);
 
-        $numcolumnoptions = count($formdata->columnname);
-
-        // Check if there is atleast one column option.
+        // Check if the question has at least one column.
         $answercount = 0;
-        for ($i = 0; $i < $numcolumnoptions; $i++) {
+        for ($i = 0; $i < $numcolumns; $i++) {
             if ($formdata->columnname[$i] !== '') {
                 $answercount++;
             }
         }
-
-        if ($answercount < 1) { // Check there here is atleast one column option.
+        if ($answercount < 1) {
             $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
             return $result;
         }
 
         // Insert all the new words.
-        for ($i = 0; $i < $numcolumnoptions; $i++) {
+        for ($i = 0; $i < $numcolumns; $i++) {
             if (trim($formdata->columnname[$i]) === '') {
                 continue;
             }
             // Update an existing word if possible.
-            $questioncolumn = array_shift($oldcolumnoptions);
+            $questioncolumn = array_shift($oldcolumns);
             if (!$questioncolumn) {
                 $questioncolumn = new stdClass();
                 $questioncolumn->questionid = $formdata->id;
@@ -150,10 +155,10 @@ class qtype_oumatrix extends question_type {
             }
 
             // Remove old columns.
-            if ($oldcolumnoptions) {
+            if ($oldcolumns) {
                 $ids = array_map(function($question) {
                     return $question->id;
-                }, $oldcolumnoptions);
+                }, $oldcolumns);
                 list($idssql, $idsparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_QM);
                 //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
                 //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
@@ -311,7 +316,7 @@ class qtype_oumatrix extends question_type {
     protected function make_question_instance($questiondata) {
         question_bank::load_question_definition_classes($this->name());
         //if ($questiondata->options->single) {
-            $class = 'qtype_oumatrix_question';
+            $class = 'qtype_oumatrix_single';
        // } else {
         //    $class = 'qtype_multichoice_multi_question';
         //}
@@ -343,7 +348,7 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $DB->delete_records('qtype_oumatrix_options', ['questionid' => $questionid]);
         $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $questionid]);
-        $DB->delete_records('qtype_oumatrix_columnss', ['questionid' => $questionid]);
+        $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $questionid]);
         parent::delete_question($questionid, $contextid);
     }
 

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Get information about a column (answer) in a given question.
+ * Get information about a row (answer) a given class.
  *
  * @package     qtype_oumatrix
  * @copyright   2023 The Open University
@@ -31,43 +31,88 @@ use stdClass;
  * @copyright  2008 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class column extends oumatrix {
-    public function __construct(object $question, int $numberofrows, int $numberofcolumns) {
-        parent::__construct($question, $numberofrows, $numberofcolumns);
+class column {
+    /** @var int The id of the question. */
+    private $questionid;
+
+    /** @var int The column id. */
+    private $id;
+
+    /** @var int The column number. */
+    private $number;
+
+    /** @var string The column name. */
+    private $name;
+
+    /** @var stdClass a column object in the current question */
+    private $column;
+
+    /**
+     * Construct the column object.
+     *
+     * @param int $id
+     * @param int $questionid
+     * @param int $number
+     * @param string $name
+     */
+    public function __construct(int $id, int $questionid = 0, int $number = 0, string $name = '') {
+        $this->questionid = $questionid;
+        $this->number = $number;
+        $this->name = $name;
+        $this->id = $id;
     }
 
-    public function create_default_columns(int $questionid, int $numberofcolumns = 0) {
-        global $DB;
-        if ($numberofcolumns === 0) {
-            $numberofcolumns = $this->numberofcolumns;
-        }
-        for ($c = 1; $c <= $numberofcolumns; $c++) {
-            $column = new stdClass();
-            $column->questionid = $questionid;
-            $column->number = $c;
-            $column->name = 'Answer' . $c;
-            $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
-            $this->column[] = $column;
-        }
+    public function populate(stdClass $column) {
+        $this->column = $column;
+        $this->id = $column->id;
+        $this->questionid = $column->questionid;
+        $this->number = $column->number;
+        $this->name = $column->name;
+        $this->id = $column->id;
     }
 
     /**
-     * Retunr an array of rows.
+     * Return a column object
      *
-     * @return array
+     * @param int $id
+     * @return stdClass
+     * @throws \dml_exception
      */
-    public function get_columns(): ?array {
+    public function get_a_column_by_id(int $id): ?stdClass {
         global $DB;
-        if ($columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $this->questionid],'number ASC')) {
-            return $columns;
-        } else {
-            return $this->create_default_columns($this->questionid, $this->numberofcolumns);
+        //if ($this->column->id === $id) {
+        //    return $this->column;
+        //}
+        if ($column = $DB->get_record('qtype_oumatrix_columns', ['id' => $id])) {
+            return $column;
         }
-        // TODO; throw an exception here.
         return null;
     }
 
-    public function get_number_of_columns() {
-        return $this->numberofcolumns;
+    /**
+     * Create a column.
+     *
+     * @param int $questionid
+     * @param int $number
+     * @param string $name
+     * @return int
+     */
+    public function create_a_column(int $questionid, int $number, string $name): int {
+        global $DB;
+        $id = $DB->insert_record('qtype_oumatrix_columns',
+                ['questionid' => $questionid, 'number' => $number,'name' => $name ]);
+        return $id;
+    }
+
+    /**
+     * Delete a column.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function delete_a_column(int $id) {
+        global $DB;
+        $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $this->questionid, 'id' => $id]);
     }
 }
+
