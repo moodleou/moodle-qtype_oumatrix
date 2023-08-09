@@ -209,29 +209,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     public function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);
-        $question = $this->data_preprocessing_answers($question, true);
+        //$question = $this->data_preprocessing_answers($question, true);
         $question = $this->data_preprocessing_combined_feedback($question, true);
         $question = $this->data_preprocessing_hints($question, true, true);
         $question = $this->data_preprocessing_options($question,);
-        $question = parent::data_preprocessing($question);
-       //// $question = $this->data_preprocessing_combined_feedback($question, true);
-       //// $question = $this->data_preprocessing_hints($question, true, true);
-       // if (!empty($question->options->shuffleanswers)) {
-       //     $question->shuffleanswers = $question->options->shuffleanswers;
-       // }
-       // if (!empty($question->options->inputtype)) {
-       //     $question->inputtype = $question->options->inputtype;
-       // }
-       // if (!empty($question->options->grademethod)) {
-       //     $question->grademethod = $question->options->grademethod;
-       // }
-       // // Get question rows and columns.
-        //$question->rows = $this->rowinfo->get_rows();
-        //$question->columns = $this->columninfo->get_columns();
-
-        //$question = $this->data_preprocessing_combined_feedback($question, true);
-        //$question = $this->data_preprocessing_hints($question, true, true);
-        //print_object($question);
         return $question;
     }
 
@@ -245,49 +226,65 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $question->grademethod = $question->options->grademethod;
             $question->shuffleanswers = $question->options->shuffleanswers;
             $question->shownumcorrect = $question->options->shownumcorrect;
-
-            // Preprocess the column (answers).
-            if (!empty($question->options->columns))
-                foreach ($question->options->columns as $id => $column) {
-                    $col = new qtype_oumatrix\column($id, $question->id);
-                    // $col->populate($column);
-                    $question->columnname[$col->get_a_column_by_id($id)->number] = $col->get_a_column_by_id($id)->name;
-                }
-            // Preprocess the rows (subquestions).
-            if (!empty($question->options->rows))
-                foreach ($question->options->rows as $id => $row) {
-                    $col = new qtype_oumatrix\row($id, $question->id);
-                    // $col->populate($column);
-                    $question->rowname[$col->get_a_row_by_id($id)->number] = $col->get_a_row_by_id($id)->name;
-                }
-
-            $question->columns = $question->options->columns;
-            $question->rows = $question->options->rows;
-
-            //$question->columns = [];
-            //foreach ($question->options->columns as $column) {
-            //    print_object($column);
-            //    $columnx = $column->number -1;
-            //    $question->columns[$columnx] = [];
-            //    $question->columns[$columnx]['number'] = $column->number;
-            //    $question->columns[$columnx]['name'] = $column->name;
-            //}
-            //$question->drops = array();
-            //foreach ($question->options->drops as $drop) {
-            //    $question->drops[$drop->no - 1] = array();
-            //    $question->drops[$drop->no - 1]['choice'] = $drop->choice;
-            //    $question->drops[$drop->no - 1]['droplabel'] = $drop->label;
-            //    $question->drops[$drop->no - 1]['xleft'] = $drop->xleft;
-            //    $question->drops[$drop->no - 1]['ytop'] = $drop->ytop;
-            //}
         }
-        if (empty($question->options)) {
+        $this->data_preprocessing_columns($question);
+        $this->data_preprocessing_rows($question);
+        return $question;
+    }
+
+    /**
+     * Perform the necessary preprocessing for columns (answers) fields.
+     *
+     * @param object $question The data being passed to the form.
+     * @return object The modified data.
+     */
+    protected function data_preprocessing_columns($question) {
+        if (empty($question->options->columns)) {
             return $question;
         }
-        print_object('222222222222222222222222222');
-        print_object($question);
 
+        $question->columnname = [];
+        foreach ($question->options->columns as $column) {
+            $question->columnname[] = $column->name;
+        }
+        return $question;
+    }
 
+    /**
+     * Perform the necessary preprocessing for rows (subquestions) fields.
+     *
+     * @param object $question The data being passed to the form.
+     * @return object The modified data.
+     */
+    protected function data_preprocessing_rows($question) {
+        $feedback = [];
+        if (empty($question->options->rows)) {
+            return $question;
+        }
+        $key = 0;
+        $question->rowname = [];
+        foreach ($question->options->rows as $index => $row) {
+            $question->rowname[] = $row->name;
+            $itemid = (int)$row->id ?? null;
+            //$question->feedback[] = $row->feedback;
+            // Prepare the feedback editor to display files in draft area.
+            $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback['.$key.']');
+            $feedback[$key]['text'] = file_prepare_draft_area(
+                    $feedbackdraftitemid,
+                    $this->context->id,
+                    'qtype_oumatrix',
+                    'feedback',
+                    $itemid,
+                    $this->fileoptions,
+                    $row->feedback
+            );
+            $feedback[$key]['itemid'] = $feedbackdraftitemid;
+            $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
+            $question->options->rows[$index]->feedbackformat = $feedback[$key]['format'];
+            $question->options->rows[$index]->feedback = $feedback[$key]['text'];
+            $key++;
+        }
+        $question->feedback = $feedback;
         return $question;
     }
 
@@ -320,7 +317,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return $question;
     }
 
-
     /**
      * Add a set of form fields, obtained from get_per_column_fields.
      *
@@ -331,10 +327,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      */
     protected function add_per_column_fields(MoodleQuickForm $mform, string $label,
             int $minoptions = self::COL_NUM_START, int $addoptions = self::COL_NUM_ADD) {
-        print_object('add_per_column_fields');
-        print_object('add_per_column_fields');
-        print_object('add_per_column_fields');
-        print_object($this->question);
         $mform->addElement('header', 'columnshdr', get_string('columnshdr', 'qtype_oumatrix'));
         $mform->setExpanded('columnshdr', 1);
         $columns = [];
@@ -373,17 +365,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      */
     protected function add_per_row_fields(MoodleQuickForm $mform, string $label,
             int $minoptions = self::ROW_NUM_START, int $addoptions = self::ROW_NUM_ADD) {
-        print_object('add_per_row_fields');
-        print_object('add_per_row_fields');
-        print_object('add_per_row_fields');
-        print_object($this->question);
         $mform->addElement('header', 'rowshdr', get_string('rowshdr', 'qtype_oumatrix'));
         $mform->setExpanded('rowshdr', 1);
-        $rows = [];
         $repeatedoptions = [];
+        $rows = [];
 
-        if (isset($this->question->rows)) {
-            $repeatsatstart = count($this->question->rows);
+        if (isset($this->question->options->rows)) {
+            $repeatsatstart = count($this->question->options->rows);
         } else {
             $repeatsatstart = $minoptions;
         }
@@ -402,10 +390,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return array
      */
     protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array $repeatedoptions, array $rows): array {
-        print_object('get_per_row_fields');
-        print_object('get_per_row_fields');
-        print_object('get_per_row_fields');
-        print_object($this->question);
         $repeated = [];
         $rowoptions = [];
         // $rowoptions[] = $mform->createElement('editor', 'rowname', $label, ['rows' => 2], $this->editoroptions);
@@ -414,28 +398,18 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $mform->setType('rowname', PARAM_RAW);
 
         // Get the list answer input type (radio buttons or checkbexs).
-        $numberofcolumns = 3; // TODO: write a function to get number of columns.
+        $numberofcolumns = self::COL_NUM_START; // TODO: write a function to get number of columns.
         //$this->question->options->inputtype = 'multiple'; // TODO: write a function to get number of columns.
         //$rowanswers = $this->get_answers_for_this_row($mform,$this->question->options->inputtype, $numberofcolumns);
+        //$question = $this->data_preprocessing($this->question);
         $rowanswers = $this->get_answers_for_this_row($mform, $label, 'single', $this->numcolumns);
 
-        $rowoptions[] = $mform->createElement('group', 'rowanswers', '', $rowanswers, null, false);
-        $rowoptions[] = $mform->createElement('editor', 'feedback',
-                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
+        $rowoptions[] = $mform->createElement('group', 'rowanswer', '', $rowanswers, null, false);
+        $mform->setType('rowanswer', PARAM_RAW);
+
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
-        //for ($i = 1; $i <= $numberofcolumns; $i++) {
-        //    $anslabel = get_string('a', 'qtype_oumatrix', "{$i}");
-        //    $rowoptions[] = $mform->createElement('checkbox', "a$i", $anslabel);
-        //}
-        //
-        //$repeated[] = $mform->createElement('group', 'rowoptions',
-        //        $label, $rowoptions, null, false);
-        ////$rowoptions[] = $mform->createElement('editor', 'feedback',
-        ////        get_string('feedback', 'question'), array('rows' => 2"a$i"), $this->editoroptions);
-        //$repeated[] = $mform->createElement('text', 'feedback',
-        //        get_string('feedback', 'question'), ['rows' => 2]);
-        //$mform->setType('feedback', PARAM_RAW);
-        //$rows['name'] = 'rows';
+        $repeated[]  = $mform->createElement('editor', 'feedback',
+                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
 
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
@@ -454,9 +428,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         for ($i = 1; $i <= $numberofcolumns; $i++) {
             $anslabel = get_string('a', 'qtype_oumatrix', $i);
             if ($inputtype === 'single') {
-                //$a1 = $mform->createElement('radio', "$labela$i", $anslabel);
-               // $mform->setDefault("a$i", 0);
-                $rowanswers[] = $mform->createElement('radio', "$label" . "$i", $anslabel);
+                $rowanswers[] = $mform->createElement('radio', "a$i", $anslabel);
             } else {
                 $rowanswers[]  = $mform->createElement('checkbox', "a$i", $anslabel);
             }

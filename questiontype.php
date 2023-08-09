@@ -97,9 +97,6 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $context = $question->context;
 
-        print_object("save question options***********************");
-        print_object($question);
-
         $options = $DB->get_record('qtype_oumatrix_options',['questionid' => $question->id]);
         if (!$options) {
             $options = new stdClass();
@@ -188,10 +185,9 @@ class qtype_oumatrix extends question_type {
             $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
             return $result;
         }
-
         // Insert all the new words.
         for ($i = 0; $i < $numquestions; $i++) {
-            if (trim($formdata->rowname[$i]) === '') {
+            if (trim($formdata->rowname[$i] ?? '') === '') {
                 continue;
             }
             // Update an existing word if possible.
@@ -201,26 +197,15 @@ class qtype_oumatrix extends question_type {
                 $questionrow->questionid = $formdata->id;
                 $questionrow->number = $i;
                 $questionrow->name = $formdata->rowname[$i];
-                $questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
-                $questionrow->feedback = '';
+                // Prepare correct answers.
+                $json = [];
+                $json['answertext'] = $formdata->columnname[$i];
+                $questionrow->correctanswers = json_encode($json);
+                $questionrow->feedback = $formdata->feedback[$i]['text'];
+                $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
-            /*$word->answer = trim(mb_strtoupper($question->answer[$i]));
-            if (isset($question->feedback[$i])) {
-                $word->feedback = $this->import_or_save_files($question->feedback[$i],
-                        $context, 'qtype_crossword', 'feedback', $word->id);
-                $word->feedbackformat = $question->feedback[$i]['format'];
-            }
-            if (isset($question->clue[$i])) {
-                $word->clue = $this->import_or_save_files($question->clue[$i],
-                        $context, 'qtype_crossword', 'clue', $word->id);
-                $word->clueformat = $question->clue[$i]['format'];
-            }
-            $word->orientation = $question->orientation[$i];
-            $word->startrow = $question->startrow[$i];
-            $word->startcolumn = $question->startcolumn[$i];
-            $DB->update_record('qtype_crossword_words', $word);*/
         }
         // Remove remain words.
         $fs = get_file_storage();
@@ -334,10 +319,6 @@ class qtype_oumatrix extends question_type {
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
-        print_object('$question $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-        print_object($question);
-        print_object('$questiondata $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-        print_object($questiondata);
         parent::initialise_question_instance($question, $questiondata);
         //$question->shuffleanswers = $questiondata->options->shuffleanswers;
         $this->initialise_combined_feedback($question, $questiondata, true);
