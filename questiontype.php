@@ -199,8 +199,10 @@ class qtype_oumatrix extends question_type {
                 $questionrow->name = $formdata->rowname[$i];
                 // Prepare correct answers.
                 $json = [];
-                $json['answertext'] = $formdata->columnname[$i];
-                $questionrow->correctanswers = json_encode($json);
+                //$json['answertext'] = $formdata->columnname[$i];
+                //$questionrow->correctanswers = json_encode($json);
+                $questionrow->correctanswers = $formdata->rowanswers[$i];
+                //$questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
                 $questionrow->feedback = $formdata->feedback[$i]['text'];
                 $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
                 $questionrow->feedbackformat = FORMAT_HTML;

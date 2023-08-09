@@ -265,6 +265,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question->rowname = [];
         foreach ($question->options->rows as $index => $row) {
             $question->rowname[] = $row->name;
+            $question->rowanswers[] = $row->correctanswers;
             $itemid = (int)$row->id ?? null;
             //$question->feedback[] = $row->feedback;
             // Prepare the feedback editor to display files in draft area.
@@ -389,28 +390,28 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @param array $rows
      * @return array
      */
-    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array $repeatedoptions, array $rows): array {
+    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions, array &$rows): array {
+        print_object($this->question);
         $repeated = [];
         $rowoptions = [];
         // $rowoptions[] = $mform->createElement('editor', 'rowname', $label, ['rows' => 2], $this->editoroptions);
         // TODO: If needed replace the line below the line above.
         $rowoptions[] = $mform->createElement('text', 'rowname', 'Name', ['size' => 40]);
-        $mform->setType('rowname', PARAM_RAW);
 
         // Get the list answer input type (radio buttons or checkbexs).
-        $numberofcolumns = self::COL_NUM_START; // TODO: write a function to get number of columns.
-        //$this->question->options->inputtype = 'multiple'; // TODO: write a function to get number of columns.
-        //$rowanswers = $this->get_answers_for_this_row($mform,$this->question->options->inputtype, $numberofcolumns);
-        //$question = $this->data_preprocessing($this->question);
-        $rowanswers = $this->get_answers_for_this_row($mform, $label, 'single', $this->numcolumns);
-
-        $rowoptions[] = $mform->createElement('group', 'rowanswer', '', $rowanswers, null, false);
-        $mform->setType('rowanswer', PARAM_RAW);
-
-        $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
-        $repeated[]  = $mform->createElement('editor', 'feedback',
+        $inputtype = $this->question->options->inputtype ?? get_config('qtype_oumatrix', 'inputtype');
+        for ($i = 1; $i <= $this->numcolumns; $i++) {
+            $anslabel = get_string('a', 'qtype_oumatrix', $i);
+            if ($inputtype === 'single') {
+                $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', "a$i", $anslabel);
+            } else {
+                $rowoptions[]  = $mform->createElement('checkbox', 'rowanswers', '', "a$i", $anslabel);
+            }
+        }
+        $rowoptions[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
-
+        $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
+        $mform->setType('rowname', PARAM_RAW);
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;
