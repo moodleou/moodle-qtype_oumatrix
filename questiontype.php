@@ -63,7 +63,7 @@ class qtype_oumatrix extends question_type {
         $config = get_config('qtype_oumatrix');
         $options = new stdClass();
         $options->questionid = $question->id;
-        $options->inputtype = $config->inputtype ?? 'single';
+        $options->inputtype = $options->inputtype ?? 'single';
         $options->grademethod = $config->grademethod ?? 'partialcredit';
         $options->shuffleanswers = $config->shuffleanswers ?? 0;
         $options->shownumcorrect = 1;
@@ -165,6 +165,8 @@ class qtype_oumatrix extends question_type {
     }
     public function save_rows($formdata) {
         global $DB;
+        print_object("11111111111111111111111111111111111111111111111");
+        print_object($formdata);
         $context = $formdata->context;
         $result = new stdClass();
         // Old records.
@@ -173,18 +175,6 @@ class qtype_oumatrix extends question_type {
 
         $numquestions = count($formdata->rowname);
 
-        // Following hack to check at least 1 words exist.
-        $answercount = 0;
-        for ($i = 0; $i < $numquestions; $i++) {
-            if ($formdata->rowname[$i] !== '') {
-                $answercount++;
-            }
-        }
-
-        if ($answercount < 1) { // Check there are at lest 1 word for crossword.
-            $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
-            return $result;
-        }
         // Insert all the new words.
         for ($i = 0; $i < $numquestions; $i++) {
             if (trim($formdata->rowname[$i] ?? '') === '') {
@@ -201,7 +191,7 @@ class qtype_oumatrix extends question_type {
                 $json = [];
                 //$json['answertext'] = $formdata->columnname[$i];
                 //$questionrow->correctanswers = json_encode($json);
-                $questionrow->correctanswers = $formdata->rowanswers[$i];
+                $questionrow->correctanswers = $formdata->rowanswers[$i] ?? '';
                 //$questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
                 $questionrow->feedback = $formdata->feedback[$i]['text'];
                 $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
@@ -302,11 +292,11 @@ class qtype_oumatrix extends question_type {
 
     protected function make_question_instance($questiondata) {
         question_bank::load_question_definition_classes($this->name());
-        //if ($questiondata->options->single) {
+        if ($questiondata->options->inputtype) {
             $class = 'qtype_oumatrix_single';
-       // } else {
-        //    $class = 'qtype_multichoice_multi_question';
-        //}
+        } else {
+            $class = 'qtype_oumatrix_multiple';
+        }
         return new $class();
     }
 

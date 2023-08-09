@@ -71,6 +71,12 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /** @var object The matrix column (answer) object. */
     protected $columninfo = null;
 
+    /** @var string answermode of rows. */
+    protected $inputtype;
+
+    /** @var string grading method of rows. */
+    protected $grademethod;
+
     /**
      * Add question-type specific form fields.
      *
@@ -114,7 +120,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         // Add update field.
         $mform->addElement('submit', 'updateform', get_string('updateform', $qtype));
         $mform->registerNoSubmitButton('updateform');
-        print_object($this->question);
+
+        $this->set_current_settings();
+
         $this->add_per_column_fields($mform, get_string('a', 'qtype_oumatrix', '{no}'), $this->numcolumns);
         $this->add_per_row_fields($mform, get_string('r', 'qtype_oumatrix', '{no}'), $this->numrows);
 
@@ -126,8 +134,25 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     }
 
-    protected function add_question_section(): void {
+    /**
+     * Set the inputtype and grading method.
+     *
+     * @return void
+     */
+    protected function set_current_settings(): void {
+        $inputtype = optional_param('inputtype', '', PARAM_TEXT);
+        $grademethod = optional_param('grademethod', '', PARAM_TEXT);
 
+        if ($inputtype == '') {
+            $inputtype = $this->question->options->$inputtype ?? 'single';
+        }
+
+        if ($grademethod == '') {
+            $grademethod = $this->question->options->grademethod ?? 'partial';
+        }
+
+        $this->inputtype = $inputtype;
+        $this->grademethod = $grademethod;
     }
 
     /**
@@ -331,13 +356,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $rowoptions[] = $mform->createElement('text', 'rowname', 'Name', ['size' => 40]);
 
         // Get the list answer input type (radio buttons or checkbexs).
-        $inputtype = $this->question->options->inputtype ?? get_config('qtype_oumatrix', 'inputtype');
+        //$inputtype = $this->question->options->inputtype ?? get_config('qtype_oumatrix', 'inputtype');
         for ($i = 1; $i <= $this->numcolumns; $i++) {
             $anslabel = get_string('a', 'qtype_oumatrix', $i);
-            if ($inputtype === 'single') {
-                $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', "a$i", $anslabel);
+            if ($this->inputtype === 'single') {
+                $rowoptions[] = $mform->createElement('radio', 'rowanswers', $anslabel);
             } else {
-                $rowoptions[]  = $mform->createElement('checkbox', 'rowanswers', '', "a$i", $anslabel);
+                $rowoptions[]  = $mform->createElement('checkbox', 'rowanswers', $anslabel);
             }
         }
         $rowoptions[] = $mform->createElement('editor', 'feedback',
