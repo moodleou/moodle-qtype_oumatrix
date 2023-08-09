@@ -24,7 +24,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$string['a'] = 'A {$a}';
+$string['a'] = 'A{$a}';
 $string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['answermode'] = 'Answer mode';
 $string['answermodesingle'] = 'Single';
@@ -42,17 +42,15 @@ All or nothing: students must get every response correct, otherwise they score z
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
 $string['notenoughquestions'] = 'This type of question requires at least {$a} word';
-$string['numberofcolumns'] = 'Body columns';
-$string['numberofrows'] = 'Body rows';
 $string['pluginname'] = 'oumatrix';
 $string['pluginname_help'] = 'Creating a matrix question requires you to specify column headings (values) to row headings (items). For example, you might ask students to classify an item as animal, vegetable, or mineral using Single Choice. You can use Multiple Response so that several values may apply to an item.';
 $string['pluginnameadding'] = 'Adding a Matrix question';
 $string['pluginnameediting'] = 'Editing a Matrix question';
 $string['pluginnamesummary'] = 'A multi-row table that can use single choice or multiple response inputs.';
-$string['r'] = 'Row {$a}';
+$string['r'] = 'Row{$a}';
 $string['rowshdr'] = 'Matrix rows (questions)';
 $string['rowanswerlist'] = 'Select answers';
-$string['rowx'] = 'Row {$a})';
+$string['rowx'] = 'Row{$a})';
 $string['shuffleanswers'] = 'Shuffle the items?';
 $string['shuffleanswers_desc'] = 'Whether options should be randomly shuffled for each attempt by default.';
 $string['shuffleanswers_help'] = 'If enabled, the order of the row items is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';

@@ -78,120 +78,52 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      */
     protected function definition_inner($mform) {
 
+        // Sett the number of columns and rows.
+        $this->numcolumns = self::COL_NUM_START;
+        $this->numrows = self::ROW_NUM_START;
+        //if ($this->question->options->columns) {
+        //    $this->numcolumns = count($this->question->options->columns);
+        //}
+        //if ($this->question->options->rows) {
+        //    $this->numrows = count($this->question->options->rows);
+        //}
+
+
         $qtype = 'qtype_oumatrix';
         $answermodemenu = [
                 'single' => get_string('answermodesingle', $qtype),
                 'multiple' => get_string('answermodemultiple', $qtype)
         ];
+        $mform->addElement('select', 'inputtype', get_string('answermode', $qtype), $answermodemenu);
+        $mform->setDefault('inputtype', $this->get_default_value('single', get_config($qtype, 'inputtype')));
+
         $grademethod = [
                 'partial' => get_string('gradepartialcredit', $qtype),
                 'allnone' => get_string('gradeallornothing', $qtype)
         ];
-        $mform->addElement('select', 'inputtype', get_string('answermode', $qtype), $answermodemenu);
-        $mform->setDefault('single', $this->get_default_value('single', get_config($qtype, 'inputtype')));
+        $mform->addElement('select', 'grademethod', get_string('grademethod', $qtype), $grademethod);
+        $mform->addHelpButton('grademethod', 'grademethod', $qtype);
+        $mform->setDefault('grademethod', $this->get_default_value(
+                'grademethod', get_config($qtype, 'grademethod')));
 
         $mform->addElement('selectyesno', 'shuffleanswers', get_string('shuffleanswers', $qtype));
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', $qtype);
         $mform->setDefault('shuffleanswers', $this->get_default_value(
                 'shuffleanswers', get_config($qtype, 'shuffleanswers')));
 
-        $mform->addElement('select', 'grademethod', get_string('grademethod', $qtype), $grademethod);
-        $mform->addHelpButton('grademethod', 'grademethod', $qtype);
-        $mform->setDefault('grademethod', $this->get_default_value(
-                'grademethod', get_config($qtype, 'grademethod')));
-
-        // Set matrix table options.
-        $this->gridoptions = range(1, 12);
-        // Add number of matrix rows.
-        $mform->addElement('select', 'numrows',
-            get_string('numberofrows', $qtype), $this->gridoptions, null);
-        $mform->addRule('numrows', null, 'required', null, 'client');
-        $mform->setDefault('numrows', 2);
-
-        // Add number of matrix columns.
-        $mform->addElement('select', 'numcolumns',
-            get_string('numberofcolumns', $qtype), $this->gridoptions, null);
-        $mform->addRule('numcolumns', null, 'required', null, 'client');
-        $mform->setDefault('numcolumns', 4);
-
         // Add update field.
         $mform->addElement('submit', 'updateform', get_string('updateform', $qtype));
         $mform->registerNoSubmitButton('updateform');
-        //print_object($mform);
-
-        $this->set_current_rowcolumn_setting($mform);
+        print_object($this->question);
         $this->add_per_column_fields($mform, get_string('a', 'qtype_oumatrix', '{no}'), $this->numcolumns);
         $this->add_per_row_fields($mform, get_string('r', 'qtype_oumatrix', '{no}'), $this->numrows);
 
         $this->add_combined_feedback_fields(true);
 
-
-        //$this->add_row_fields($mform);
-
-        $mform->disabledIf('shownumcorrect', 'single', 'eq', 1);
+        ///$mform->disabledIf('shownumcorrect', 'single', 'eq', 1);
 
         $this->add_interactive_settings(true, true);
 
-    }
-
-    /**
-     * Set the matrix grid size.
-     *
-     * @return array
-     */
-    protected function set_current_rowcolumn_setting($mform) {
-        $numrowsindex = optional_param('numrows', -1, PARAM_INT);
-        $numcolumnsindex = optional_param('numcolumns', -1, PARAM_INT);
-
-        if ($numrowsindex < 0) {
-            $numrowsindex = $this->question->options->numrows ?? 2;
-        }
-
-        if ($numcolumnsindex < 0) {
-            $numcolumnsindex = $this->question->options->numcolumns ?? 4;
-        }
-        $this->numrows = $this->gridoptions[$numrowsindex] ?? 2;
-        $this->numcolumns = $this->gridoptions[$numcolumnsindex] ?? 2;
-    }
-
-    protected function xxxadd_column_fields(&$mform) {
-        $mform->addElement('header', 'columnshdr', get_string('columnshdr', 'qtype_oumatrix'));
-        $mform->setExpanded('columnshdr', 1);
-        $columns = $this->columninfo->get_columns($this->numrows);
-        foreach($columns as $column) {
-            $label = 'Ans' . $column->number;
-            $element = $mform->addElement('editor', $label, $label, ['size' => 50, 'rows' => 2]);
-            $mform->setType($label, PARAM_RAW);
-            $element->setValue(['text' => $column->name]);
-        }
-    }
-
-    protected function add_row_fields(&$mform) {
-        //$mform = $this->_form;
-        $mform->addElement('header', 'rowshdr', get_string('rowshdr', 'qtype_oumatrix'));
-        $mform->setExpanded('rowshdr', 1);
-        $rows = $this->rowinfo->get_rows($this->numrows);
-        foreach($rows as $row) {
-            $label = 'Row' . $row->number;
-            $element = $mform->addElement('editor', $label, $label, ['size' => 50, 'rows' => 2]);
-            $mform->setType($label, PARAM_RAW);
-            $element->setValue(['text' => $row->name]);
-
-            // Answers to be chosen for a row.
-            $columns = $this->columninfo->get_columns($this->numrows);
-            $answernames = [];
-            foreach($columns as $column) {
-                $answernames[$column->number] = $column->name;
-            }
-            $mform->addElement('select', 'rowanswerlist',
-                    get_string('rowanswerlist', 'qtype_oumatrix'), $answernames);
-
-            $label = 'FB' . $row->number;
-            $element = $mform->addElement('editor', $label, $label, ['size' => 50, 'rows' => 2], $this->editoroptions);
-            $mform->setType($label, PARAM_RAW);
-            $element->setValue(['text' => $row->feedback]);
-        }
-        $this->rowinfo->get_matrix();
     }
 
     protected function add_question_section(): void {
@@ -267,7 +199,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $question->rowname[] = $row->name;
             $question->rowanswers[] = $row->correctanswers;
             $itemid = (int)$row->id ?? null;
-            //$question->feedback[] = $row->feedback;
+
             // Prepare the feedback editor to display files in draft area.
             $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback['.$key.']');
             $feedback[$key]['text'] = file_prepare_draft_area(
@@ -415,26 +347,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;
-    }
-
-    /**
-     * Return array of input type radio button or checkboxes depending on answer mode setting.
-     *
-     * @param MoodleQuickForm $mform
-     * @param int $numberofcolumns
-     * @return array
-     */
-    protected function get_answers_for_this_row(MoodleQuickForm $mform, string $label, string $inputtype, int $numberofcolumns = self::COL_NUM_START): array {
-        $rowanswers = [];
-        for ($i = 1; $i <= $numberofcolumns; $i++) {
-            $anslabel = get_string('a', 'qtype_oumatrix', $i);
-            if ($inputtype === 'single') {
-                $rowanswers[] = $mform->createElement('radio', "a$i", $anslabel);
-            } else {
-                $rowanswers[]  = $mform->createElement('checkbox', "a$i", $anslabel);
-            }
-        }
-        return $rowanswers;
     }
 
     /**
