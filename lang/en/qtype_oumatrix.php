@@ -42,7 +42,7 @@ All or nothing: students must get every response correct, otherwise they score z
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
 $string['notenoughquestions'] = 'This type of question requires at least {$a} word';
-$string['pluginname'] = 'oumatrix';
+$string['pluginname'] = 'Matrix';
 $string['pluginname_help'] = 'Creating a matrix question requires you to specify column headings (values) to row headings (items). For example, you might ask students to classify an item as animal, vegetable, or mineral using Single Choice. You can use Multiple Response so that several values may apply to an item.';
 $string['pluginnameadding'] = 'Adding a Matrix question';
 $string['pluginnameediting'] = 'Editing a Matrix question';

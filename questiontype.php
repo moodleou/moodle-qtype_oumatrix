@@ -196,8 +196,7 @@ class qtype_oumatrix extends question_type {
                     $anslabel = get_string('a', 'qtype_oumatrix', $i+1);
                     $rowanswerslabel = "rowanswers".$anslabel;
                     $answerslist = [];
-                    foreach ($formdata->$rowanswerslabel as $key => $value)
-                    {
+                    foreach ($formdata->$rowanswerslabel as $key => $value) {
                         $answerslist[$formdata->columnname[$key]] = $value;
                     }
                     $questionrow->correctanswers = json_encode($answerslist);
@@ -304,7 +303,7 @@ class qtype_oumatrix extends question_type {
 
     protected function make_question_instance($questiondata) {
         question_bank::load_question_definition_classes($this->name());
-        if ($questiondata->options->inputtype) {
+        if ($questiondata->options->inputtype === 'single') {
             $class = 'qtype_oumatrix_single';
         } else {
             $class = 'qtype_oumatrix_multiple';

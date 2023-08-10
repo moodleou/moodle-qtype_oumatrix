@@ -48,6 +48,26 @@ function xmldb_qtype_oumatrix_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023080300, 'qtype', 'oumatrix');
     }
 
+    if ($oldversion < 2023081400) {
+
+        // Changing type of field name on table qtype_oumatrix_columns to text.
+        $table = new xmldb_table('qtype_oumatrix_columns');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT, 'smal', null, XMLDB_NOTNULL, null, null, 'number');
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field name on table qtype_oumatrix_rows to text.
+        $table = new xmldb_table('qtype_oumatrix_rows');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT, 'smal', null, XMLDB_NOTNULL, null, null, 'number');
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Oumatrix savepoint reached.
+        upgrade_plugin_savepoint(true, 2023081400, 'qtype', 'oumatrix');
+    }
+
 
     return true;
 }
