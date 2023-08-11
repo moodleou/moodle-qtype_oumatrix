@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Get information about a row (answer) a given class.
+ * Get information about a columns for the matrix.
  *
  * @package     qtype_oumatrix
  * @copyright   2023 The Open University
@@ -44,9 +44,6 @@ class column {
     /** @var string The column name. */
     private $name;
 
-    /** @var stdClass a column object in the current question */
-    private $column;
-
     /**
      * Construct the column object.
      *
@@ -68,7 +65,6 @@ class column {
         $this->questionid = $column->questionid;
         $this->number = $column->number;
         $this->name = $column->name;
-        $this->id = $column->id;
     }
 
     /**
@@ -105,6 +101,37 @@ class column {
     }
 
     /**
+     * @return int
+     */
+    public function getQuestionid(): int {
+        return $this->questionid;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumber(): int {
+        return $this->number;
+    }
+
+    /**
+     * Return name
+     *
+     * @param int $id
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
      * Delete a column.
      *
      * @param int $id
@@ -115,4 +142,3 @@ class column {
         $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $this->questionid, 'id' => $id]);
     }
 }
-

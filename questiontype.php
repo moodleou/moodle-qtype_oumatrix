@@ -63,8 +63,8 @@ class qtype_oumatrix extends question_type {
         $config = get_config('qtype_oumatrix');
         $options = new stdClass();
         $options->questionid = $question->id;
-        $options->inputtype = $options->inputtype ?? 'single';
-        $options->grademethod = $config->grademethod ?? 'partialcredit';
+        $options->inputtype = $config->inputtype;
+        $options->grademethod = $config->grademethod;
         $options->shuffleanswers = $config->shuffleanswers ?? 0;
         $options->shownumcorrect = 1;
 
@@ -312,7 +312,11 @@ class qtype_oumatrix extends question_type {
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        //$question->shuffleanswers = $questiondata->options->shuffleanswers;
+        $question->inputtype = $questiondata->options->inputtype;
+        $question->grademethod = $questiondata->options->grademethod;
+        $question->shuffleanswers = $questiondata->options->shuffleanswers;
+        $this->initialise_question_rows($question, $questiondata);
+        $this->initialise_question_columns($question, $questiondata);
         $this->initialise_combined_feedback($question, $questiondata, true);
         $this->initialise_question_answers($question, $questiondata, false);
     }
@@ -359,6 +363,45 @@ class qtype_oumatrix extends question_type {
         //}
 
         return $parts;
+    }
+
+    /**
+     * Initialise the question rows.
+     * @param question_definition $question the question_definition we are creating.
+     * @param object $questiondata the question data loaded from the database.
+     */
+    protected function initialise_question_rows(question_definition $question,
+            $questiondata) {
+        if (!empty($questiondata->options->rows)) {
+            foreach ($questiondata->options->rows as $row) {
+                $newrow  = $this->make_row($row);
+                $question->rows[] = $newrow;
+            }
+        }
+    }
+
+    /**
+     * Initialise the question columns.
+     * @param question_definition $question the question_definition we are creating.
+     * @param object $questiondata the question data loaded from the database.
+     */
+    protected function initialise_question_columns(question_definition $question,
+            $questiondata) {
+        if (!empty($questiondata->options->columns)) {
+            foreach ($questiondata->options->columns as $column) {
+                //$newcolumn  = $this->make_column($column);
+                $question->columns[] = $this->make_column($column);
+            }
+        }
+    }
+
+    protected function make_column($columndata) {
+        return new \qtype_oumatrix\column($columndata->id, $columndata->questionid, $columndata->number, $columndata->name);
+    }
+
+    protected function make_row($rowdata) {
+        return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
+            explode(',',$rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
     public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {

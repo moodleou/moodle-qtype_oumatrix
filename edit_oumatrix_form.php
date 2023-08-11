@@ -362,7 +362,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             if ($this->inputtype === 'single') {
                 $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', $anslabel, $anslabel);
             } else {
-                $rowoptions[]  = $mform->createElement('radio', 'rowanswers', '', $anslabel, $anslabel);
+                $rowoptions[]  = $mform->createElement('checkbox', 'rowanswers', '', $anslabel, $anslabel);
             }
         }
         $rowoptions[] = $mform->createElement('editor', 'feedback',

@@ -59,6 +59,8 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         return $page->get_renderer('qtype_oumatrix', 'single');
     }
 
+    //public abstract function get_response(question_attempt $qa);
+
     public function get_expected_data(): array {
         $rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];

@@ -64,8 +64,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             question_display_options $options) {
         print_object("Inside renderer.... question ");
         $question = $qa->get_question();
-        $response = $question->get_response($qa);
-
+        //$response = $question->get_response($qa);
+        $response = $qa->get_last_qt_data();
         //print_object("renderer.... question ");
         //print_object("renderer.... $response ".$response);
         //print_object("renderer.... $qa ".$qa);
@@ -84,7 +84,52 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $feedbackimg = array();
         $feedback = array();
         $classes = array();
-        foreach ($question->get_order($qa) as $value => $ansid) {
+        $result = '';
+        $hidden = '';
+
+        if (!$options->readonly && $this->get_input_type() == 'multiple') {
+            $hidden = html_writer::empty_tag('input', array(
+                    'type' => 'hidden',
+                    'name' => $inputattributes['name'],
+                    'value' => 0,
+            ));
+        }
+
+        $result .= html_writer::tag('div', $question->format_questiontext($qa),
+                array('class' => 'qtext'));
+        $result .= html_writer::start_tag('fieldset', array('class' => 'ablock no-overflow visual-scroll-x'));
+
+
+        $result .= html_writer::start_tag('div', array('class' => 'answer'));
+        foreach ($question->columns as $key => $value) {
+            $colname = $value->getName();
+            $result .= html_writer::tag('span', $colname);
+        }
+
+        $result .= $this->get_matrix($question);
+        /*$result .= "\n";
+        $inputtype = $this->get_input_type();
+        $inputattributes['id'] = $this->get_input_id($qa, $value);
+        $radiobuttons[] = $hidden . html_writer::empty_tag('input', $inputattributes) .
+                html_writer::div(1, 'd-flex w-auto', [
+                        'id' => $inputattributes['id'] . '_label',
+                        'data-region' => 'answer-label',
+                ]);
+        // todo: get inputtype
+        foreach ($question->rows as $key => $value) {
+            $result .= html_writer::tag('div', $value->name);
+        }
+        foreach ($radiobuttons as $key => $radio) {
+            $result .= html_writer::tag('div', $radio . ' ' . $feedbackimg[$key] . $feedback[$key],
+                            array('class' => $classes[$key])) . "\n";
+        }
+
+        $result .= "\n";*/
+
+        $result .= html_writer::end_tag('div'); // Answer.
+
+        $result .= html_writer::end_tag('fieldset'); // Ablock.
+        /*foreach ($question->get_order($qa) as $value => $ansid) {
             $ans = $question->answers[$ansid];
             $inputattributes['name'] = $this->get_input_name($qa, $value);
             $inputattributes['value'] = $this->get_input_value($value);
@@ -181,9 +226,47 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $result .= html_writer::nonempty_tag('div',
                     $question->get_validation_error($qa->get_last_qt_data()),
                     array('class' => 'validationerror'));
-        }
+        }*/
 
         return $result;
+    }
+
+    public function get_matrix($question) {
+        print_object("XXXXXXXXXXXXXX");
+        print_object($this->get_input_type());
+        $columns = ['Copper', 'Gold', 'Iron'];
+        $rows = ['Is a good electrical', 'Is a good insulator', 'Can be magnetised'];
+        $caption = "Matrix question";
+        $colname[] = null;
+        $table = "
+            <table>
+                <caption>" .$caption. "</caption>
+                <tr>
+                    <th scope='col'></th>";
+        foreach ($question->columns as $key => $value) {
+            $colname[$key] = $value->getName();
+            $table .= "<th scope='col'><span id='copper'>$colname[$key]</span></th>";
+            }
+        $table .= "</tr>
+        <tr> ";
+        foreach ($question->rows as $key => $value) {
+            $i = 0;
+            $rowname = $value->getName();
+            $table .= "<th scope='col'><span id='copper'>$rowname</span></th>";
+            for ($j = 0; $j < count($colname); $j++) {
+                if($this->get_input_type() == 'single') {
+                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
+                        "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                } else {
+                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
+                            "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                    $table .= "</tr>";
+                }
+            }
+            $table .= "</tr>";
+        }
+        $table .= "</table>";
+        return $table;
     }
 
     protected function number_html($qnum) {
@@ -254,7 +337,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     protected function get_input_type() {
-        return 'radio';
+        return 'single';
     }
 
     protected function get_input_name(question_attempt $qa, $value) {
@@ -364,7 +447,7 @@ class qtype_oumatrix_multi_renderer extends qtype_oumatrix_renderer_base {
     }
 
     protected function get_input_type() {
-        return 'checkbox';
+        return 'multiple';
     }
 
     protected function get_input_name(question_attempt $qa, $value) {

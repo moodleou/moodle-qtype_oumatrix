@@ -53,9 +53,6 @@ class row {
     /** @var int The row feedback format. E.g: FORMAT_HTML, FORMAT_PLAIN */
     private $feedbackformat;
 
-    /** @var stdClass the rows of the current question */
-    private $row;
-
     /**
      * Construct the matrix object to be used by rows and colums objects.
      *
@@ -64,6 +61,7 @@ class row {
      * @param int $numberofcolumns
      */
     public function __construct(int $id, int $questionid = 0, int $number = 0, string $name = '', array $correctanswers = [], string $feedback = '', int $feedbackformat = 1) {
+        $this->id = $id;
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
@@ -173,6 +171,48 @@ class row {
         } else {
             return $this->create_default_rows($this->questionid, 1);
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumber(): int {
+        return $this->number;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCorrectanswers(): array {
+        return $this->correctanswers;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFeedback(): string {
+        return $this->feedback;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFeedbackformat(): int {
+        return $this->feedbackformat;
     }
 
     /**
