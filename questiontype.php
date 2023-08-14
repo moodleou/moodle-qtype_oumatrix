@@ -40,13 +40,14 @@ class qtype_oumatrix extends question_type {
 
     public function get_question_options($question) {
         global $DB;
+        parent::get_question_options($question);
         $question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
         if ($question->options === false) {
            // If this has happened, then we have a problem.
            // For the user to be able to edit or delete this question, we need options.
            debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
+           $question->options = $this->create_default_options($question);
         }
-        $question->options = $this->create_default_options($question);
         $question->options->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id]);
         $question->options->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id]);
         parent::get_question_options($question);
@@ -191,7 +192,18 @@ class qtype_oumatrix extends question_type {
                 $json = [];
                 //$json['answertext'] = $formdata->columnname[$i];
                 //$questionrow->correctanswers = json_encode($json);
-                $questionrow->correctanswers = $formdata->rowanswers[$i] ?? '';
+                if($formdata->inputtype == 'multiple') {
+                    $anslabel = get_string('a', 'qtype_oumatrix', $i+1);
+                    $rowanswerslabel = "rowanswers".$anslabel;
+                    $answerslist = [];
+                    foreach ($formdata->$rowanswerslabel as $key => $value)
+                    {
+                        $answerslist[$formdata->columnname[$key]] = $value;
+                    }
+                    $questionrow->correctanswers = json_encode($answerslist);
+                } else {
+                    $questionrow->correctanswers = $formdata->rowanswers[$i] ?? '';
+                }
                 //$questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
                 $questionrow->feedback = $formdata->feedback[$i]['text'];
                 $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
@@ -199,7 +211,7 @@ class qtype_oumatrix extends question_type {
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
         }
-        // Remove remain words.
+        // Remove old rows.
         $fs = get_file_storage();
         if ($oldrowquestions) {
             $ids = array_map(function($question){
@@ -375,6 +387,24 @@ class qtype_oumatrix extends question_type {
         if (!empty($questiondata->options->rows)) {
             foreach ($questiondata->options->rows as $row) {
                 $newrow  = $this->make_row($row);
+                if ($newrow->getCorrectanswers() != '') {
+                    $correctAnswers = [];
+                    $decodedanswers = [];
+                    $todecode = implode(",", $newrow->getCorrectanswers());
+                    //foreach ($newrow->getCorrectanswers() as $value) {
+                    //    $decodedanswers = json_decode(implode("", [$value]), true);
+                    //}
+                    $decodedanswers = json_decode($todecode, true);
+                    foreach($questiondata->options->columns as $key => $column) {
+                        if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
+                            $correctAnswers[$column->number] = $decodedanswers[$column->name];
+                        }
+                    }
+                    $newrow->setCorrectanswers($correctAnswers);
+                }
+                print_object("****************************");
+                print_object($newrow);
+
                 $question->rows[] = $newrow;
             }
         }

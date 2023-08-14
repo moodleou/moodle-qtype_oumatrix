@@ -254,13 +254,12 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $rowname = $value->getName();
             $table .= "<th scope='col'><span id='copper'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
-                if($this->get_input_type() == 'single') {
+                if($question->inputtype == 'single') {
                     $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
                         "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 } else {
                     $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
                             "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
-                    $table .= "</tr>";
                 }
             }
             $table .= "</tr>";

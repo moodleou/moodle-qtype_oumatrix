@@ -144,7 +144,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $grademethod = optional_param('grademethod', '', PARAM_TEXT);
 
         if ($inputtype == '') {
-            $inputtype = $this->question->options->$inputtype ?? 'single';
+            $inputtype = $this->question->options->inputtype ?? 'single';
         }
 
         if ($grademethod == '') {
@@ -214,6 +214,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return object The modified data.
      */
     protected function data_preprocessing_rows($question) {
+        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print_object($question);
         $feedback = [];
         if (empty($question->options->rows)) {
             return $question;
@@ -362,13 +367,26 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             if ($this->inputtype === 'single') {
                 $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', $anslabel, $anslabel);
             } else {
-                $rowoptions[]  = $mform->createElement('checkbox', 'rowanswers', '', $anslabel, $anslabel);
+                $checked = "checked";
+                $rowoptions[]  = $mform->createElement('checkbox', "rowanswers$anslabel",'', $anslabel);
+                $mform->setDefault("rowanswers$anslabel", 0);
+                //$mform->setAttributes("checked", $checked);
+
+                //$rowoptions[]  = $mform->addElement('advcheckbox', "rowanswers$anslabel",'', $anslabel,"", array(0, 1));
             }
         }
         $rowoptions[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $mform->setType('rowname', PARAM_RAW);
+        /*if ($this->inputtype === 'multiple') {
+        for ($i = 1; $i <= $this->numcolumns; $i++) {
+            $anslabel = get_string('a', 'qtype_oumatrix', $i);
+            $rowoptions[]  = $mform->createElement('checkbox', "rowanswers$anslabel",'', $anslabel);
+            if
+            //$rowoptions[]  = $mform->addElement('advcheckbox', "rowanswers$anslabel",'', $anslabel,"", array(0, 1));
+            }
+        }*/
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;

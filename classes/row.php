@@ -106,6 +106,13 @@ class row {
     }
 
     /**
+     * @param array $correctanswers
+     */
+    public function setCorrectanswers(array $correctanswers): void {
+        $this->correctanswers = $correctanswers;
+    }
+
+    /**
      * Create default rows.
      *
      * @param int $questionid
