@@ -62,7 +62,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     //public abstract function get_response(question_attempt $qa);
 
     public function get_expected_data(): array {
-        $rows = new \qtype_oumatrix\oumatirx_info();
+        //$rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];
         for ($i = 0; $i < count($this->answers); $i++) {
             $response[$this->field($i)] = PARAM_RAW_TRIMMED;
@@ -263,7 +263,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function get_expected_data(): array {
-        $rows = new \qtype_oumatrix\oumatirx_info();
+        //$rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];
         for ($i = 0; $i < count($this->answers); $i++) {
             $response[$this->field($i)] = PARAM_RAW_TRIMMED;
@@ -464,7 +464,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
 
     public function get_expected_data(): array {
-        $rows = new \qtype_oumatrix\oumatirx_info();
+        //$rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];
         for ($i= 0; $i < count($this->answers); $i++) {
             $response[$this->field($i)] = PARAM_RAW_TRIMMED;

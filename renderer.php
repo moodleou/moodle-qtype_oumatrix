@@ -245,23 +245,24 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                     <th scope='col'></th>";
         foreach ($question->columns as $key => $value) {
             $colname[$key] = $value->getName();
-            $table .= "<th scope='col'><span id='copper'>$colname[$key]</span></th>";
+            $table .= "<th scope='col'><span id=$colname[$key]>$colname[$key]</span></th>";
             }
         $table .= "</tr>
         <tr> ";
+        $i = 0;
         foreach ($question->rows as $key => $value) {
-            $i = 0;
             $rowname = $value->getName();
             $table .= "<th scope='col'><span id='copper'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
                 if($question->inputtype == 'single') {
-                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
+                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. " value=$colname[$j]" .
                         "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 } else {
-                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. "value=$colname[$j]" .
+                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. " value=$colname[$j]" .
                             "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 }
             }
+            $i++;
             $table .= "</tr>";
         }
         $table .= "</table>";

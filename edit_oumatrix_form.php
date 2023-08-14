@@ -214,11 +214,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return object The modified data.
      */
     protected function data_preprocessing_rows($question) {
-        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
-        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
-        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
-        print_object("%%%%%%%%%%%%%%%%%%%%%%%%%");
-        print_object($question);
         $feedback = [];
         if (empty($question->options->rows)) {
             return $question;
@@ -227,7 +222,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question->rowname = [];
         foreach ($question->options->rows as $index => $row) {
             $question->rowname[] = $row->name;
-            $question->rowanswers[] = $row->correctanswers;
+            if ($question->options->inputtype == 'single') {
+                $question->rowanswers[] = $row->correctanswers;
+            } else {
+                $anslabel = get_string('a', 'qtype_oumatrix', $row->number + 1);
+                $rowanswerslabel = "rowanswers".$anslabel;
+                $question->$rowanswerslabel = $this->format_correct_answers($row->correctanswers, $question);
+            }
             $itemid = (int)$row->id ?? null;
 
             // Prepare the feedback editor to display files in draft area.
@@ -249,6 +250,19 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         }
         $question->feedback = $feedback;
         return $question;
+    }
+
+    protected function format_correct_answers($answers, $question) :array {
+        $correctAnswers = [];
+        if (!empty($answers)) {
+            $decodedanswers = json_decode($answers, true);
+            foreach ($question->options->columns as $key => $column) {
+                if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
+                    $correctAnswers[$column->number] = $decodedanswers[$column->name];
+                }
+            }
+        }
+        return $correctAnswers;
     }
 
     protected function get_hint_fields($withclearwrong = false, $withshownumpartscorrect = false) {
@@ -367,11 +381,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             if ($this->inputtype === 'single') {
                 $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', $anslabel, $anslabel);
             } else {
-                $checked = "checked";
                 $rowoptions[]  = $mform->createElement('checkbox', "rowanswers$anslabel",'', $anslabel);
-                $mform->setDefault("rowanswers$anslabel", 0);
-                //$mform->setAttributes("checked", $checked);
-
                 //$rowoptions[]  = $mform->addElement('advcheckbox', "rowanswers$anslabel",'', $anslabel,"", array(0, 1));
             }
         }
@@ -379,14 +389,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $mform->setType('rowname', PARAM_RAW);
-        /*if ($this->inputtype === 'multiple') {
-        for ($i = 1; $i <= $this->numcolumns; $i++) {
-            $anslabel = get_string('a', 'qtype_oumatrix', $i);
-            $rowoptions[]  = $mform->createElement('checkbox', "rowanswers$anslabel",'', $anslabel);
-            if
-            //$rowoptions[]  = $mform->addElement('advcheckbox', "rowanswers$anslabel",'', $anslabel,"", array(0, 1));
-            }
-        }*/
         $repeatedoptions['row']['type'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;
@@ -400,4 +402,3 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     }
 
 }
-
