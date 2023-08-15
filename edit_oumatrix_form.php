@@ -367,7 +367,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return array
      */
     protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions, array &$rows): array {
-        print_object($this->question);
+        //print_object($this->question);
         $repeated = [];
         $rowoptions = [];
         // $rowoptions[] = $mform->createElement('editor', 'rowname', $label, ['rows' => 2], $this->editoroptions);

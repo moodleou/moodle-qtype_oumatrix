@@ -54,11 +54,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /** @var int The number of rows. */
     public $numrows;
 
-
-    public function get_renderer(moodle_page $page) {
-        return $page->get_renderer('qtype_oumatrix', 'single');
-    }
-
     //public abstract function get_response(question_attempt $qa);
 
     public function get_expected_data(): array {
@@ -459,7 +454,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function get_renderer(moodle_page $page) {
-        return $page->get_renderer('qtype_oumatrix', 'mulriple');
+        return $page->get_renderer('qtype_oumatrix', 'multiple');
     }
 
 

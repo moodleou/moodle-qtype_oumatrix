@@ -21,33 +21,26 @@ Feature: Test creating a Matrix question
     And I add a "Matrix" question filling the form with:
       | Question name                      | Matrix-001                                  |
       | Question text                      | Choose the answer from the options provided |
+      | General feedback                   | Bird, fish and mammal                       |
       | id_status                          | Ready                                       |
-      | id_defaultmak                      | 1                                           |
-      | id_inputtype                       | single                                      |
-      | Answer mode                        | partial                                     |
-      | id_colimnname_0                    | salmon                                      |
-      | id_rowanswers_0_a1                 | 1                                           |
-      | id_rowanswers_0_a2                 | 0                                           |
-      | id_rowanswers_0_a3                 | 0                                           |
-      | id_colimnname_1                    | chicken                                     |
-      | id_rowanswers_1_a1                 | 0                                           |
-      | id_rowanswers_1_a2                 | 1                                           |
-      | id_rowanswers_1_a3                 | 0                                           |
-      | id_colimnname_2                    | lamb                                        |
+      | id_defaultmark                     | 1                                           |
+      | Answer mode                        | Single choice                               |
+      | Marking mode                       | Give partial credit                         |
+      | id_columnname_0                    | salmon                                      |
+      | id_rowanswers_0_A1                 | 1                                           |
+      | id_columnname_1                    | chicken                                     |
+      | id_rowanswers_1_A2                 | 1                                           |
+      | id_columnname_2                    | lamb                                        |
       | id_rowname_0                       | Is a fish                                   |
       | id_rowname_1                       | Is a bird                                   |
       | id_rowname_2                       | Is a mammal                                 |
-      | id_rowanswers_2_a1                 | 0                                           |
-      | id_rowanswers_2_a2                 | 0                                           |
-      | id_rowanswers_2_a3                 | 1                                           |
+      | id_rowanswers_2_A3                 | 1                                           |
       | For any correct response           | Correct feedback                            |
       | For any partially correct response | Partially correct feedback.                 |
       | For any incorrect response         | Incorrect feedback.                         |
       | Hint 1                             | First hint                                  |
       | Hint 2                             | Second hint                                 |
-    And I pause
     Then I should see "Matrix-001"
-    And I pause
 
   @javascript
   Scenario: Create a Matrix question with multiple response option
