@@ -63,9 +63,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     public function formulation_and_controls(question_attempt $qa,
             question_display_options $options) {
         print_object("Inside renderer.... question ");
+        print_object($qa);
         $question = $qa->get_question();
         //$response = $question->get_response($qa);
         $response = $qa->get_last_qt_data();
+        print_object($response);
         //print_object("renderer.... question ");
         //print_object("renderer.... $response ".$response);
         //print_object("renderer.... $qa ".$qa);
@@ -234,6 +236,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     public function get_matrix($question) {
         $columns = ['Copper', 'Gold', 'Iron'];
         $rows = ['Is a good electrical', 'Is a good insulator', 'Can be magnetised'];
+        print_object("*******************************************");
+        print_object($question);
         $caption = "Matrix question";
         $colname[] = null;
         $table = "

@@ -33,25 +33,25 @@ use stdClass;
  */
 class row {
     /** @var int The id of the question. */
-    private $questionid;
+    public $questionid;
 
     /** @var int The row id. */
-    private $id;
+    public $id;
 
     /** @var int The row number. */
-    private $number;
+    public $number;
 
     /** @var string The row name. */
-    private $name;
+    public $name;
 
     /** @var array The list of correct answers A json-encoded list of correct answerids for a given row. */
-    private $correctanswers = [];
+    public $correctanswers = [];
 
     /** @var string The row specific feedback. */
-    private $feedback;
+    public $feedback;
 
     /** @var int The row feedback format. E.g: FORMAT_HTML, FORMAT_PLAIN */
-    private $feedbackformat;
+    public $feedbackformat;
 
     /**
      * Construct the matrix object to be used by rows and colums objects.

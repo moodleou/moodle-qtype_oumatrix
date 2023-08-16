@@ -193,11 +193,15 @@ class qtype_oumatrix extends question_type {
                 //$json['answertext'] = $formdata->columnname[$i];
                 //$questionrow->correctanswers = json_encode($json);
                 if($formdata->inputtype == 'multiple') {
-                    $anslabel = get_string('a', 'qtype_oumatrix', $i+1);
-                    $rowanswerslabel = "rowanswers".$anslabel;
-                    $answerslist = [];
-                    foreach ($formdata->$rowanswerslabel as $key => $value) {
-                        $answerslist[$formdata->columnname[$key]] = $value;
+                    for ($j = 0; $j < count($formdata->columnname); $j++) {
+                        $anslabel = get_string('a', 'qtype_oumatrix', $j + 1);
+                        $rowanswerslabel = "rowanswers".$anslabel;
+
+                        if (!array_key_exists($i, $formdata->$rowanswerslabel)) {
+                            $answerslist[$formdata->columnname[$j]] = "0";
+                            continue;
+                        }
+                        $answerslist[$formdata->columnname[$j]] = $formdata->$rowanswerslabel[$i];
                     }
                     $questionrow->correctanswers = json_encode($answerslist);
                 } else {
@@ -384,19 +388,25 @@ class qtype_oumatrix extends question_type {
     protected function initialise_question_rows(question_definition $question,
             $questiondata) {
         if (!empty($questiondata->options->rows)) {
+            print_object("222222222222222222222222222");
+            print_object($questiondata);
             foreach ($questiondata->options->rows as $row) {
                 $newrow  = $this->make_row($row);
+
                 if ($newrow->getCorrectanswers() != '') {
-                    $correctAnswers = [];
-                    $decodedanswers = [];
-                    $todecode = implode(",", $newrow->getCorrectanswers());
-                    //foreach ($newrow->getCorrectanswers() as $value) {
-                    //    $decodedanswers = json_decode(implode("", [$value]), true);
-                    //}
-                    $decodedanswers = json_decode($todecode, true);
-                    foreach($questiondata->options->columns as $key => $column) {
-                        if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
-                            $correctAnswers[$column->number] = $decodedanswers[$column->name];
+                    $correctAnswers = $newrow->getCorrectanswers();
+                    //$decodedanswers = [];
+                    if( $questiondata->options->inputtype == 'multiple') {
+                        $correctAnswers = [];
+                        $todecode = implode(",", $newrow->getCorrectanswers());
+                        //foreach ($newrow->getCorrectanswers() as $value) {
+                        //    $decodedanswers = json_decode(implode("", [$value]), true);
+                        //}
+                        $decodedanswers = json_decode($todecode, true);
+                        foreach($questiondata->options->columns as $key => $column) {
+                            if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
+                                $correctAnswers[$column->number] = $decodedanswers[$column->name];
+                            }
                         }
                     }
                     $newrow->setCorrectanswers($correctAnswers);
@@ -428,7 +438,7 @@ class qtype_oumatrix extends question_type {
         return new \qtype_oumatrix\column($columndata->id, $columndata->questionid, $columndata->number, $columndata->name);
     }
 
-    protected function make_row($rowdata) {
+    public function make_row($rowdata) {
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
             explode(',',$rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }

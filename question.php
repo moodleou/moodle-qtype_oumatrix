@@ -58,11 +58,12 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     public function get_expected_data(): array {
         //$rows = new \qtype_oumatrix\oumatirx_info();
-        $response = [];
-        for ($i = 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = PARAM_RAW_TRIMMED;
-        }
-        return $response;
+        //print_object($this->rows);
+        //$response = [];
+        //for ($i = 0; $i < count($this->answers); $i++) {
+        //    $response[$this->field($i)] = PARAM_RAW_TRIMMED;
+        //}
+        //return $response;
     }
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
@@ -135,14 +136,15 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     public function grade_response(array $response): array {
         // Retrieve a number of right answers and total answers.
-        [$numrightparts, $total] = $this->get_num_parts_right($response);
-        // Retrieve a number of wrong accent numbers.
-        $numpartialparts = $this->get_num_parts_partial($response);
-        // Calculate fraction.
-        $fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-                / $total;
-
-        return [$fraction, question_state::graded_state_for_fraction($fraction)];
+        //[$numrightparts, $total] = $this->get_num_parts_right($response);
+        //// Retrieve a number of wrong accent numbers.
+        //$numpartialparts = $this->get_num_parts_partial($response);
+        //// Calculate fraction.
+        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
+        //        / $total;
+        //
+        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
+        return [];
     }
 
     public function get_num_parts_right(array $response): array {
@@ -266,6 +268,12 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $response;
     }
 
+    public function prepare_simulated_post_data($simulatedresponse) {
+        print_object("simulated response&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        print_object($simulatedresponse);
+        return $simulatedresponse;
+    }
+
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
     }
@@ -336,17 +344,21 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function grade_response(array $response): array {
         // Retrieve a number of right answers and total answers.
-        [$numrightparts, $total] = $this->get_num_parts_right($response);
-        // Retrieve a number of wrong accent numbers.
-        $numpartialparts = $this->get_num_parts_partial($response);
-        // Calculate fraction.
-        $fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-                / $total;
+        //[$numrightparts, $total] = $this->get_num_parts_right($response);
+        //        //        //// Retrieve a number of wrong accent numbers.
+        //        //        //$numpartialparts = $this->get_num_parts_partial($response);
+        //        //        //// Calculate fraction.
+        //        //        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
+        //        //        //        / $total;
+        //        //        //
+        //        //        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
 
+        $fraction = 1;
         return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }
 
     public function get_num_parts_right(array $response): array {
+
         $numright = 0;
         foreach ($this->answers as $key => $answer) {
             if ($this->is_full_fraction($answer, $response[$this->field($key)])) {
@@ -461,10 +473,45 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function get_expected_data(): array {
         //$rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];
-        for ($i= 0; $i < count($this->answers); $i++) {
+        /*foreach ($this->rows as $key => $row) {
+            //$newrow = $this->qtype->make_row($row);
+            for ($i = 0; $i < count($row->correctanswers); $i++) {
+                $response[$key][$i] = PARAM_INT;
+            }
+            //$response[$key][$row->correctAnswers] = PARAM_INT;
+        }*/
+        /*for ($i= 0; $i < count($this->answers); $i++) {
             $response[$this->field($i)] = PARAM_RAW_TRIMMED;
+        }*/
+        foreach ($this->rows as $row) {
+            //$newrow  = $this->make_row($row);
+
+            if ($row->correctanswers != '') {
+                $rowanswers[] = PARAM_INT;
+
+                //$decodedanswers = [];
+                if($this->inputtype == 'multiple') {
+                    foreach($this->columns as $key => $column) {
+                        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
+                        $rowanswerslabel = "rowanswers".$anslabel."_".$row->number;
+                        //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
+                        $response[$rowanswerslabel] = PARAM_INT;
+                    }
+                }
+            }
         }
+        if($this->inputtype == 'single') {
+            return $rowanswers;
+        }
+        print_object("11111111111111111111111111111");
+        print_object($response);
         return $response;
+    }
+
+    public function prepare_simulated_post_data($simulatedresponse) {
+        print_object("simulated response&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        print_object($simulatedresponse);
+        return $simulatedresponse;
     }
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
@@ -496,9 +543,22 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function get_correct_response(): ?array {
         $response = [];
-        for ($i = 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = $this->answers[$i]->answer;
+        print_object("In get_correct_response^^^^^^^^^^^^^^^^^^^^");
+        for ($i = 0; $i < count($this->rows); $i++) {
+            foreach($this->columns as $key => $column) {
+                $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
+                $rowanswerslabel = "rowanswers".$anslabel."_".$i;
+                //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
+                //$rowanswerslabel[$i] = 1;
+                $response[$rowanswerslabel] = $this->rows[$i]->correctanswers[$column->number];
+                //$response->$rowanswerslabel[$i] = $this->rows[$i]->correctanswers[$column->number];
+            }
+            //$response[$this->field($i)] = $this->answers[$i]->answer;
         }
+        //for ($i = 0; $i < count($this->answers); $i++) {
+        //    $response[$this->field($i)] = $this->answers[$i]->answer;
+        //}
+        print_object($response);
         return $response;
     }
 
@@ -539,13 +599,17 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function grade_response(array $response): array {
         // Retrieve a number of right answers and total answers.
-        [$numrightparts, $total] = $this->get_num_parts_right($response);
-        // Retrieve a number of wrong accent numbers.
-        $numpartialparts = $this->get_num_parts_partial($response);
-        // Calculate fraction.
-        $fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-                / $total;
-
+        //[$numrightparts, $total] = $this->get_num_parts_right($response);
+        //// Retrieve a number of wrong accent numbers.
+        //$numpartialparts = $this->get_num_parts_partial($response);
+        //// Calculate fraction.
+        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
+        //        / $total;
+        //
+        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
+        print_object("grade_response££££££££££££££££££££££££££££");
+        print_object($response);
+        $fraction = 1;
         return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }
 

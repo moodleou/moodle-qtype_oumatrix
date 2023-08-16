@@ -225,9 +225,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             if ($question->options->inputtype == 'single') {
                 $question->rowanswers[] = $row->correctanswers;
             } else {
-                $anslabel = get_string('a', 'qtype_oumatrix', $row->number + 1);
-                $rowanswerslabel = "rowanswers".$anslabel;
-                $question->$rowanswerslabel = $this->format_correct_answers($row->correctanswers, $question);
+                $this->format_correct_answers_multiple($row->number, $row->correctanswers, $question);
             }
             $itemid = (int)$row->id ?? null;
 
@@ -252,18 +250,14 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return $question;
     }
 
-    protected function format_correct_answers($answers, $question) :array {
-        $correctAnswers = [];
-        if (!empty($answers)) {
-            $decodedanswers = json_decode($answers, true);
-            foreach ($question->options->columns as $key => $column) {
-                if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
-                    $correctAnswers[$column->number] = $decodedanswers[$column->name];
-                }
-            }
+    protected function format_correct_answers_multiple($rownumber, $answers, $question) {
+        $decodedanswers = json_decode($answers, true);
+        foreach ($question->options->columns as $key => $column) {
+            $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
+            $rowanswerslabel = "rowanswers".$anslabel;
+            $question->$rowanswerslabel[$rownumber] = $decodedanswers[$column->name];
         }
-        return $correctAnswers;
-    }
+      }
 
     protected function get_hint_fields($withclearwrong = false, $withshownumpartscorrect = false) {
         list($repeated, $repeatedoptions) = parent::get_hint_fields($withclearwrong, $withshownumpartscorrect);

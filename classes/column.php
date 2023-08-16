@@ -33,16 +33,16 @@ use stdClass;
  */
 class column {
     /** @var int The id of the question. */
-    private $questionid;
+    public $questionid;
 
     /** @var int The column id. */
-    private $id;
+    public $id;
 
     /** @var int The column number. */
-    private $number;
+    public $number;
 
     /** @var string The column name. */
-    private $name;
+    public $name;
 
     /**
      * Construct the column object.
