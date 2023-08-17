@@ -103,11 +103,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
 
         $result .= html_writer::start_tag('div', array('class' => 'answer'));
-        foreach ($question->columns as $key => $value) {
-            $colname = $value->getName();
-            $result .= html_writer::tag('span', $colname);
-        }
-
         $result .= $this->get_matrix($question);
         /*$result .= "\n";
         $inputtype = $this->get_input_type();
@@ -234,34 +229,33 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     }
 
     public function get_matrix($question) {
-        $columns = ['Copper', 'Gold', 'Iron'];
-        $rows = ['Is a good electrical', 'Is a good insulator', 'Can be magnetised'];
         print_object("*******************************************");
         print_object($question);
         $caption = "Matrix question";
         $colname[] = null;
         $table = "
             <table>
-                <caption>" .$caption. "</caption>
+                <caption class='table_caption'>$caption</caption>
                 <tr>
                     <th scope='col'></th>";
         foreach ($question->columns as $key => $value) {
             $colname[$key] = $value->getName();
-            $table .= "<th scope='col'><span id=$colname[$key]>$colname[$key]</span></th>";
-            }
+            $table .= "<th scope='col'><span id='$colname[$key]' class='answer_col' >$colname[$key]</span></th>";
+        }
         $table .= "</tr>
         <tr> ";
         $i = 0;
         foreach ($question->rows as $key => $value) {
             $rowname = $value->getName();
-            $table .= "<th scope='col'><span id='copper'>$rowname</span></th>";
+            $rowid = 'row_'. $key;
+            $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
                 if($question->inputtype == 'single') {
-                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. " value=$colname[$j]" .
-                        "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
+                            $colname[$j]. " value=$colname[$j]" . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 } else {
-                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .$colname[$j]. " value=$colname[$j]" .
-                            "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
+                            $colname[$j]. " value=$colname[$j]" . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 }
             }
             $i++;
@@ -275,36 +269,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return $qnum . '. ';
     }
 
-    /**
-     * @param int $num The number, starting at 0.
-     * @param string $style The style to render the number in. One of the
-     * options returned by {@link qtype_multichoice:;get_numbering_styles()}.
-     * @return string the number $num in the requested style.
-     */
-    protected function number_in_style($num, $style) {
-        switch($style) {
-            case 'abc':
-                $number = chr(ord('a') + $num);
-                break;
-            case 'ABCD':
-                $number = chr(ord('A') + $num);
-                break;
-            case '123':
-                $number = $num + 1;
-                break;
-            case 'iii':
-                $number = question_utils::int_to_roman($num + 1);
-                break;
-            case 'IIII':
-                $number = strtoupper(question_utils::int_to_roman($num + 1));
-                break;
-            case 'none':
-                return '';
-            default:
-                return 'ERR';
-        }
-        return $this->number_html($number);
-    }
 
     public function specific_feedback(question_attempt $qa) {
         return $this->combined_feedback($qa);

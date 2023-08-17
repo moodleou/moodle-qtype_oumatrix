@@ -39,18 +39,20 @@ require_once($CFG->libdir.'/questionlib.php');
 class qtype_oumatrix extends question_type {
 
     public function get_question_options($question) {
-        global $DB;
+        global $DB, $OUTPUT;;
         parent::get_question_options($question);
-        $question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
-        if ($question->options === false) {
-           // If this has happened, then we have a problem.
-           // For the user to be able to edit or delete this question, we need options.
-           debugging("Question ID {$question->id} was missing an options record. Using default.", DEBUG_DEVELOPER);
-           $question->options = $this->create_default_options($question);
+        if (!$question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id])) {
+            $question->options = $this->create_default_options($question);
         }
-        $question->options->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id]);
-        $question->options->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id]);
-        parent::get_question_options($question);
+        if (!$question->options->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id])) {
+            echo $OUTPUT->notification('Error: Missing question columns!');
+            return false;
+        }
+        if (!$question->options->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id])) {
+            echo $OUTPUT->notification('Error: Missing question rows!');
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -90,31 +92,36 @@ class qtype_oumatrix extends question_type {
     public function save_question($question, $form) {
         $question = parent::save_question($question, $form);
 
-
         return $question;
     }
 
     public function save_question_options($question) {
         global $DB;
         $context = $question->context;
-
+        $result = new stdClass();
         $options = $DB->get_record('qtype_oumatrix_options',['questionid' => $question->id]);
         if (!$options) {
+            $config = get_config('qtype_oumatrix');
             $options = new stdClass();
             $options->questionid = $question->id;
+            $options->inputtype = $config->inputtype;
+            $options->grademethod = $config->grademethod;
+            $options->shuffleanswers = $config->shuffleanswers;
             $options->correctfeedback = '';
             $options->partiallycorrectfeedback = '';
             $options->incorrectfeedback = '';
+            $options->shownumcorrect = 0;
             $options->id = $DB->insert_record('qtype_oumatrix_options', $options);
         }
+        $options->questionid = $question->id;
         $options->inputtype = $question->inputtype;
         $options->grademethod = $question->grademethod;
         $options->shuffleanswers = $question->shuffleanswers;
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_oumatrix_options', $options);
 
-        $this->save_rows($question);
         $this->save_columns($question);
+        $this->save_rows($question);
         $this->save_hints($question, true);
     }
 
@@ -132,24 +139,24 @@ class qtype_oumatrix extends question_type {
                 $answercount++;
             }
         }
-        if ($answercount < 1) {
-            $result->error = get_string('notenoughquestions', 'qtype_oumatrix', '1');
+        if ($answercount < 2) {
+            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix', '2');
             return $result;
         }
 
-        // Insert all the new words.
+        // Insert column input data.
         for ($i = 0; $i < $numcolumns; $i++) {
             if (trim($formdata->columnname[$i]) === '') {
                 continue;
             }
             // Update an existing word if possible.
-            $questioncolumn = array_shift($oldcolumns);
-            if (!$questioncolumn) {
-                $questioncolumn = new stdClass();
-                $questioncolumn->questionid = $formdata->id;
-                $questioncolumn->number = $i;
-                $questioncolumn->name = $formdata->columnname[$i];
-                $questioncolumn->id = $DB->insert_record('qtype_oumatrix_columns', $questioncolumn);
+            $column = array_shift($oldcolumns);
+            if (!$column) {
+                $column = new stdClass();
+                $column->questionid = $formdata->id;
+                $column->number = $i;
+                $column->name = $formdata->columnname[$i];
+                $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
             }
 
             // Remove old columns.
@@ -157,7 +164,7 @@ class qtype_oumatrix extends question_type {
                 $ids = array_map(function($question) {
                     return $question->id;
                 }, $oldcolumns);
-                list($idssql, $idsparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_QM);
+                [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
                 //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
                 //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
                 $DB->delete_records_select('qtype_oumatrix_columns', "id $idssql", $idsparams);
@@ -166,42 +173,35 @@ class qtype_oumatrix extends question_type {
     }
     public function save_rows($formdata) {
         global $DB;
-        print_object("11111111111111111111111111111111111111111111111");
-        print_object($formdata);
         $context = $formdata->context;
         $result = new stdClass();
-        // Old records.
-        $oldrowquestions = $DB->get_records('qtype_oumatrix_rows',
-                ['questionid' => $formdata->id], 'id ASC');
+        $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $formdata->id], 'id ASC');
 
-        $numquestions = count($formdata->rowname);
+        $numrows = count($formdata->rowname);
 
-        // Insert all the new words.
-        for ($i = 0; $i < $numquestions; $i++) {
+        // Insert row input data.
+        for ($i = 0; $i < $numrows; $i++) {
             if (trim($formdata->rowname[$i] ?? '') === '') {
                 continue;
             }
             // Update an existing word if possible.
-            $questionrow = array_shift($oldrowquestions);
+            $questionrow = array_shift($oldrows);
             if (!$questionrow) {
                 $questionrow = new stdClass();
                 $questionrow->questionid = $formdata->id;
                 $questionrow->number = $i;
                 $questionrow->name = $formdata->rowname[$i];
                 // Prepare correct answers.
-                $json = [];
-                //$json['answertext'] = $formdata->columnname[$i];
-                //$questionrow->correctanswers = json_encode($json);
                 if($formdata->inputtype == 'multiple') {
-                    for ($j = 0; $j < count($formdata->columnname); $j++) {
-                        $anslabel = get_string('a', 'qtype_oumatrix', $j + 1);
-                        $rowanswerslabel = "rowanswers".$anslabel;
+                    for ($c = 0; $c < count($formdata->columnname); $c++) {
+                        $anslabel = get_string('a', 'qtype_oumatrix', $c + 1);
+                        $rowanswerslabel = "rowanswers". $anslabel;
 
                         if (!array_key_exists($i, $formdata->$rowanswerslabel)) {
-                            $answerslist[$formdata->columnname[$j]] = "0";
+                            $answerslist[$formdata->columnname[$c]] = "0";
                             continue;
                         }
-                        $answerslist[$formdata->columnname[$j]] = $formdata->$rowanswerslabel[$i];
+                        $answerslist[$formdata->columnname[$c]] = $formdata->$rowanswerslabel[$i];
                     }
                     $questionrow->correctanswers = json_encode($answerslist);
                 } else {
@@ -216,11 +216,11 @@ class qtype_oumatrix extends question_type {
         }
         // Remove old rows.
         $fs = get_file_storage();
-        if ($oldrowquestions) {
+        if ($oldrows) {
             $ids = array_map(function($question){
                 return $question->id;
-            }, $oldrowquestions);
-            list($idssql, $idsparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_QM);
+            }, $oldrows);
+            [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
             //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
             //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
             $DB->delete_records_select('qtype_oumatrix_rows', "id $idssql", $idsparams);
@@ -330,10 +330,9 @@ class qtype_oumatrix extends question_type {
         $question->inputtype = $questiondata->options->inputtype;
         $question->grademethod = $questiondata->options->grademethod;
         $question->shuffleanswers = $questiondata->options->shuffleanswers;
-        $this->initialise_question_rows($question, $questiondata);
         $this->initialise_question_columns($question, $questiondata);
+        $this->initialise_question_rows($question, $questiondata);
         $this->initialise_combined_feedback($question, $questiondata, true);
-        $this->initialise_question_answers($question, $questiondata, false);
     }
 
     public function delete_question($questionid, $contextid) {
@@ -424,11 +423,9 @@ class qtype_oumatrix extends question_type {
      * @param question_definition $question the question_definition we are creating.
      * @param object $questiondata the question data loaded from the database.
      */
-    protected function initialise_question_columns(question_definition $question,
-            $questiondata) {
+    protected function initialise_question_columns(question_definition $question, $questiondata) {
         if (!empty($questiondata->options->columns)) {
             foreach ($questiondata->options->columns as $column) {
-                //$newcolumn  = $this->make_column($column);
                 $question->columns[] = $this->make_column($column);
             }
         }
@@ -600,20 +597,3 @@ class qtype_oumatrix_hint extends question_hint_with_parts {
         $options->suppressrowfeedback = !$this->showrowfeedback;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

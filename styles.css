@@ -1,13 +1,29 @@
 /* Styles for oumatrix. */
 .que.oumatrix .question_text {
-  background-color: white;
+  background-color: lightyellow;
 }
-/* Styles for audio widgets. */
 
-#fitem_id_Row1 {
-  width: 100px;
-  margin: 0;
+.que.oumatrix .table_caption {
+  font-size: medium;
+  text-align: center;
 }
+
+.que.oumatrix .answer_col {
+  text-align: center;
+  margin-left: 2em;
+}
+.que.oumatrix input[type="radio"],
+.que.oumatrix input[type="checkbox"] {
+  box-sizing: border-box;
+  margin-left: 2.5em;
+  margin-bottom: 0.5m;
+}
+
+.que.oumatrix .question_row {
+  text-align: left;
+  margin-right: 0.1em;
+}
+
 
 /*
 .que.matrix table {

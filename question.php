@@ -71,14 +71,8 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        foreach ($this->answers as $key => $notused) {
-            $fieldname = $this->field($key);
-            if (!question_utils::arrays_same_at_key(
-                    $prevresponse, $newresponse, $fieldname)) {
-                return false;
-            }
-        }
-        return true;
+        // TODO:
+        return false;
     }
 
     /**
@@ -118,13 +112,10 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     public function is_complete_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($this->answers) === count($filteredresponse);
     }
 
     public function is_gradable_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($filteredresponse) > 0;
+
     }
 
     public function get_validation_error(array $response): string {
@@ -236,18 +227,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
     }
 
-    /**
-     * Filter out blank words from a response.
-     *
-     * @param array $response The answers list.
-     * @return array The filtered list.
-     */
-    private function remove_blank_words_from_response(array $response): array {
-        return array_filter($response, function(string $responseword) {
-            return core_text::strlen(trim(str_replace('_', '', $responseword))) > 0;
-        });
-    }
-
 }
 
     /**
@@ -260,11 +239,13 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function get_expected_data(): array {
-        //$rows = new \qtype_oumatrix\oumatirx_info();
+        $rows = $this->get_question_summary();
+        print_object('get_question_summary() -----------');
+        print_object($rows);
         $response = [];
-        for ($i = 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = PARAM_RAW_TRIMMED;
-        }
+        //for ($i = 0; $i < count($this->answers); $i++) {
+        //    $response[$this->field($i)] = PARAM_RAW_TRIMMED;
+        //}
         return $response;
     }
 
@@ -279,14 +260,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        foreach ($this->answers as $key => $notused) {
-            $fieldname = $this->field($key);
-            if (!question_utils::arrays_same_at_key(
-                    $prevresponse, $newresponse, $fieldname)) {
-                return false;
-            }
-        }
-        return true;
+       return  parent::is_same_response($prevresponse, $newresponse);
     }
 
     /**
@@ -301,9 +275,9 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_correct_response(): ?array {
         $response = [];
-        for ($i = 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = $this->answers[$i]->answer;
-        }
+        //for ($i = 0; $i < count($this->answers); $i++) {
+        //    $response[$this->field($i)] = $this->answers[$i]->answer;
+        //}
         return $response;
     }
 
@@ -326,13 +300,11 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($this->answers) === count($filteredresponse);
+        return false;
     }
 
     public function is_gradable_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($filteredresponse) > 0;
+        return true;
     }
 
     public function get_validation_error(array $response): string {
@@ -446,18 +418,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
             }
         }
     }
-
-    /**
-     * Filter out blank words from a response.
-     *
-     * @param array $response The answers list.
-     * @return array The filtered list.
-     */
-    private function remove_blank_words_from_response(array $response): array {
-        return array_filter($response, function(string $responseword) {
-            return core_text::strlen(trim(str_replace('_', '', $responseword))) > 0;
-        });
-    }
 }
 
     /**
@@ -471,18 +431,10 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
 
     public function get_expected_data(): array {
-        //$rows = new \qtype_oumatrix\oumatirx_info();
         $response = [];
-        /*foreach ($this->rows as $key => $row) {
-            //$newrow = $this->qtype->make_row($row);
-            for ($i = 0; $i < count($row->correctanswers); $i++) {
-                $response[$key][$i] = PARAM_INT;
-            }
-            //$response[$key][$row->correctAnswers] = PARAM_INT;
-        }*/
-        /*for ($i= 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = PARAM_RAW_TRIMMED;
-        }*/
+        print_object('get_expected_data() -----------------');
+        print_object($this->rows);
+
         foreach ($this->rows as $row) {
             //$newrow  = $this->make_row($row);
 
@@ -519,11 +471,23 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        foreach ($this->answers as $key => $notused) {
-            $fieldname = $this->field($key);
-            if (!question_utils::arrays_same_at_key(
-                    $prevresponse, $newresponse, $fieldname)) {
-                return false;
+        if (!$this->is_complete_response($prevresponse)) {
+            $prevresponse = [];
+        }
+        if (!$this->is_complete_response($newresponse)) {
+            $newresponse = [];
+        }
+        foreach ($this->rows as $k => $row) {
+            print_object('$row -------------');
+            print_object($row);
+            // TODO:
+            foreach ($row->correctanswers as $key =>$value) {
+                $fieldname = $this->field($key);
+                if (!question_utils::arrays_same_at_key(
+                        $prevresponse, $newresponse, $fieldname)) {
+                    return false;
+                }
+                return question_utils::arrays_same_at_key($prevresponse, $newresponse, 'answer');
             }
         }
         return true;
@@ -542,29 +506,44 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
 
     public function get_correct_response(): ?array {
-        $response = [];
-        print_object("In get_correct_response^^^^^^^^^^^^^^^^^^^^");
-        for ($i = 0; $i < count($this->rows); $i++) {
-            foreach($this->columns as $key => $column) {
-                $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
-                $rowanswerslabel = "rowanswers".$anslabel."_".$i;
-                //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
-                //$rowanswerslabel[$i] = 1;
-                $response[$rowanswerslabel] = $this->rows[$i]->correctanswers[$column->number];
-                //$response->$rowanswerslabel[$i] = $this->rows[$i]->correctanswers[$column->number];
+        $correctplaces = [];
+        foreach ($this->rows as $rkey => $row) {
+            print_object('$row -------------');
+            print_object($row);
+            foreach ($row->correctanswers as $cakey => $value) {
+                if ($value == 1) {
+                    $correctplaces[$rkey][$cakey] = $value;
+                }
             }
-            //$response[$this->field($i)] = $this->answers[$i]->answer;
         }
-        //for ($i = 0; $i < count($this->answers); $i++) {
-        //    $response[$this->field($i)] = $this->answers[$i]->answer;
+        print_object('Fill correct responses -------------------------');
+        print_object($correctplaces);
+        // TODO: we get the correct values, but we need to pass it to the checkboxes.
+        return $correctplaces;
+
+        //print_object("In get_correct_response^^^^^^^^^^^^^^^^^^^^");
+        //for ($i = 0; $i < count($this->rows); $i++) {
+        //    foreach($this->columns as $key => $column) {
+        //        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
+        //        $rowanswerslabel = "rowanswers".$anslabel."_".$i;
+        //        //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
+        //        //$rowanswerslabel[$i] = 1;
+        //        $response[$rowanswerslabel] = $this->rows[$i]->correctanswers[$column->number];
+        //        //$response->$rowanswerslabel[$i] = $this->rows[$i]->correctanswers[$column->number];
+        //    }
+        //    //$response[$this->field($i)] = $this->answers[$i]->answer;
         //}
-        print_object($response);
-        return $response;
+        ////for ($i = 0; $i < count($this->answers); $i++) {
+        ////    $response[$this->field($i)] = $this->answers[$i]->answer;
+        ////}
+        //print_object($response);
+        //return $response;
     }
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        foreach ($this->answers as $key => $answer) {
+        foreach ($this->rows as $key => $row) {
+            //TODO:
             $fieldname = $this->field($key);
             if (array_key_exists($fieldname, $response)) {
                 $responseword = str_replace('_', ' ', $response[$fieldname]);
@@ -581,20 +560,18 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($this->answers) === count($filteredresponse);
+        return false;
     }
 
     public function is_gradable_response(array $response): bool {
-        $filteredresponse = $this->remove_blank_words_from_response($response);
-        return count($filteredresponse) > 0;
+       return true;
     }
 
     public function get_validation_error(array $response): string {
         if ($this->is_complete_response($response)) {
             return '';
         }
-        return get_string('pleaseananswerallparts', 'qtype_crossword');
+        return get_string('pleaseananswerallrows', 'qtype_oumatrix');
     }
 
     public function grade_response(array $response): array {
@@ -680,35 +657,5 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function is_partial_fraction(qtype_crossword\answer $answer, string $responseword): bool {
         return $this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_PENALTY &&
                 $answer->is_wrong_accents($responseword);
-    }
-
-    /**
-     * Calculate fraction of answer.
-     *
-     * @param answer $answer One of the clues.
-     * @param string $responseword The the response given to that clue.
-     * @return float the fraction for that word.
-     */
-    public function calculate_fraction_for_answer(answer $answer, string $responseword): float {
-
-        if ($this->is_full_fraction($answer, $responseword)) {
-            return 1;
-        } else if ($this->is_partial_fraction($answer, $responseword)) {
-            return 1 - $this->accentpenalty;
-        } else {
-            return 0;
-        }
-    }
-
-    /**
-     * Filter out blank words from a response.
-     *
-     * @param array $response The answers list.
-     * @return array The filtered list.
-     */
-    private function remove_blank_words_from_response(array $response): array {
-        return array_filter($response, function(string $responseword) {
-            return core_text::strlen(trim(str_replace('_', '', $responseword))) > 0;
-        });
     }
 }

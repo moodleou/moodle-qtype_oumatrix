@@ -56,18 +56,20 @@ class row {
     /**
      * Construct the matrix object to be used by rows and colums objects.
      *
+     * @param int $id
      * @param int $questionid
      * @param int $numberofrows
      * @param int $numberofcolumns
      */
-    public function __construct(int $id, int $questionid = 0, int $number = 0, string $name = '', array $correctanswers = [], string $feedback = '', int $feedbackformat = 1) {
-        $this->id = $id;
+    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '', array $correctanswers = [],
+            string $feedback = '', int $feedbackformat = 0) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
         $this->correctanswers = $correctanswers;
         $this->feedback = $feedback;
         $this->feedbackformat = $feedbackformat;
+        $this->id = $id;
     }
 
     /**
@@ -84,22 +86,26 @@ class row {
         return null;
     }
 
-    public function create_default_row(int $questionid,  int $number = 1, string $name = 'row', string $feedback = '', int $feedbackformat = 2) {
+    public function create_default_row(int $questionid,  int $number = 1, string $name = 'row', array $correctanswers = [],
+                    string $feedback = '', int $feedbackformat = 0) {
         global $DB;
         $row = new stdClass();
         $row->questionid = $questionid;
         $row->number = $number;
         $row->name = $name;
+        $row->correctanswers = json_encode($correctanswers);
         $row->feedback = $feedback;
         $row->feedbackformat = $feedbackformat;
         return $row;
     }
 
-    public function create_row(int $questionid,  int $number = 1, string $name = 'row', string $feedback = '', int $feedbackformat = 2) {
+    public function create_row(int $questionid,  int $number = 1, string $name = 'row', array $correctanswers = [],
+            string $feedback = '', int $feedbackformat = 0) {
         $row = new stdClass();
         $row->questionid = $questionid;
         $row->number = $number;
         $row->name = $name;
+        $row->correctanswers = json_encode($correctanswers);
         $row->feedback = $feedbackformat;
         $row->feedbackformat = $feedbackformat;
         return $row;
@@ -110,27 +116,6 @@ class row {
      */
     public function setCorrectanswers(array $correctanswers): void {
         $this->correctanswers = $correctanswers;
-    }
-
-    /**
-     * Create default rows.
-     *
-     * @param int $questionid
-     * @param int $rowstart
-     * @param int $numberofrows
-     * @return void
-     * @throws \dml_exception
-     */
-    public function create_default_rows(int $questionid, int $rowstart = 1, int $numberofrows = 0) {
-        global $DB;
-        if ($numberofrows === 0) {
-            $numberofrows = $this->numberofrows;
-        }
-        for ($r = $rowstart; $r <= $numberofrows; $r++) {
-            $row = $this->create_a_default_row($questionid, $r, 'r'.$r, );
-            $row->id = $DB->insert_record('qtype_oumatrix_rows', $row);
-            $this->rows[] = $row;
-        }
     }
 
     /**
@@ -158,26 +143,6 @@ class row {
     public function delete_a_row(int $rownumber) {
         global $DB;
         $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $this->questionid, 'number' => $rownumber]);
-    }
-
-    /**
-     * Return an array of rows.
-     *
-     * @param int $numberofrows
-     * @return array|null
-     * @throws \dml_exception
-     */
-    public function get_rows(int $numberofrows = 0): ?array {
-        $rows = [];
-        // If there is no changes in number of rows
-        if ($this->numberofrows === $numberofrows) {
-            for ($r = 1; $r <= $numberofrows; $r++) {
-                $rows[] = $this->get_a_row($r);
-            }
-            return $rows;
-        } else {
-            return $this->create_default_rows($this->questionid, 1);
-        }
     }
 
     /**

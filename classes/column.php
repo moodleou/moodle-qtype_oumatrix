@@ -52,35 +52,35 @@ class column {
      * @param int $number
      * @param string $name
      */
-    public function __construct(int $id, int $questionid = 0, int $number = 0, string $name = '') {
+    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '') {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
         $this->id = $id;
+        //$this->column = $this->populate();
     }
 
-    public function populate(stdClass $column) {
-        $this->column = $column;
-        $this->id = $column->id;
-        $this->questionid = $column->questionid;
-        $this->number = $column->number;
-        $this->name = $column->name;
+    private function populate(): ?stdClass {
+        if ($this->questionid && $this->number && $this->name) {
+            $column = new stdClass();
+            $column->questionid = $this->questionid;
+            $column->number = $this->number;
+            $column->name = $this->name;
+            return $column;
+        }
+        return null;
     }
 
     /**
      * Return a column object
      *
-     * @param int $id
+     * @param string $name
      * @return stdClass
      * @throws \dml_exception
      */
-    public function get_a_column_by_id(int $id): ?stdClass {
-        global $DB;
-        //if ($this->column->id === $id) {
-        //    return $this->column;
-        //}
-        if ($column = $DB->get_record('qtype_oumatrix_columns', ['id' => $id])) {
-            return $column;
+    public function get_column_by_name(string $name): ?stdClass {
+        if ($name === $this->name) {
+            return $this->column;
         }
         return null;
     }

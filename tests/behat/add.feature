@@ -27,12 +27,12 @@ Feature: Test creating a Matrix question
       | Answer mode                        | Single choice                               |
       | Marking mode                       | Give partial credit                         |
       | id_columnname_0                    | salmon                                      |
-      | id_rowanswers_0_A1                 | 1                                           |
       | id_columnname_1                    | chicken                                     |
-      | id_rowanswers_1_A2                 | 1                                           |
       | id_columnname_2                    | lamb                                        |
       | id_rowname_0                       | Is a fish                                   |
+      | id_rowanswers_0_A1                 | 1                                           |
       | id_rowname_1                       | Is a bird                                   |
+      | id_rowanswers_1_A2                 | 1                                           |
       | id_rowname_2                       | Is a mammal                                 |
       | id_rowanswers_2_A3                 | 1                                           |
       | For any correct response           | Correct feedback                            |

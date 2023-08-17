@@ -41,7 +41,7 @@ $string['grademethod_help'] = 'Standard (subpoints): each correct response in th
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
-$string['notenoughquestions'] = 'This type of question requires at least {$a} word';
+$string['notenoughanswercols'] = 'This type of question requires at least {$a} answers columns';
 $string['pluginname'] = 'Matrix';
 $string['pluginname_help'] = 'Creating a matrix question requires you to specify column headings (values) to row headings (items). For example, you might ask students to classify an item as animal, vegetable, or mineral using Single Choice. You can use Multiple Response so that several values may apply to an item.';
 $string['pluginnameadding'] = 'Adding a Matrix question';
