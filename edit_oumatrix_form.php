@@ -84,16 +84,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      */
     protected function definition_inner($mform) {
 
-        // Sett the number of columns and rows.
-        $this->numcolumns = self::COL_NUM_START;
-        $this->numrows = self::ROW_NUM_START;
-        //if ($this->question->options->columns) {
-        //    $this->numcolumns = count($this->question->options->columns);
-        //}
-        //if ($this->question->options->rows) {
-        //    $this->numrows = count($this->question->options->rows);
-        //}
-
+        // Sett the number of columns and rows.self::COL_NUM_START;
+        $this->numcolumns = $this->numcolumns ?? self::COL_NUM_START;
+        $this->numrows = $this->numrows ??self::ROW_NUM_START;
 
         $qtype = 'qtype_oumatrix';
         $answermodemenu = [
@@ -153,6 +146,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         $this->inputtype = $inputtype;
         $this->grademethod = $grademethod;
+
+        $columns = optional_param_array('columnname', '', PARAM_TEXT);
+        $this->numcolumns = $columns ? count($columns) : self::COL_NUM_START;
     }
 
     /**
@@ -204,6 +200,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         foreach ($question->options->columns as $column) {
             $question->columnname[] = $column->name;
         }
+        //$this->numcolumns = count($question->options->columns);
         return $question;
     }
 
@@ -247,6 +244,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $key++;
         }
         $question->feedback = $feedback;
+        //$this->numrows = count($question->options->rows);
         return $question;
     }
 
