@@ -69,30 +69,30 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->numcolumns = $this->numcolumns ?? self::COL_NUM_START;
         $this->numrows = $this->numrows ?? self::ROW_NUM_START;
 
-        $qtype = 'qtype_oumatrix';
         $answermodemenu = [
-                'single' => get_string('answermodesingle', $qtype),
-                'multiple' => get_string('answermodemultiple', $qtype)
+                'single' => get_string('answermodesingle', 'qtype_oumatrix'),
+                'multiple' => get_string('answermodemultiple', 'qtype_oumatrix')
         ];
-        $mform->addElement('select', 'inputtype', get_string('answermode', $qtype), $answermodemenu);
-        $mform->setDefault('inputtype', $this->get_default_value('single', get_config($qtype, 'inputtype')));
+        $mform->addElement('select', 'inputtype', get_string('answermode', 'qtype_oumatrix'), $answermodemenu);
+        $mform->setDefault('inputtype', $this->get_default_value('single',
+                get_config('qtype_oumatrix', 'inputtype')));
 
         $grademethod = [
-                'partial' => get_string('gradepartialcredit', $qtype),
-                'allnone' => get_string('gradeallornothing', $qtype)
+                'partial' => get_string('gradepartialcredit', 'qtype_oumatrix'),
+                'allnone' => get_string('gradeallornothing', 'qtype_oumatrix')
         ];
-        $mform->addElement('select', 'grademethod', get_string('grademethod', $qtype), $grademethod);
-        $mform->addHelpButton('grademethod', 'grademethod', $qtype);
+        $mform->addElement('select', 'grademethod', get_string('grademethod', 'qtype_oumatrix'), $grademethod);
+        $mform->addHelpButton('grademethod', 'grademethod', 'qtype_oumatrix');
         $mform->setDefault('grademethod', $this->get_default_value(
-                'grademethod', get_config($qtype, 'grademethod')));
+                'grademethod', get_config('qtype_oumatrix', 'grademethod')));
 
-        $mform->addElement('selectyesno', 'shuffleanswers', get_string('shuffleanswers', $qtype));
-        $mform->addHelpButton('shuffleanswers', 'shuffleanswers', $qtype);
+        $mform->addElement('selectyesno', 'shuffleanswers', get_string('shuffleanswers', 'qtype_oumatrix'));
+        $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_oumatrix');
         $mform->setDefault('shuffleanswers', $this->get_default_value(
-                'shuffleanswers', get_config($qtype, 'shuffleanswers')));
+                'shuffleanswers', get_config('qtype_oumatrix', 'shuffleanswers')));
 
         // Add update field.
-        $mform->addElement('submit', 'updateform', get_string('updateform', $qtype));
+        $mform->addElement('submit', 'updateform', get_string('updateform', 'qtype_oumatrix'));
         $mform->registerNoSubmitButton('updateform');
 
         $this->set_current_settings();
@@ -117,6 +117,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $inputtype = optional_param('inputtype', '', PARAM_TEXT);
         $grademethod = optional_param('grademethod', '', PARAM_TEXT);
 
+        get_config('', 'inputtype');
         if ($inputtype == '') {
             $inputtype = $this->question->options->inputtype ?? 'single';
         }
@@ -147,9 +148,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question = $this->data_preprocessing_hints($question, true, true);
         $question = $this->data_preprocessing_options($question,);
         print_object('data_preprocessing() 1111111111111111111111');
+        print_object('data_preprocessing() 222222222222222222222');return $question;
         print_object($question);
-        print_object('data_preprocessing() 222222222222222222222');
-        return $question;
+        print_object('data_preprocessing() 222222222222222222222');return $question;
     }
 
      function data_preprocessing_options($question) {
@@ -161,9 +162,57 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question->shuffleanswers = $question->options->shuffleanswers;
         $question->shownumcorrect = $question->options->shownumcorrect;
 
-        $this->data_preprocessing_columns($question);
-        $this->data_preprocessing_rows($question);
-        return $question;
+        // Preprocess columns.
+         if (empty($question->options->columns)) {
+             return $question;
+         }
+         $question->columnname = [];
+         foreach ($question->options->columns as $column) {
+             if (trim($column->name ?? '') === '') {
+                 continue;
+             }
+             $question->columnname[] = $column->name;
+         }
+         $this->numcolumns = count($question->columnname);
+
+         // preprocess rows.
+         if (empty($question->options->rows)) {
+             return $question;
+         }
+         $key = 0;
+         $question->rowname = [];
+         foreach ($question->options->rows as $index => $row) {
+             $question->rowname[] = $row->name;
+             if ($question->options->inputtype == 'single') {
+                 $question->rowanswers[] = $row->correctanswers;
+             } else {
+                 $this->format_correct_answers_multiple($row->number, $row->correctanswers, $question);
+             }
+             $itemid = (int)$row->id ?? null;
+
+             // Prepare the feedback editor to display files in draft area.
+             $feedback = [];
+             $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback['.$key.']');
+             $feedback[$key]['text'] = file_prepare_draft_area(
+                     $feedbackdraftitemid,
+                     $this->context->id,
+                     'qtype_oumatrix',
+                     'feedback',
+                     $itemid,
+                     $this->fileoptions,
+                     $row->feedback
+             );
+             $feedback[$key]['itemid'] = $feedbackdraftitemid;
+             $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
+             $question->options->rows[$index]->feedbackformat = $feedback[$key]['format'];
+             $question->options->rows[$index]->feedback = $feedback[$key]['text'];
+             $key++;
+         }
+         $question->feedback = $feedback;
+
+         //$this->data_preprocessing_columns($question);
+         //$this->data_preprocessing_rows($question);
+         return $question;
     }
 
     /**
@@ -183,7 +232,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             }
             $question->columnname[] = $column->name;
         }
-        //$this->numcolumns = count($question->columnname);
+        $this->numcolumns = count($question->columnname);
         return $question;
     }
 
@@ -356,7 +405,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $mform->setType('rowname', PARAM_RAW);
         $repeatedoptions['row']['type'] = PARAM_RAW;
-        //$repeatedoptions['row']['correctanswers'] = PARAM_RAW;
         $rows = 'rows';
         return $repeated;
     }

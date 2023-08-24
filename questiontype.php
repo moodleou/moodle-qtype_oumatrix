@@ -165,13 +165,19 @@ class qtype_oumatrix extends question_type {
                     return $question->id;
                 }, $oldcolumns);
                 [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
-                //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
-                //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
                 $DB->delete_records_select('qtype_oumatrix_columns', "id $idssql", $idsparams);
             }
         }
     }
-    public function save_rows($formdata) {
+
+    /**
+     *
+     * @param $formdata
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function save_rows(MoodleQuickForm $formdata) {
         global $DB;
         $context = $formdata->context;
         $result = new stdClass();
@@ -207,7 +213,6 @@ class qtype_oumatrix extends question_type {
                 } else {
                     $questionrow->correctanswers = $formdata->rowanswers[$i] ?? '';
                 }
-                //$questionrow->correctanswers = ''; //implode(', ', $formdata->a[$i]);
                 $questionrow->feedback = $formdata->feedback[$i]['text'];
                 $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
                 $questionrow->feedbackformat = FORMAT_HTML;
@@ -215,93 +220,14 @@ class qtype_oumatrix extends question_type {
             }
         }
         // Remove old rows.
+        // TODO: we shpould revisit this part of the code, btw, $fs seems not to be used.
         $fs = get_file_storage();
         if ($oldrows) {
             $ids = array_map(function($question){
                 return $question->id;
             }, $oldrows);
             [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
-            //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'feedback', "id $idssql", $idsparams);
-            //$fs->delete_area_files_select($context->id, 'qtype_crossword', 'clue', "id $idssql", $idsparams);
             $DB->delete_records_select('qtype_oumatrix_rows', "id $idssql", $idsparams);
-        }
-    }
-
-   public function save_hints($formdata, $withparts = false) {
-        global $DB;
-        $context = $formdata->context;
-
-        $oldhints = $DB->get_records('question_hints', ['questionid' => $formdata->id], 'id ASC');
-
-        if (!empty($formdata->hint)) {
-            $numhints = max(array_keys($formdata->hint)) + 1;
-        } else {
-            $numhints = 0;
-        }
-
-        if ($withparts) {
-            if (!empty($formdata->hintclearwrong)) {
-                $numclears = max(array_keys($formdata->hintclearwrong)) + 1;
-            } else {
-                $numclears = 0;
-            }
-            if (!empty($formdata->hintshownumcorrect)) {
-                $numshows = max(array_keys($formdata->hintshownumcorrect)) + 1;
-            } else {
-                $numshows = 0;
-            }
-            $numhints = max($numhints, $numclears, $numshows);
-        }
-
-        if (!empty($formdata->hintshowrowfeedback)) {
-            $numshowfeedbacks = max(array_keys($formdata->hintshowrowfeedback)) + 1;
-        } else {
-            $numshowfeedbacks = 0;
-        }
-        $numhints = max($numhints, $numshowfeedbacks);
-
-        for ($i = 0; $i < $numhints; $i += 1) {
-            if (html_is_blank($formdata->hint[$i]['text'])) {
-                $formdata->hint[$i]['text'] = '';
-            }
-
-            if ($withparts) {
-                $clearwrong = !empty($formdata->hintclearwrong[$i]);
-                $shownumcorrect = !empty($formdata->hintshownumcorrect[$i]);
-            }
-
-            $showrowfeedback = !empty($formdata->hintshowrowfeedback[$i]);
-
-            if (empty($formdata->hint[$i]['text']) && empty($clearwrong) &&
-                    empty($shownumcorrect) && empty($showrowfeedback)) {
-                continue;
-            }
-
-            // Update an existing hint if possible.
-            $hint = array_shift($oldhints);
-            if (!$hint) {
-                $hint = new stdClass();
-                $hint->questionid = $formdata->id;
-                $hint->hint = '';
-                $hint->id = $DB->insert_record('question_hints', $hint);
-            }
-
-            $hint->hint = $this->import_or_save_files($formdata->hint[$i],
-                    $context, 'question', 'hint', $hint->id);
-            $hint->hintformat = $formdata->hint[$i]['format'];
-            if ($withparts) {
-                $hint->clearwrong = $clearwrong;
-                $hint->shownumcorrect = $shownumcorrect;
-            }
-            $hint->options = $showrowfeedback;
-            $DB->update_record('question_hints', $hint);
-        }
-
-        // Delete any remaining old hints.
-        $fs = get_file_storage();
-        foreach ($oldhints as $oldhint) {
-            $fs->delete_area_files($context->id, 'question', 'hint', $oldhint->id);
-            $DB->delete_records('question_hints', array('id' => $oldhint->id));
         }
     }
 
@@ -317,12 +243,6 @@ class qtype_oumatrix extends question_type {
 
     protected function make_hint($hint) {
         return qtype_oumatrix_hint::load_from_record($hint);
-    }
-
-    // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
-    public function make_answer($answer) {
-        // Overridden just so we can make it public for use by question.php.
-        return parent::make_answer($answer);
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
@@ -410,8 +330,8 @@ class qtype_oumatrix extends question_type {
                     }
                     $newrow->setCorrectanswers($correctAnswers);
                 }
-                print_object("****************************");
-                print_object($newrow);
+                //print_object("****************************");
+                //print_object($newrow);
 
                 $question->rows[] = $newrow;
             }
