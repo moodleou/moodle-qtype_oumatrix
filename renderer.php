@@ -245,14 +245,14 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 <tr>
                     <th scope='col'></th>";
         foreach ($question->columns as $key => $value) {
-            $colname[$key] = $value->getName();
+            $colname[$key] = $value->get_name();
             $table .= "<th scope='col'><span id='$colname[$key]' class='answer_col' >$colname[$key]</span></th>";
         }
         $table .= "</tr>
         <tr> ";
         $i = 0;
         foreach ($question->rows as $key => $value) {
-            $rowname = $value->getName();
+            $rowname = $value->get_name();
             $rowid = 'row_'. $key;
             $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {

@@ -22,7 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use \qtype_oumatrix\row;
+use qtype_oumatrix\column;
+use qtype_oumatrix\row;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -200,8 +201,11 @@ class qtype_oumatrix extends question_type {
                 // Prepare correct answers.
                 if($question->inputtype == 'multiple') {
                     for ($c = 0; $c < count($question->columnname); $c++) {
+                        if ($question->columnname[$c] === '') {
+                            continue;
+                        }
                         $anslabel = get_string('a', 'qtype_oumatrix', $c + 1);
-                        $rowanswerslabel = "rowanswers". $anslabel;
+                        $rowanswerslabel = "rowanswers" . $anslabel;
 
                         if (!array_key_exists($i, $question->$rowanswerslabel)) {
                             $answerslist[$question->columnname[$c]] = "0";
@@ -265,12 +269,14 @@ class qtype_oumatrix extends question_type {
 
     protected function get_num_correct_choices($questiondata) {
         $numright = 0;
-        // TODO: To be done correctly
-        //foreach ($questiondata->options->answers as $answer) {
-        //    if (!question_state::graded_state_for_fraction($answer->fraction)->is_incorrect()) {
-        //        $numright += 1;
-        //    }
-        //}
+        foreach ($questiondata->options->rows as $row) {
+            $rowanwers = json_decode($row->correctanswers);
+            foreach ($rowanwers as $key => $value) {
+                if ((int) $value === 1) {
+                    $numright += 1;
+                }
+            }
+        }
         return $numright;
     }
 
@@ -281,20 +287,20 @@ class qtype_oumatrix extends question_type {
         // Amazingly, the forumla for this works out to be
         // # correct choices / total # choices in all cases.
 
-        //TODO: improve this is a correct way if we are not using the answers table, etc.
+        //TODO: improve this.
         return $this->get_num_correct_choices($questiondata) /
-                count($questiondata->options->answers);
-    }
+                count($questiondata->options->rows);
+   }
 
     public function get_possible_responses($questiondata) {
         $numright = $this->get_num_correct_choices($questiondata);
         $parts = [];
 
         // TODO: To be done correctly
-        //foreach ($questiondata->options->answers as $aid => $answer) {
-        //    $parts[$aid] = array($aid =>
-        //            new question_possible_response($answer->answer, $answer->fraction / $numright));
-        //}
+        foreach ($questiondata->options->answers as $aid => $answer) {
+            $parts[$aid] = array($aid =>
+                    new question_possible_response($answer->answer, $answer->fraction / $numright));
+        }
 
         return $parts;
     }
@@ -304,23 +310,17 @@ class qtype_oumatrix extends question_type {
      * @param question_definition $question the question_definition we are creating.
      * @param object $questiondata the question data loaded from the database.
      */
-    protected function initialise_question_rows(question_definition $question,
-            $questiondata) {
+    protected function initialise_question_rows(question_definition $question, $questiondata) {
         if (!empty($questiondata->options->rows)) {
-            print_object("222222222222222222222222222");
-            print_object($questiondata);
             foreach ($questiondata->options->rows as $row) {
                 $newrow  = $this->make_row($row);
 
-                if ($newrow->getCorrectanswers() != '') {
-                    $correctAnswers = $newrow->getCorrectanswers();
+                if ($newrow->get_correctanswers() != '') {
+                    $correctAnswers = $newrow->get_correctanswers();
                     //$decodedanswers = [];
                     if( $questiondata->options->inputtype == 'multiple') {
                         $correctAnswers = [];
-                        $todecode = implode(",", $newrow->getCorrectanswers());
-                        //foreach ($newrow->getCorrectanswers() as $value) {
-                        //    $decodedanswers = json_decode(implode("", [$value]), true);
-                        //}
+                        $todecode = implode(",", $newrow->get_correctanswers());
                         $decodedanswers = json_decode($todecode, true);
                         foreach($questiondata->options->columns as $key => $column) {
                             if ($decodedanswers != null && array_key_exists($column->name, $decodedanswers)) {
@@ -330,9 +330,6 @@ class qtype_oumatrix extends question_type {
                     }
                     $newrow->setCorrectanswers($correctAnswers);
                 }
-                //print_object("****************************");
-                //print_object($newrow);
-
                 $question->rows[] = $newrow;
             }
         }
@@ -352,7 +349,7 @@ class qtype_oumatrix extends question_type {
     }
 
     protected function make_column($columndata) {
-        return new \qtype_oumatrix\column($columndata->id, $columndata->questionid, $columndata->number, $columndata->name);
+        return new column($columndata->id, $columndata->questionid, $columndata->number, $columndata->name);
     }
 
     public function make_row($rowdata) {
@@ -409,7 +406,7 @@ class qtype_oumatrix extends question_type {
     }
 
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
-        print_object($question);
+        //print_object($question);
         $output = '';
 
         $output .= "    <shuffleanswers>" . $format->get_single(

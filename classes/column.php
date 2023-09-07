@@ -57,10 +57,10 @@ class column {
         $this->number = $number;
         $this->name = $name;
         $this->id = $id;
-        //$this->column = $this->populate();
+        $this->column = $this->populate();
     }
 
-    private function populate(): ?stdClass {
+    public function populate(): ?stdClass {
         if ($this->questionid && $this->number && $this->name) {
             $column = new stdClass();
             $column->questionid = $this->questionid;
@@ -101,33 +101,29 @@ class column {
     }
 
     /**
+     * Return column id
+     *
      * @return int
      */
-    public function getQuestionid(): int {
-        return $this->questionid;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int {
+    public function get_id(): int {
         return $this->id;
     }
 
     /**
+     * Return column number
+     *
      * @return int
      */
-    public function getNumber(): int {
+    public function get_number(): int {
         return $this->number;
     }
 
     /**
-     * Return name
+     * Return column name
      *
-     * @param int $id
      * @return string
      */
-    public function getName(): string {
+    public function get_name(): string {
         return $this->name;
     }
 

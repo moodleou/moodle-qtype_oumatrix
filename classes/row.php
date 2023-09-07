@@ -44,7 +44,7 @@ class row {
     /** @var string The row name. */
     public $name;
 
-    /** @var array The list of correct answers A json-encoded list of correct answerids for a given row. */
+    /** @var array The list of correct answers, A json-encoded list of correct answerids for a given row. */
     public $correctanswers = [];
 
     /** @var string The row specific feedback. */
@@ -80,8 +80,8 @@ class row {
      */
     public function get_a_row_by_id(int $id): ?stdClass {
         global $DB;
-        if ($column = $DB->get_record('qtype_oumatrix_rows', ['id' => $id])) {
-            return $column;
+        if ($row = $DB->get_record('qtype_oumatrix_rows', ['id' => $id])) {
+            return $row;
         }
         return null;
     }
@@ -148,42 +148,42 @@ class row {
     /**
      * @return int
      */
-    public function getId(): int {
+    public function get_id(): int {
         return $this->id;
     }
 
     /**
      * @return int
      */
-    public function getNumber(): int {
+    public function get_number(): int {
         return $this->number;
     }
 
     /**
      * @return string
      */
-    public function getName(): string {
+    public function get_name(): string {
         return $this->name;
     }
 
     /**
      * @return array
      */
-    public function getCorrectanswers(): array {
+    public function get_correctanswers(): array {
         return $this->correctanswers;
     }
 
     /**
      * @return string
      */
-    public function getFeedback(): string {
+    public function get_feedback(): string {
         return $this->feedback;
     }
 
     /**
      * @return int
      */
-    public function getFeedbackformat(): int {
+    public function get_feedbackformat(): int {
         return $this->feedbackformat;
     }
 

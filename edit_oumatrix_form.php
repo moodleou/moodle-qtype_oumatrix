@@ -147,10 +147,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question = $this->data_preprocessing_combined_feedback($question, true);
         $question = $this->data_preprocessing_hints($question, true, true);
         $question = $this->data_preprocessing_options($question,);
-        print_object('data_preprocessing() 1111111111111111111111');
-        print_object('data_preprocessing() 222222222222222222222');return $question;
-        print_object($question);
-        print_object('data_preprocessing() 222222222222222222222');return $question;
+        //print_object('data_preprocessing() 1111111111111111111111');
+        //print_object('data_preprocessing() 222222222222222222222');return $question;
+        //print_object($question);
+        //print_object('data_preprocessing() 222222222222222222222');return $question;
     }
 
      function data_preprocessing_options($question) {

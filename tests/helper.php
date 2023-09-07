@@ -26,8 +26,8 @@ class qtype_oumatrix_test_helper extends question_test_helper {
 
     public function get_test_questions() {
         return [
-                'three_by_three_single',
-                'three_by_three_multople'
+                'four_by_four_single',
+                'three_by_three_multiple'
         ];
     }
 
@@ -73,57 +73,57 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->options->columns = [
                 11 => (object) [
                         'id' => 11,
-                        'numbdr' => 0,
+                        'number' => 0,
                         'name' => 'Insects',
                 ],
                 12 => (object) [
                         'id' => 12,
-                        'numbdr' => 1,
+                        'number' => 1,
                         'name' => 'Fish',
                 ],
                 13 => (object) [
                         'id' => 13,
-                        'numbdr' => 2,
+                        'number' => 2,
                         'name' => 'Birdas',
                 ],
                 14 => (object) [
                         'id' => 13,
-                        'numbdr' => 2,
+                        'number' => 2,
                         'name' => 'Mammals',
                 ],
         ];
         $qdata->options->rows = [
                 11 => (object) [
                         'id' => 11,
-                        'numbdr' => 0,
+                        'number' => 0,
                         'name' => 'Fly, bee, spider',
                         'feedback' => 'Flies, bees and spiders are insects.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"1","Fish":"0","Birds":"0", "$mammals":"0"}',
+                        'correctanswers' => '{"Insects":"1","Fish":"0","Birds":"0", "mammals":"0"}',
                 ],
                 12 => (object) [
                         'id' => 12,
-                        'numbdr' => 0,
+                        'number' => 1,
                         'name' => 'Cod, Salmon, Trout',
                         'feedback' => 'Cod, Salmon and Trout are fish.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"1","Birds":"0", "$mammals":"0"}',
+                        'correctanswers' => '{"Insects":"0","Fish":"1","Birds":"0", "mammals":"0"}',
                 ],
                 13 => (object) [
                         'id' => 13,
-                        'numbdr' => 0,
+                        'number' => 2,
                         'name' => 'Gull, Owl',
                         'feedback' => 'Gull and Owl are birds.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"1", "$mammals":"0"}',
+                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"1", "mammals":"0"}',
                 ],
                 14 => (object) [
                         'id' => 14,
-                        'numbdr' => 0,
+                        'number' => 3,
                         'name' => 'Cow, Dog, Horse',
-                        'feedback' => 'Cow, Dog and  Horse are mammals',,
+                        'feedback' => 'Cow, Dog and  Horse are mammals',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"0", "$mammals":"1"}',
+                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"0", "mammals":"1"}',
                 ],
         ];
 
@@ -144,6 +144,90 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 ],
         ];
         return $qdata;
+    }
+
+    /**
+     * Get the question data, as it would be loaded by get_question_options.
+     * @return object
+     */
+    public static function get_oumatrix_question_form_data_four_by_four_single() {
+        $qfdata = new stdClass();
+
+        $qfdata->name = 'Matrix_4by4_single01';
+        $qfdata->questiontext = ['text' => 'Please answer the sub questions in all 4 rows', 'format' => FORMAT_HTML];
+        $qfdata->generalfeedback = ['text' => 'We are recognising different type of animals.', 'format' => FORMAT_HTML];
+        $qfdata->defaultmark = 1;
+        $qfdata->length = 1;
+        $qfdata->penalty = 0.3333333;
+        $qfdata->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $qfdata->versionid = 0;
+        $qfdata->version = 1;
+        $qfdata->questionbankentryid = 0;
+        $qfdata->inputtype = 'single';
+        $qfdata->grademethod = 'partial';
+        $qfdata->shuffleanswers = 1;
+        $qfdata->correctfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->partiallycorrectfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->shownumcorrect = 1;
+        $qfdata->incorrectfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->columns = [
+                11 => [
+                        'number' => 0,
+                        'name' => 'Insects'
+                ],
+                12 =>  [
+                        'number' => 1,
+                        'name' => 'Fish'
+                ],
+                13 => [
+                        'number' => 2,
+                        'name' => 'Birdas'
+                ],
+                14 => [
+                        'number' => 2,
+                        'name' => 'Mammals'
+                ],
+        ];
+        $qfdata->rows = [
+                11 => [
+                        'number' => 0,
+                        'name' => 'Fly, bee, spider',
+                        'correctanswers' => '{"Insects":"1","Fish":"0","Birds":"0", "mammals":"0"}',
+                        'feedback' => ['text' => 'Flies, bees and spiders are insects.', 'format' => FORMAT_HTML]
+                ],
+                12 => [
+                        'number' => 0,
+                        'name' => 'Cod, Salmon, Trout',
+                        'correctanswers' => '{"Insects":"0","Fish":"1","Birds":"0", "mammals":"0"}',
+                        'feedback' => ['text' => 'Cod, Salmon and Trout are fish.', 'format' => FORMAT_HTML]
+                ],
+                13 => [
+                        'number' => 0,
+                        'name' => 'Gull, Owl',
+                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"1", "mammals":"0"}',
+                        'feedback' => ['text' => 'Gull and Owl are birds.', 'format' => FORMAT_HTML]
+                ],
+                14 => (object) [
+                        'number' => 0,
+                        'name' => 'Cow, Dog, Horse',
+                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"0", "mammals":"1"}',
+                        'feedback' => ['text' => 'Cow, Dog and  Horse are mammals', 'format' => FORMAT_HTML]
+                ],
+        ];
+
+        $qfdata->hints = [
+                0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
+                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
+            ];
+        $qfdata->hintclearwrong = [0, 1];
+        $qfdata->hintshownumbcorrect = [1, 1];
+        return $qfdata;
     }
 
     /**
@@ -207,25 +291,25 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'id' => 21,
                         'numbdr' => 0,
                         'name' => 'Even numbers',
+                        'correctanswers' => '{"one":"0","two":"1","three":"0"}',
                         'feedback' => 'Even numbers are divisible by 2 without remainders.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"one":"0","two":"1","three":"0"}',
                 ],
                 22 => (object) [
                         'id' => 22,
-                        'numbdr' => 0,
+                        'numbdr' => 1,
                         'name' => 'Odd numbers',
+                        'correctanswers' => '{"one":"1","two":"0","three":"1"}',
                         'feedback' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"one":"1","two":"0","three":"1"}',
                 ],
                 23 => (object) [
                         'id' => 23,
-                        'numbdr' => 0,
+                        'numbdr' => 2,
                         'name' => 'Number less than 3',
+                        'correctanswers' => '{"one":"1","two":"1","three":"0"}',
                         'feedback' => 'All numbers smaller than 3.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"one":"1","two":"1","three":"0"}',
                 ],
         ];
 
@@ -246,6 +330,81 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 ],
         ];
         return $qdata;
+    }
+
+    /**
+     * Get the question data, as it would be loaded by get_question_options.
+     * @return object
+     */
+    public static function get_oumatrix_question_form_data_three_by_three_pultiple() {
+        $qfdata = new stdClass();
+
+        $qfdata->name = 'Matrix_3by3_multiple01';
+        $qfdata->questiontext = ['text' => 'Please answer the sub questions in each row', 'format' => FORMAT_HTML];
+        $qfdata->generalfeedback = ['text' => 'We are dealing with even and odd numbers', 'format' => FORMAT_HTML];
+        $qfdata->defaultmark = 1;
+        $qfdata->length = 1;
+        $qfdata->penalty = 0.3333333;
+        $qfdata->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $qfdata->versionid = 0;
+        $qfdata->version = 1;
+        $qfdata->questionbankentryid = 0;
+        $qfdata->inputtype = 'multiple';
+        $qfdata->grademethod = 'partial';
+        $qfdata->shuffleanswers = 1;
+        $qfdata->correctfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->partiallycorrectfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->shownumcorrect = 1;
+        $qfdata->incorrectfeedback = [
+                'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
+                'format' => FORMAT_HTML];
+        $qfdata->columns = [
+                21 => [
+                        'number' => 0,
+                        'name' => 'one'
+                ],
+                22 =>  [
+                        'number' => 1,
+                        'name' => 'two'
+                ],
+                23 => [
+                        'number' => 2,
+                        'name' => 'three'
+                ],
+        ];
+        $qfdata->rows = [
+                21 => [
+                        'number' => 0,
+                        'name' => 'Even numbers',
+                        'correctanswers' => '{"one":"0","two":"1","three":"0"}',
+                        'feedback' => ['text' => 'Even numbers are divisible by 2 without remainders.', 'format' => FORMAT_HTML]
+                ],
+                22 => [
+                        'number' => 1,
+                        'name' => 'Odd numbers',
+                        'correctanswers' => '{"one":"1","two":"0","three":"1"}',
+                        'feedback' => ['text' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
+                                'format' => FORMAT_HTML]
+                ],
+                23 => [
+                        'number' => 2,
+                        'name' => 'Number less than 3',
+                        'correctanswers' => '{"one":"1","two":"1","three":"0"}',
+                        'feedback' => ['text' => 'All numbers smaller than 3.', 'format' => FORMAT_HTML]
+                ],
+        ];
+
+        $qfdata->hints = [
+                0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
+                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
+        ];
+        $qfdata->hintclearwrong = [0, 1];
+        $qfdata->hintshownumbcorrect = [1, 1];
+        return $qfdata;
     }
 
     // TODO: following methods are copied from the old marix and may need some chnages.
@@ -365,8 +524,8 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $result->penalty = 0.3333333;
         $result->qtype = question_bank::get_qtype('oumatrix');
 
-        $result->rows = array();
-        $result->cols = array();
+        $result->rows = [];
+        $result->cols = [];
         return $result;
     }
 }
