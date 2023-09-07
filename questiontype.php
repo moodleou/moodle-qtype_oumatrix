@@ -172,49 +172,49 @@ class qtype_oumatrix extends question_type {
 
     /**
      *
-     * @param $formdata
+     * @param object $question This holds the information from the editing form
      * @return void
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function save_rows(MoodleQuickForm $formdata) {
+    public function save_rows($question) {
         global $DB;
-        $context = $formdata->context;
+        $context = $question->context;
         $result = new stdClass();
-        $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $formdata->id], 'id ASC');
+        $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id ASC');
 
-        $numrows = count($formdata->rowname);
+        $numrows = count($question->rowname);
 
         // Insert row input data.
         for ($i = 0; $i < $numrows; $i++) {
-            if (trim($formdata->rowname[$i] ?? '') === '') {
+            if (trim($question->rowname[$i] ?? '') === '') {
                 continue;
             }
             // Update an existing word if possible.
             $questionrow = array_shift($oldrows);
             if (!$questionrow) {
                 $questionrow = new stdClass();
-                $questionrow->questionid = $formdata->id;
+                $questionrow->questionid = $question->id;
                 $questionrow->number = $i;
-                $questionrow->name = $formdata->rowname[$i];
+                $questionrow->name = $question->rowname[$i];
                 // Prepare correct answers.
-                if($formdata->inputtype == 'multiple') {
-                    for ($c = 0; $c < count($formdata->columnname); $c++) {
+                if($question->inputtype == 'multiple') {
+                    for ($c = 0; $c < count($question->columnname); $c++) {
                         $anslabel = get_string('a', 'qtype_oumatrix', $c + 1);
                         $rowanswerslabel = "rowanswers". $anslabel;
 
-                        if (!array_key_exists($i, $formdata->$rowanswerslabel)) {
-                            $answerslist[$formdata->columnname[$c]] = "0";
+                        if (!array_key_exists($i, $question->$rowanswerslabel)) {
+                            $answerslist[$question->columnname[$c]] = "0";
                             continue;
                         }
-                        $answerslist[$formdata->columnname[$c]] = $formdata->$rowanswerslabel[$i];
+                        $answerslist[$question->columnname[$c]] = $question->$rowanswerslabel[$i];
                     }
                     $questionrow->correctanswers = json_encode($answerslist);
                 } else {
-                    $questionrow->correctanswers = $formdata->rowanswers[$i] ?? '';
+                    $questionrow->correctanswers = $question->rowanswers[$i] ?? '';
                 }
-                $questionrow->feedback = $formdata->feedback[$i]['text'];
-                $questionrow->feedbackitemid = $formdata->feedback[$i]['itemid']; // TODO: Is this actually needed?
+                $questionrow->feedback = $question->feedback[$i]['text'];
+                $questionrow->feedbackitemid = $question->feedback[$i]['itemid']; // TODO: Is this actually needed?
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }

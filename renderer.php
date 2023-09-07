@@ -45,11 +45,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
     protected abstract function get_input_type();
 
-    protected abstract function get_input_name(question_attempt $qa, $value);
+    protected abstract function get_input_name(question_attempt $qa, $value, $columnnumber);
 
     protected abstract function get_input_value($value);
 
-    protected abstract function get_input_id(question_attempt $qa, $value);
+    protected abstract function get_input_id(question_attempt $qa, $value, $columnnumber);
 
     /**
      * Whether a choice should be considered right, wrong or partially right.
@@ -67,6 +67,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $question = $qa->get_question();
         //$response = $question->get_response($qa);
         $response = $qa->get_last_qt_data();
+        print_object("response &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         print_object($response);
         //print_object("renderer.... question ");
         //print_object("renderer.... $response ".$response);
@@ -103,7 +104,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
 
         $result .= html_writer::start_tag('div', array('class' => 'answer'));
-        $result .= $this->get_matrix($question);
+        $result .= $this->get_matrix($qa);
         /*$result .= "\n";
         $inputtype = $this->get_input_type();
         $inputattributes['id'] = $this->get_input_id($qa, $value);
@@ -228,9 +229,14 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return $result;
     }
 
-    public function get_matrix($question) {
+    public function get_matrix(question_attempt $qa) {
+
+        $question = $qa->get_question();
         print_object("*******************************************");
         print_object($question);
+        $response = $qa->get_last_qt_data();
+        print_object("*******************************************");
+        print_object($response);
         $caption = "Matrix question";
         $colname[] = null;
         $table = "
@@ -250,13 +256,25 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $rowid = 'row_'. $key;
             $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
+                $inputattributes['name'] = $this->get_input_name($qa, $key, $j);
+                $inputattributes['value'] = $this->get_input_value($value);
+                $inputattributes['id'] = $this->get_input_id($qa, $key, $j);
+                $inputattributes['aria-labelledby'] = $inputattributes['id'] . '_label';
                 if($question->inputtype == 'single') {
-                    $table .= "<td><input type='radio' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
-                            $colname[$j]. " value=$colname[$j]" . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                    $table .= "<td><input type='radio' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
+                        value=$colname[$j] " . "aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
                 } else {
-                    $table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
-                            $colname[$j]. " value=$colname[$j]" . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+                    $table .= "<td><input type='checkbox' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
+                        value=$colname[$j] " . "aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
+                    //$table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
+                    //        $colname[$j]. " value=$colname[$j] " . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
                 }
+                //$table .= " checked='checked' ";
+                $isselected = $question->is_choice_selected($colname[$j], $response, $key, $j);
+                if ($isselected) {
+                    $table .= " checked='checked' ";
+                }
+                $table .= "></td>";
             }
             $i++;
             $table .= "</tr>";
@@ -306,16 +324,16 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         return 'single';
     }
 
-    protected function get_input_name(question_attempt $qa, $value) {
-        return $qa->get_qt_field_name('answer');
+    protected function get_input_name(question_attempt $qa, $value, $columnnumber) {
+        return $qa->get_qt_field_name('rowanswers' . $value);
     }
 
     protected function get_input_value($value) {
         return $value;
     }
 
-    protected function get_input_id(question_attempt $qa, $value) {
-        return $qa->get_qt_field_name('answer' . $value);
+    protected function get_input_id(question_attempt $qa, $value, $columnnumber) {
+        return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
     }
 
     protected function is_right(question_answer $ans) {
@@ -328,14 +346,13 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-
-        // Put all correct answers (100% grade) into $right.
-        $right = array();
-        foreach ($question->answers as $ansid => $ans) {
-            if (question_state::graded_state_for_fraction($ans->fraction) ==
-                    question_state::$gradedright) {
-                $right[] = $question->make_html_inline($question->format_text($ans->answer, $ans->answerformat,
-                        $qa, 'question', 'answer', $ansid));
+        print_object("Inside single choice correct_response");
+        print_object($question);
+        $right = [];
+        foreach ($question->rows as $row) {
+            if ($row->correctanswers != '') {
+                $answer = (int)substr($row->correctanswers[0], 1);
+                $right[] = $row->name . " => " . $question->columns[$answer - 1]->name;
             }
         }
         return $this->correct_choices($right);
@@ -416,16 +433,16 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
         return 'multiple';
     }
 
-    protected function get_input_name(question_attempt $qa, $value) {
-        return $qa->get_qt_field_name('choice' . $value);
+    protected function get_input_name(question_attempt $qa, $value, $columnnumber) {
+        return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
     }
 
     protected function get_input_value($value) {
         return 1;
     }
 
-    protected function get_input_id(question_attempt $qa, $value) {
-        return $this->get_input_name($qa, $value);
+    protected function get_input_id(question_attempt $qa, $value, $columnnumber) {
+        return $this->get_input_name($qa, $value, $columnnumber);
     }
 
     protected function is_right(question_answer $ans) {
@@ -442,13 +459,19 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-
-        $right = array();
-        foreach ($question->answers as $ansid => $ans) {
-            if ($ans->fraction > 0) {
-                $right[] = $question->make_html_inline($question->format_text($ans->answer, $ans->answerformat,
-                        $qa, 'question', 'answer', $ansid));
+        print_object("Inside multiple choice correct_response");
+        print_object($question);
+        $right = [];
+        foreach ($question->rows as $row) {
+            if ($row->correctanswers != '') {
+                $answers = [];
+                foreach ($question->columns as $col) {
+                    if ($row->correctanswers[$col->number] == "1") {
+                        $answers[] =  $col->name;
+                    }
+                }
             }
+            $right[] = $row->name . " => " . implode(', ', $answers);
         }
         return $this->correct_choices($right);
     }

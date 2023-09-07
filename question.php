@@ -55,16 +55,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $numrows;
 
     //public abstract function get_response(question_attempt $qa);
-
-    public function get_expected_data(): array {
-        //$rows = new \qtype_oumatrix\oumatirx_info();
-        //print_object($this->rows);
-        //$response = [];
-        //for ($i = 0; $i < count($this->answers); $i++) {
-        //    $response[$this->field($i)] = PARAM_RAW_TRIMMED;
-        //}
-        //return $response;
-    }
+    public abstract function is_choice_selected($colname, $response, $rowkey, $colkey);
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
@@ -78,11 +69,12 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /**
      * Answer field name.
      *
-     * @param int $key Key number.
+     * @param int $rowkey The row key number.
+     * @param int $columnkey The column key number.
      * @return string The answer key name.
      */
-    protected function field(int $key): string {
-        return 'sub' . $key;
+    protected function field(int $rowkey, int $columnkey): string {
+        return 'sub' . $rowkey;
     }
 
     public function get_correct_response(): ?array {
@@ -94,21 +86,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     public function summarise_response(array $response): ?string {
-        $responsewords = [];
-        foreach ($this->answers as $key => $answer) {
-            $fieldname = $this->field($key);
-            if (array_key_exists($fieldname, $response)) {
-                $responseword = str_replace('_', ' ', $response[$fieldname]);
-                // If the answer is empty or only contain space. Display '-'.
-                $responseword = (empty($responseword) || core_text::strlen(trim($responseword)) === 0) ? '-' : $responseword;
-                // Get the correct answer position from the index key and convert to readable order.E.g: 0 -> 1).
-                $responsewords[] = $key + 1 . ') ' . $responseword;
-            }
-        }
-        if (empty($responsewords)) {
-            return null;
-        }
-        return implode('; ', $responsewords);
+        return "from base";
     }
 
     public function is_complete_response(array $response): bool {
@@ -266,9 +244,9 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
 
     public function apply_attempt_state(question_attempt_step $step) {
-        foreach ($this->subquestions as $i => $subq) {
-            $subq->apply_attempt_state($this->get_substep($step, $i));
-        }
+        //foreach ($this->subquestions as $i => $subq) {
+        //    $subq->apply_attempt_state($this->get_substep($step, $i));
+        //}
     }
 
 }
@@ -283,68 +261,80 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function get_expected_data(): array {
-        $rows = $this->get_question_summary();
-        print_object('get_question_summary() -----------');
-        print_object($rows);
-        $response = [];
-        //for ($i = 0; $i < count($this->answers); $i++) {
-        //    $response[$this->field($i)] = PARAM_RAW_TRIMMED;
-        //}
-        return $response;
+        $expected = [];
+        foreach ($this->rows as $row) {
+            if ($row->correctanswers != '') {
+                foreach($this->columns as $column) {
+                    $expected[$this->field($row->number, $column->number)] = PARAM_RAW;
+                }
+            }
+        }
+        return $expected;
     }
 
-    public function prepare_simulated_post_data($simulatedresponse) {
+    public function is_choice_selected($colname, $response, $rowkey, $colkey) {
+        if($response) {
+            return (string) $response[$this->field($rowkey)] === $colname;
+        }
+    }
+
+    /*public function prepare_simulated_post_data($simulatedresponse) {
         print_object("simulated response&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         print_object($simulatedresponse);
         return $simulatedresponse;
-    }
+    }*/
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-       return  parent::is_same_response($prevresponse, $newresponse);
+        return  parent::is_same_response($prevresponse, $newresponse);
     }
 
     /**
      * Answer field name.
      *
-     * @param int $key Key number.
+     * @param int $rowkey The row key number.
+     * @param int $columnkey The column key number.
      * @return string The answer key name.
      */
-    protected function field(int $key): string {
-        return 'sub' . $key;
+    protected function field(int $rowkey, int $columnkey = 0): string {
+        return 'rowanswers' . $rowkey;
     }
 
     public function get_correct_response(): ?array {
+        print_object("get_correct_response");
+        print_object($this);
         $response = [];
-        //for ($i = 0; $i < count($this->answers); $i++) {
-        //    $response[$this->field($i)] = $this->answers[$i]->answer;
-        //}
+        foreach ($this->rows as $row) {
+            if ($row->correctanswers != '') {
+                $answer = (int)substr($row->correctanswers[0], 1);
+                $response[$this->field($row->number)] = $this->columns[$answer - 1]->name;
+            }
+        }
+        print_object("=====================================");
+        print_object($response);
         return $response;
     }
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        foreach ($this->answers as $key => $answer) {
-            $fieldname = $this->field($key);
-            if (array_key_exists($fieldname, $response)) {
-                $responseword = str_replace('_', ' ', $response[$fieldname]);
-                // If the answer is empty or only contain space. Display '-'.
-                $responseword = (empty($responseword) || core_text::strlen(trim($responseword)) === 0) ? '-' : $responseword;
-                // Get the correct answer position from the index key and convert to readable order.E.g: 0 -> 1).
-                $responsewords[] = $key + 1 . ') ' . $responseword;
+        print_object("summarise_response");
+        print_object($response);
+        print_object($this);
+
+        foreach ($this->rows as $row) {
+            $fieldname = $this->field($row->number);
+            if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
+                $responsewords[] = $row->name . " => " . $response[$fieldname];
             }
-        }
-        if (empty($responsewords)) {
-            return null;
         }
         return implode('; ', $responsewords);
     }
 
     public function is_complete_response(array $response): bool {
-        return false;
+        return !empty($response);
     }
 
     public function is_gradable_response(array $response): bool {
@@ -475,33 +465,37 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
 
     public function get_expected_data(): array {
-        $response = [];
-        print_object('get_expected_data() -----------------');
-        //print_object($this->rows);
-
+        $expected = [];
         foreach ($this->rows as $row) {
-            //$newrow  = $this->make_row($row);
-
             if ($row->correctanswers != '') {
-                $rowanswers[] = PARAM_INT;
-
-                //$decodedanswers = [];
-                if($this->inputtype == 'multiple') {
-                    foreach($this->columns as $key => $column) {
-                        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
-                        $rowanswerslabel = "rowanswers".$anslabel."_".$row->number;
-                        //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
-                        $response[$rowanswerslabel] = PARAM_INT;
-                    }
+                foreach($this->columns as $column) {
+                    $expected[$this->field($row->number, $column->number)] = PARAM_RAW;
                 }
             }
         }
-        if($this->inputtype == 'single') {
-            return $rowanswers;
+        return $expected;
+
+    }
+
+    public function is_choice_selected($colname, $response, $rowkey, $colkey) {
+        if($response) {
+            $fieldname = $this->field($rowkey, $colkey);
+            if($response[$fieldname] == "1" || $response[$fieldname] == $colname) {
+                return true;
+            }
+            return false;
         }
-        print_object("11111111111111111111111111111");
-        print_object($response);
-        return $response;
+    }
+
+    /**
+     * Answer field name.
+     *
+     * @param int $rowkey The row key number.
+     * @param int $columnkey The column key number.
+     * @return string The answer key name.
+     */
+    protected function field(int $rowkey, int $columnkey): string {
+        return 'rowanswers' . $rowkey . '_' . $columnkey;
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
@@ -515,7 +509,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        if (!$this->is_complete_response($prevresponse)) {
+        return  parent::is_same_response($prevresponse, $newresponse);
+        /*if (!$this->is_complete_response($prevresponse)) {
             $prevresponse = [];
         }
         if (!$this->is_complete_response($newresponse)) {
@@ -534,76 +529,55 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                 return question_utils::arrays_same_at_key($prevresponse, $newresponse, 'answer');
             }
         }
-        return true;
+        return true;*/
     }
-
-
-    /**
-     * Answer field name.
-     *
-     * @param int $key Key number.
-     * @return string The answer key name.
-     */
-    protected function field(int $key): string {
-        return 'sub' . $key;
-    }
-
 
     public function get_correct_response(): ?array {
-        $correctplaces = [];
-        foreach ($this->rows as $rkey => $row) {
-            print_object('$row -------------');
-            print_object($row);
-            foreach ($row->correctanswers as $cakey => $value) {
-                if ($value == 1) {
-                    $correctplaces[$rkey][$cakey] = $value;
+        print_object("get_correct_response");
+        print_object($this);
+        $response = [];
+        foreach ($this->rows as $row) {
+            if ($row->correctanswers != '') {
+                foreach ($row->correctanswers as $colkey => $answer) {
+                    $response[$this->field($row->number, $colkey)] = $answer;
                 }
             }
         }
-        print_object('Fill correct responses -------------------------');
-        print_object($correctplaces);
-        // TODO: we get the correct values, but we need to pass it to the checkboxes.
-        return $correctplaces;
-
-        //print_object("In get_correct_response^^^^^^^^^^^^^^^^^^^^");
-        //for ($i = 0; $i < count($this->rows); $i++) {
-        //    foreach($this->columns as $key => $column) {
-        //        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
-        //        $rowanswerslabel = "rowanswers".$anslabel."_".$i;
-        //        //$correctAnswers[$rownumber] = $decodedanswers[$column->name];
-        //        //$rowanswerslabel[$i] = 1;
-        //        $response[$rowanswerslabel] = $this->rows[$i]->correctanswers[$column->number];
-        //        //$response->$rowanswerslabel[$i] = $this->rows[$i]->correctanswers[$column->number];
-        //    }
-        //    //$response[$this->field($i)] = $this->answers[$i]->answer;
-        //}
-        ////for ($i = 0; $i < count($this->answers); $i++) {
-        ////    $response[$this->field($i)] = $this->answers[$i]->answer;
-        ////}
-        //print_object($response);
-        //return $response;
+        print_object("=====================================");
+        print_object($response);
+        return $response;
     }
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        foreach ($this->rows as $key => $row) {
-            //TODO:
-            $fieldname = $this->field($key);
-            if (array_key_exists($fieldname, $response)) {
-                $responseword = str_replace('_', ' ', $response[$fieldname]);
-                // If the answer is empty or only contain space. Display '-'.
-                $responseword = (empty($responseword) || core_text::strlen(trim($responseword)) === 0) ? '-' : $responseword;
-                // Get the correct answer position from the index key and convert to readable order.E.g: 0 -> 1).
-                $responsewords[] = $key + 1 . ') ' . $responseword;
+        print_object("summarise_response");
+        print_object($response);
+        print_object($this);
+
+        foreach ($this->rows as $row) {
+            $rowresponse = $row->name . " => ";
+            $answers = [];
+            foreach ($this->columns as $col) {
+                $fieldname = $this->field($row->number, $col->number);
+                if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
+                    $answers[] =  $col->name;
+                }
             }
-        }
-        if (empty($responsewords)) {
-            return null;
+            $rowresponse = $rowresponse . implode(', ', $answers);
+            $responsewords[] = $rowresponse;
         }
         return implode('; ', $responsewords);
     }
 
     public function is_complete_response(array $response): bool {
+        foreach ($this->rows as $row) {
+            foreach ($this->columns as $col) {
+                $fieldname = $this->field($row->number, $col->number);
+                if (!empty($response[$fieldname] && $response[$fieldname] != "0")) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
