@@ -304,26 +304,17 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function get_correct_response(): ?array {
-        print_object("get_correct_response");
-        print_object($this);
         $response = [];
         foreach ($this->rows as $row) {
             if ($row->correctanswers != '') {
-                $answer = (int)substr($row->correctanswers[0], 1);
-                $response[$this->field($row->number)] = $this->columns[$answer - 1]->name;
+                $response[$this->field($row->number)] = $this->columns[array_key_first($row->correctanswers)]->name;
             }
         }
-        print_object("=====================================");
-        print_object($response);
         return $response;
     }
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        print_object("summarise_response");
-        print_object($response);
-        print_object($this);
-
         foreach ($this->rows as $row) {
             $fieldname = $this->field($row->number);
             if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
@@ -349,16 +340,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function grade_response(array $response): array {
-        // Retrieve a number of right answers and total answers.
-        //[$numrightparts, $total] = $this->get_num_parts_right($response);
-        //        //        //// Retrieve a number of wrong accent numbers.
-        //        //        //$numpartialparts = $this->get_num_parts_partial($response);
-        //        //        //// Calculate fraction.
-        //        //        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-        //        //        //        / $total;
-        //        //        //
-        //        //        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
-
         $fraction = 1;
         return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }

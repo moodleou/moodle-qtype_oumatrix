@@ -52,89 +52,10 @@ class column {
      * @param int $number
      * @param string $name
      */
-    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '') {
+    public function __construct(int $questionid = 0, int $number = 0, string $name = '', int $id = 0) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
         $this->id = $id;
-        $this->column = $this->populate();
-    }
-
-    public function populate(): ?stdClass {
-        if ($this->questionid && $this->name) {
-            $column = new stdClass();
-            $column->questionid = $this->questionid;
-            $column->number = $this->number;
-            $column->name = $this->name;
-            return $column;
-        }
-        return null;
-    }
-
-    /**
-     * Return a column object
-     *
-     * @param string $name
-     * @return stdClass
-     * @throws \dml_exception
-     */
-    public function get_column_by_name(string $name): ?stdClass {
-        if ($name === $this->name) {
-            return $this->column;
-        }
-        return null;
-    }
-
-    /**
-     * Create a column.
-     *
-     * @param int $questionid
-     * @param int $number
-     * @param string $name
-     * @return int
-     */
-    public function create_a_column(int $questionid, int $number, string $name): int {
-        global $DB;
-        $id = $DB->insert_record('qtype_oumatrix_columns',
-                ['questionid' => $questionid, 'number' => $number,'name' => $name ]);
-        return $id;
-    }
-
-    /**
-     * Return column id
-     *
-     * @return int
-     */
-    public function get_id(): int {
-        return $this->id;
-    }
-
-    /**
-     * Return column number
-     *
-     * @return int
-     */
-    public function get_number(): int {
-        return $this->number;
-    }
-
-    /**
-     * Return column name
-     *
-     * @return string
-     */
-    public function get_name(): string {
-        return $this->name;
-    }
-
-    /**
-     * Delete a column.
-     *
-     * @param int $id
-     * @return void
-     */
-    public function delete_a_column(int $id) {
-        global $DB;
-        $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $this->questionid, 'id' => $id]);
     }
 }

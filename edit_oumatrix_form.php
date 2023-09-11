@@ -130,7 +130,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->grademethod = $grademethod;
 
         $columns = optional_param_array('columnname', '', PARAM_TEXT);
-        $this->numcolumns = $columns ? count($columns) : self::COL_NUM_START;
+        $this->numcolumns = $columns ? count($columns) :
+            ($this->question->options->columns ? count($this->question->options->columns) : self::COL_NUM_START);
     }
 
     /**
@@ -146,6 +147,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question = parent::data_preprocessing($question);
         $question = $this->data_preprocessing_combined_feedback($question, true);
         $question = $this->data_preprocessing_hints($question, true, true);
+
         $question = $this->data_preprocessing_options($question);
         $question = $this->data_preprocessing_columns($question);
         $question = $this->data_preprocessing_rows($question);
@@ -192,6 +194,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return object The modified data.
      */
     private function data_preprocessing_rows($question) {
+        // preprocess rows.
         if (empty($question->options->rows)) {
             return $question;
         }
@@ -199,14 +202,16 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question->rowname = [];
         foreach ($question->options->rows as $index => $row) {
             $question->rowname[] = $row->name;
-            if ($question->options->inputtype == 'single') {
-                $question->rowanswers[] = $row->correctanswers;
-            } else {
-                $decodedanswers = json_decode($row->correctanswers, true);
-                foreach ($question->options->columns as $key => $column) {
-                    $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
-                    $rowanswerslabel = 'rowanswers' . $anslabel;
-                    $question->$rowanswerslabel[$row->number] = $decodedanswers[$column->name];
+            $decodedanswers = json_decode($row->correctanswers, true);
+            foreach ($question->options->columns as $key => $column) {
+                if (array_key_exists($column->id, $decodedanswers)) {
+                    if ($question->options->inputtype == 'single') {
+                        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
+                        $question->rowanswers[] = $anslabel;
+                    } else {
+                        $rowanswerslabel = "rowanswers" . $column->number;
+                        $question->$rowanswerslabel[$row->number] = $decodedanswers[$column->id];
+                    }
                 }
             }
             $itemid = (int)$row->id ?? null;
@@ -230,8 +235,12 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $key++;
         }
         $question->feedback = $feedback;
+
+        //$this->data_preprocessing_columns($question);
+        //$this->data_preprocessing_rows($question);
         return $question;
     }
+
     protected function get_hint_fields($withclearwrong = false, $withshownumpartscorrect = false) {
         [$repeated, $repeatedoptions] = parent::get_hint_fields($withclearwrong, $withshownumpartscorrect);
         $repeatedoptions['hintclearwrong']['disabledif'] = ['single', 'eq', 1];

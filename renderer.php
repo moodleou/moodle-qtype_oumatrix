@@ -62,16 +62,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
     public function formulation_and_controls(question_attempt $qa,
             question_display_options $options) {
-        print_object("Inside renderer.... question ");
-        print_object($qa);
         $question = $qa->get_question();
-        //$response = $question->get_response($qa);
         $response = $qa->get_last_qt_data();
-        print_object("response &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        print_object($response);
-        //print_object("renderer.... question ");
-        //print_object("renderer.... $response ".$response);
-        //print_object("renderer.... $qa ".$qa);
 
         $inputname = $qa->get_qt_field_name('answer');
         $inputattributes = array(
@@ -232,27 +224,25 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     public function get_matrix(question_attempt $qa) {
 
         $question = $qa->get_question();
-        print_object("*******************************************");
-        print_object($question);
         $response = $qa->get_last_qt_data();
-        print_object("*******************************************");
-        print_object($response);
         $caption = "Matrix question";
         $colname[] = null;
         $table = "
-            <table>
+            <table class='generaltable'>
                 <caption class='table_caption'>$caption</caption>
                 <tr>
                     <th scope='col'></th>";
+        $index = 0;
         foreach ($question->columns as $key => $value) {
-            $colname[$key] = $value->get_name();
-            $table .= "<th scope='col'><span id='$colname[$key]' class='answer_col' >$colname[$key]</span></th>";
+            $colname[$index] = $value->name;
+            $table .= "<th scope='col'><span id='$colname[$index]' class='answer_col' >$colname[$index]</span></th>";
+            $index +=  1;
         }
         $table .= "</tr>
         <tr> ";
         $i = 0;
         foreach ($question->rows as $key => $value) {
-            $rowname = $value->get_name();
+            $rowname = $value->name;
             $rowid = 'row_'. $key;
             $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
@@ -351,8 +341,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         $right = [];
         foreach ($question->rows as $row) {
             if ($row->correctanswers != '') {
-                $answer = (int)substr($row->correctanswers[0], 1);
-                $right[] = $row->name . " => " . $question->columns[$answer - 1]->name;
+                $right[] = $row->name . " => " . $question->columns[array_key_first($row->correctanswers)]->name;
             }
         }
         return $this->correct_choices($right);
