@@ -39,6 +39,10 @@ require_once($CFG->libdir.'/questionlib.php');
  */
 class qtype_oumatrix extends question_type {
 
+    const MIN_NUMBER_OF_columns = 2;
+    const MIN_NUMBER_OF_ROWS = 2;
+
+
     public function get_question_options($question) {
         global $DB, $OUTPUT;;
         parent::get_question_options($question);
@@ -133,21 +137,15 @@ class qtype_oumatrix extends question_type {
         $oldcolumns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $formdata->id], 'id ASC');
         $numcolumns = count($formdata->columnname);
 
-        // Check if the question has at least one column.
-        $answercount = 0;
-        for ($i = 0; $i < $numcolumns; $i++) {
-            if ($formdata->columnname[$i] !== '') {
-                $answercount++;
-            }
-        }
-        if ($answercount < 2) {
-            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix', '2');
+        // Check if the question has the minimum number of colunms.
+        if ($numcolumns < self::MIN_NUMBER_OF_columns) {
+            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix',  self::MIN_NUMBER_OF_columns);
             return $result;
         }
 
         // Insert column input data.
         for ($i = 0; $i < $numcolumns; $i++) {
-            if (trim($formdata->columnname[$i]) === '') {
+            if (trim(($formdata->columnname[$i]) ?? '') === '') {
                 continue;
             }
             // Update an existing word if possible.
@@ -183,8 +181,13 @@ class qtype_oumatrix extends question_type {
         $context = $question->context;
         $result = new stdClass();
         $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id ASC');
-
         $numrows = count($question->rowname);
+
+        // Check if the question has the minimum number of rows.
+        if ($numrows < self::MIN_NUMBER_OF_ROWS) {
+            $result->error = get_string('notenoughquestionrows', 'qtype_oumatrix',  self::MIN_NUMBER_OF_ROWS);
+            return $result;
+        }
 
         // Insert row input data.
         for ($i = 0; $i < $numrows; $i++) {
@@ -199,13 +202,12 @@ class qtype_oumatrix extends question_type {
                 $questionrow->number = $i;
                 $questionrow->name = $question->rowname[$i];
                 // Prepare correct answers.
-                if($question->inputtype == 'multiple') {
+               if($question->inputtype == 'multiple') {
                     for ($c = 0; $c < count($question->columnname); $c++) {
                         if ($question->columnname[$c] === '') {
                             continue;
                         }
-                        $anslabel = get_string('a', 'qtype_oumatrix', $c + 1);
-                        $rowanswerslabel = "rowanswers" . $anslabel;
+                        $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
 
                         if (!array_key_exists($i, $question->$rowanswerslabel)) {
                             $answerslist[$question->columnname[$c]] = "0";
@@ -218,7 +220,7 @@ class qtype_oumatrix extends question_type {
                     $questionrow->correctanswers = $question->rowanswers[$i] ?? '';
                 }
                 $questionrow->feedback = $question->feedback[$i]['text'];
-                $questionrow->feedbackitemid = $question->feedback[$i]['itemid']; // TODO: Is this actually needed?
+                $questionrow->feedbackitemid = $question->feedback[$i]['itemid'];
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
@@ -317,7 +319,6 @@ class qtype_oumatrix extends question_type {
 
                 if ($newrow->get_correctanswers() != '') {
                     $correctAnswers = $newrow->get_correctanswers();
-                    //$decodedanswers = [];
                     if( $questiondata->options->inputtype == 'multiple') {
                         $correctAnswers = [];
                         $todecode = implode(",", $newrow->get_correctanswers());

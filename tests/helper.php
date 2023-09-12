@@ -26,8 +26,8 @@ class qtype_oumatrix_test_helper extends question_test_helper {
 
     public function get_test_questions() {
         return [
-                'four_by_four_single',
-                'three_by_three_multiple'
+                'oumatrix_single',
+                'oumatrix_multiple'
         ];
     }
 
@@ -35,7 +35,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public function get_oumatrix_question_data_four_by_four_single() {
+    public function get_oumatrix_question_data_oumatrix_single() {
         global $USER;
 
         $qdata = new stdClass();
@@ -43,8 +43,8 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->createdby = $USER->id;
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
-        $qdata->name = 'Matrix_4by4_single01';
-        $qdata->questiontext = 'Please answer the sub questions in all 4 rows';
+        $qdata->name = 'oumatrix_single01';
+        $qdata->questiontext = 'Animal classification. Please answer the sub questions in all 4 rows.';
         $qdata->questiontextformat = FORMAT_HTML;
         $qdata->generalfeedback = 'We are recognising different type of animals';
         $qdata->generalfeedbackformat = FORMAT_HTML;
@@ -150,11 +150,14 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public static function get_oumatrix_question_form_data_four_by_four_single() {
+    public static function get_oumatrix_question_form_data_oumatrix__single() {
         $qfdata = new stdClass();
 
-        $qfdata->name = 'Matrix_4by4_single01';
-        $qfdata->questiontext = ['text' => 'Please answer the sub questions in all 4 rows', 'format' => FORMAT_HTML];
+        $qfdata->name = 'oumatrix_single01';
+        $qfdata->questiontext = [
+                'text' => 'Animal classification. Please answer the sub questions in all 4 rows.',
+                'format' => FORMAT_HTML
+        ];
         $qfdata->generalfeedback = ['text' => 'We are recognising different type of animals.', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
         $qfdata->length = 1;
@@ -234,7 +237,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public function get_oumatrix_question_data_three_by_three_multiple() {
+    public function get_oumatrix_question_data_oumatrix_multiple() {
         global $USER;
 
         $qdata = new stdClass();
@@ -242,7 +245,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->createdby = $USER->id;
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
-        $qdata->name = 'Matrix_3by3_multiple01';
+        $qdata->name = 'oumatrix_multiple01';
         $qdata->questiontext = 'Please answer the sub questions in each row';
         $qdata->questiontextformat = FORMAT_HTML;
         $qdata->generalfeedback = 'We are dealing with even and odd numbers';
@@ -336,10 +339,10 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public static function get_oumatrix_question_form_data_three_by_three_pultiple() {
+    public static function get_oumatrix_question_form_data_oumatrix_pultiple() {
         $qfdata = new stdClass();
 
-        $qfdata->name = 'Matrix_3by3_multiple01';
+        $qfdata->name = 'oumatrix_multiple01';
         $qfdata->questiontext = ['text' => 'Please answer the sub questions in each row', 'format' => FORMAT_HTML];
         $qfdata->generalfeedback = ['text' => 'We are dealing with even and odd numbers', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
@@ -412,120 +415,120 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      *
      * @return qtype_oumatrix_question
      */
-    public function make_oumatrix_question_single() {
-        $result = $this->make_oumatrix_question();
-        $result->multiple = false;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_oumatrix_question
-     */
-    public function make_matrix_question_multiple() {
-        $result = $this->make_matrix_question();
-        $result->multiple = true;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     */
-    public function make_matrix_question_any() {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'any';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     */
-    public function make_matrix_question_none() {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'none';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     */
-    public function make_matrix_question_weighted() {
-        $result = $this->init_matrix_question();
-
-        for ($r = 0; $r < 4; $r++) {
-            $row = (object) array();
-            $row->id = $r;
-            $row->shorttext = "Row $r";
-            $row->description = "Description $r";
-            $row->feedback = "Feedback $r";
-            $result->rows[$r] = $row;
-            for ($c = 0; $c < 4; $c++) {
-                $col = (object) array();
-                $col->id = $c;
-                $col->shorttext = "Column $c";
-                $col->description = "Description $c";
-                $result->cols[$c] = $col;
-
-                $result->weights[$r][$c] = ($c < 2) ? 0.5 : 0;
-            }
-        }
-
-        $result->grademethod = 'weighted';
-        $result->multiple = true;
-
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_oumatrix_question
-     */
-    protected function make_oumatrix_question() {
-        $result = $this->init_matrix_question();
-
-        for ($r = 0; $r < 4; $r++) {
-            $row = (object) array();
-            $row->id = $r;
-            $row->shorttext = "Row $r";
-            $row->description = "Description $r";
-            $row->feedback = "Feedback $r";
-            $result->rows[$r] = $row;
-            for ($c = 0; $c < 4; $c++) {
-                $col = (object) array();
-                $col->id = $c;
-                $col->shorttext = "Column $c";
-                $col->description = "Description $c";
-                $result->cols[$c] = $col;
-
-                $result->weights[$r][$c] = ($c == 0) ? 1 : 0;
-            }
-        }
-
-        $result->grademethod = 'kprime';
-        $result->multiple = true;
-
-        return $result;
-    }
-    /**
-     * Initialise an OU Matrix question.
-     *
-     * @return \qtype_oumatrix_question
-     */
-    public function init_oumatrix_question(): qtype_oumatrix_question {
-        question_bank::load_question_definition_classes('oumatrix');
-        $result = new qtype_oumatrix_question();
-        test_question_maker::initialise_a_question($result);
-        $result->name = 'OU Matrix question';
-        $result->questiontext = 'Single partical graded question.';
-        $result->generalfeedback = 'First column is true.';
-        $result->penalty = 0.3333333;
-        $result->qtype = question_bank::get_qtype('oumatrix');
-
-        $result->rows = [];
-        $result->cols = [];
-        return $result;
-    }
+    //public function make_oumatrix_question_single() {
+    //    $result = $this->make_oumatrix_question();
+    //    $result->multiple = false;
+    //    return $result;
+    //}
+    //
+    ///**
+    // *
+    // * @return qtype_oumatrix_question
+    // */
+    //public function make_matrix_question_multiple() {
+    //    $result = $this->make_matrix_question();
+    //    $result->multiple = true;
+    //    return $result;
+    //}
+    //
+    ///**
+    // *
+    // * @return qtype_matrix_question
+    // */
+    //public function make_matrix_question_any() {
+    //    $result = $this->make_matrix_question();
+    //    $result->grademethod = 'any';
+    //    return $result;
+    //}
+    //
+    ///**
+    // *
+    // * @return qtype_matrix_question
+    // */
+    //public function make_matrix_question_none() {
+    //    $result = $this->make_matrix_question();
+    //    $result->grademethod = 'none';
+    //    return $result;
+    //}
+    //
+    ///**
+    // *
+    // * @return qtype_matrix_question
+    // */
+    //public function make_matrix_question_weighted() {
+    //    $result = $this->init_matrix_question();
+    //
+    //    for ($r = 0; $r < 4; $r++) {
+    //        $row = (object) array();
+    //        $row->id = $r;
+    //        $row->shorttext = "Row $r";
+    //        $row->description = "Description $r";
+    //        $row->feedback = "Feedback $r";
+    //        $result->rows[$r] = $row;
+    //        for ($c = 0; $c < 4; $c++) {
+    //            $col = (object) array();
+    //            $col->id = $c;
+    //            $col->shorttext = "Column $c";
+    //            $col->description = "Description $c";
+    //            $result->cols[$c] = $col;
+    //
+    //            $result->weights[$r][$c] = ($c < 2) ? 0.5 : 0;
+    //        }
+    //    }
+    //
+    //    $result->grademethod = 'weighted';
+    //    $result->multiple = true;
+    //
+    //    return $result;
+    //}
+    //
+    ///**
+    // *
+    // * @return qtype_oumatrix_question
+    // */
+    //protected function make_oumatrix_question() {
+    //    $result = $this->init_matrix_question();
+    //
+    //    for ($r = 0; $r < 4; $r++) {
+    //        $row = (object) array();
+    //        $row->id = $r;
+    //        $row->shorttext = "Row $r";
+    //        $row->description = "Description $r";
+    //        $row->feedback = "Feedback $r";
+    //        $result->rows[$r] = $row;
+    //        for ($c = 0; $c < 4; $c++) {
+    //            $col = (object) array();
+    //            $col->id = $c;
+    //            $col->shorttext = "Column $c";
+    //            $col->description = "Description $c";
+    //            $result->cols[$c] = $col;
+    //
+    //            $result->weights[$r][$c] = ($c == 0) ? 1 : 0;
+    //        }
+    //    }
+    //
+    //    $result->grademethod = 'kprime';
+    //    $result->multiple = true;
+    //
+    //    return $result;
+    //}
+    ///**
+    // * Initialise an OU Matrix question.
+    // *
+    // * @return \qtype_oumatrix_question
+    // */
+    //public function init_oumatrix_question(): qtype_oumatrix_question {
+    //    question_bank::load_question_definition_classes('oumatrix');
+    //    $result = new qtype_oumatrix_question();
+    //    test_question_maker::initialise_a_question($result);
+    //    $result->name = 'OU Matrix question';
+    //    $result->questiontext = 'Single partical graded question.';
+    //    $result->generalfeedback = 'First column is true.';
+    //    $result->penalty = 0.3333333;
+    //    $result->qtype = question_bank::get_qtype('oumatrix');
+    //
+    //    $result->rows = [];
+    //    $result->cols = [];
+    //    return $result;
+    //}
 }

@@ -61,7 +61,7 @@ class column {
     }
 
     public function populate(): ?stdClass {
-        if ($this->questionid && $this->number && $this->name) {
+        if ($this->questionid && $this->name) {
             $column = new stdClass();
             $column->questionid = $this->questionid;
             $column->number = $this->number;

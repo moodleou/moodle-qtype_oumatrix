@@ -54,15 +54,15 @@ class questiontype_test extends \advanced_testcase {
     }
 
     protected function get_test_question_data() {
-        return \test_question_maker::get_question_data('oumatrix', 'four_by_four_single');
+        return \test_question_maker::get_question_data('oumatrix', 'oumatrix_single');
     }
 
     public function test_initialise_question_instance() {
         $h = new qtype_oumatrix_test_helper();
-        //$qsingle = $h->get_oumatrix_question_data_four_by_four_single();
+        //$qsingle = $h->get_oumatrix_question_data_oumatrix_single();
         //$this->assertEquals(0.5, $this->qtype->get_random_guess_score($qsingle));
 
-        $qmultiple = $h->get_oumatrix_question_data_three_by_three_multiple();
+        $qmultiple = $h->get_oumatrix_question_data_oumatrix_multiple();
         //print_object($qmultiple);
         $qdata = $this->get_test_question_data();
 
@@ -78,10 +78,10 @@ class questiontype_test extends \advanced_testcase {
     public function test_get_random_guess_score() {
         $h = new qtype_oumatrix_test_helper();
 
-        $qsingle = $h->get_oumatrix_question_data_four_by_four_single();
+        $qsingle = $h->get_oumatrix_question_data_oumatrix_single();
         $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qsingle));
 
-        $qmultiple = $h->get_oumatrix_question_data_three_by_three_multiple();
+        $qmultiple = $h->get_oumatrix_question_data_oumatrix_multiple();
         print_object('$qsingle ------------------------------------------------');
         print_object($qmultiple);
         return;
