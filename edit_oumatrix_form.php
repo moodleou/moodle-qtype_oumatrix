@@ -205,11 +205,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->options->columns as $key => $column) {
                 if (array_key_exists($column->id, $decodedanswers)) {
+                    $columnvalue = 'a' . $column->number + 1;
                     if ($question->options->inputtype == 'single') {
-                        $anslabel = get_string('a', 'qtype_oumatrix', $column->number + 1);
-                        $question->rowanswers[] = $anslabel;
+                        $question->rowanswers[] = $columnvalue;
                     } else {
-                        $rowanswerslabel = "rowanswers" . $column->number;
+                        $rowanswerslabel = "rowanswers" . $columnvalue;
                         $question->$rowanswerslabel[$row->number] = $decodedanswers[$column->id];
                     }
                 }
