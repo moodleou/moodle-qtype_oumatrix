@@ -55,6 +55,34 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $numrows;
 
     //public abstract function get_response(question_attempt $qa);
+    /** @var array The order of the rows. */
+    protected $roworder = null;
+
+    /** @var array The order of the rows. */
+    protected $columnorder = null;
+
+    public function start_attempt(question_attempt_step $step, $variant) {
+        $this->roworder = array_keys($this->rows);
+        if ($this->shuffleanswers) {
+            shuffle($this->roworder);
+        }
+        $step->set_qt_var('_roworder', implode(',', $this->roworder));
+    }
+
+    public function apply_attempt_state(question_attempt_step $step) {
+        $this->roworder = explode(',', $step->get_qt_var('_roworder'));
+    }
+
+    public function get_order(question_attempt $qa) {
+        $this->init_roworder($qa);
+        return $this->roworder;
+    }
+
+    protected function init_roworder(question_attempt $qa) {
+        if (is_null($this->roworder)) {
+            $this->roworder = explode(',', $qa->get_step(0)->get_qt_var('_roworder'));
+        }
+    }
     public abstract function is_choice_selected($colname, $response, $rowkey, $colkey);
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
@@ -64,17 +92,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         // TODO:
         return false;
-    }
-
-    /**
-     * Answer field name.
-     *
-     * @param int $rowkey The row key number.
-     * @param int $columnkey The column key number.
-     * @return string The answer key name.
-     */
-    protected function field(int $rowkey, int $columnkey): string {
-        return 'sub' . $rowkey;
     }
 
     public function get_correct_response(): ?array {
@@ -241,14 +258,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
         return $result;
     }
-
-
-    public function apply_attempt_state(question_attempt_step $step) {
-        //foreach ($this->subquestions as $i => $subq) {
-        //    $subq->apply_attempt_state($this->get_substep($step, $i));
-        //}
-    }
-
 }
 
     /**
@@ -263,18 +272,15 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     public function get_expected_data(): array {
         $expected = [];
         foreach ($this->rows as $row) {
-            if ($row->correctanswers != '') {
-                foreach($this->columns as $column) {
-                    $expected[$this->field($row->number, $column->number)] = PARAM_RAW;
-                }
-            }
+            $expected[$this->field($row->number)] = PARAM_INT;
         }
         return $expected;
     }
 
     public function is_choice_selected($colname, $response, $rowkey, $colkey) {
-        if($response) {
-            return (string) $response[$this->field($rowkey)] === $colname;
+        $responsekey = $this->field($rowkey);
+        if($response && array_key_exists($responsekey, $response)) {
+            return (string) $response[$responsekey] == $colkey;
         }
     }
 
@@ -296,18 +302,18 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
      * Answer field name.
      *
      * @param int $rowkey The row key number.
-     * @param int $columnkey The column key number.
      * @return string The answer key name.
      */
-    protected function field(int $rowkey, int $columnkey = 0): string {
+    protected function field(int $rowkey): string {
         return 'rowanswers' . $rowkey;
     }
 
     public function get_correct_response(): ?array {
         $response = [];
-        foreach ($this->rows as $row) {
+        foreach ($this->roworder as $key => $rownumber) {
+            $row = $this->rows[$rownumber];
             if ($row->correctanswers != '') {
-                $response[$this->field($row->number)] = $this->columns[array_key_first($row->correctanswers)]->name;
+                $response[$this->field($key)] = $this->columns[array_key_first($row->correctanswers)]->number;
             }
         }
         return $response;
@@ -315,10 +321,17 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        foreach ($this->rows as $row) {
-            $fieldname = $this->field($row->number);
-            if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
-                $responsewords[] = $row->name . " => " . $response[$fieldname];
+        foreach ($this->roworder as $key => $rownumber) {
+            // Get the correct row.
+            $row = $this->rows[$rownumber];
+
+            $fieldname = $this->field($key);
+            if (array_key_exists($fieldname, $response)) {
+                foreach ($this->columns as $column) {
+                    if ($response[$fieldname] == $column->number) {
+                        $responsewords[] = $row->name . " => " . $column->name;
+                    }
+                }
             }
         }
         return implode('; ', $responsewords);
@@ -340,19 +353,22 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function grade_response(array $response): array {
-        $fraction = 1;
-        return [$fraction, question_state::graded_state_for_fraction($fraction)];
+        //Retrieve a number of right answers and total answers.
+        [$numrightparts, $total] = $this->get_num_parts_right($response);
+        $fraction = $numrightparts / $total;
+        return array($fraction, question_state::graded_state_for_fraction($fraction));
     }
 
     public function get_num_parts_right(array $response): array {
-
         $numright = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_full_fraction($answer, $response[$this->field($key)])) {
+        foreach ($this->roworder as $key => $rownumber) {
+            $row = $this->rows[$rownumber];
+            if ($row->correctanswers != '' &&
+                $response[$this->field($key)] == $this->columns[array_key_first($row->correctanswers)]->number) {
                 $numright++;
             }
         }
-        return [$numright, count($this->answers)];
+        return [$numright, count($this->rows)];
     }
 
     /**
@@ -397,6 +413,15 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $answer->is_correct($responseword) || ($this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_IGNORE &&
                         $answer->is_wrong_accents($responseword));
     }
+
+    /*public function get_response(question_attempt $qa) {
+        $question = $qa->get_question();
+        $rowcount = count($question->rows);
+        for ($i = 0; $i < $rowcount; $i++) {
+            $response[] = $qa->get_last_qt_var("rowanswers$i", -1);
+        }
+        return $response;
+    }*/
 
     /**
      * Verify if if the response to one clue should receive partial marks.

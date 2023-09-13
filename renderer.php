@@ -64,7 +64,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             question_display_options $options) {
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
-
         $inputname = $qa->get_qt_field_name('answer');
         $inputattributes = array(
                 'type' => $this->get_input_type(),
@@ -241,18 +240,19 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $table .= "</tr>
         <tr> ";
         $i = 0;
-        foreach ($question->rows as $key => $value) {
-            $rowname = $value->name;
+        foreach ($question->get_order($qa) as $key => $rowid) {
+            $row = $question->rows[$rowid];
+            $rowname = $row->name;
             $rowid = 'row_'. $key;
             $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
             for ($j = 0; $j < count($colname); $j++) {
                 $inputattributes['name'] = $this->get_input_name($qa, $key, $j);
-                $inputattributes['value'] = $this->get_input_value($value);
+                $inputattributes['value'] = $this->get_input_value($j);
                 $inputattributes['id'] = $this->get_input_id($qa, $key, $j);
                 $inputattributes['aria-labelledby'] = $inputattributes['id'] . '_label';
                 if($question->inputtype == 'single') {
                     $table .= "<td><input type='radio' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
-                        value=$colname[$j] " . "aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
+                        value=" . $inputattributes['value'] . " aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
                 } else {
                     $table .= "<td><input type='checkbox' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
                         value=$colname[$j] " . "aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
@@ -336,8 +336,8 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-        print_object("Inside single choice correct_response");
-        print_object($question);
+        //print_object("Inside single choice correct_response");
+        //print_object($question);
         $right = [];
         foreach ($question->rows as $row) {
             if ($row->correctanswers != '') {
