@@ -97,8 +97,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         $this->set_current_settings();
 
-        $this->add_per_column_fields($mform, get_string('a', 'qtype_oumatrix', '{no}'), $this->numcolumns);
-        $this->add_per_row_fields($mform, get_string('r', 'qtype_oumatrix', '{no}'), $this->numrows);
+        $this->add_per_column_fields($mform, get_string('column', 'qtype_oumatrix', '{no}'), $this->numcolumns);
+        $this->add_per_row_fields($mform, get_string('row', 'qtype_oumatrix', '{no}'), $this->numrows);
 
         $this->add_combined_feedback_fields(true);
 
@@ -235,9 +235,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $key++;
         }
         $question->feedback = $feedback;
-
-        //$this->data_preprocessing_columns($question);
-        //$this->data_preprocessing_rows($question);
         return $question;
     }
 
@@ -281,7 +278,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             int $minoptions = self::COL_NUM_START, int $addoptions = self::COL_NUM_ADD) {
         $mform->addElement('header', 'columnshdr', get_string('columnshdr', 'qtype_oumatrix'));
         $mform->setExpanded('columnshdr', 1);
-        $columns = [];
         $repeatedoptions = [];
 
         if (isset($this->question->columns)) {
@@ -317,7 +313,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $mform->addElement('header', 'rowshdr', get_string('rowshdr', 'qtype_oumatrix'));
         $mform->setExpanded('rowshdr', 1);
         $repeatedoptions = [];
-        $rows = [];
 
         if (isset($this->question->options->rows)) {
             $repeatsatstart = count($this->question->options->rows);
@@ -325,7 +320,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $repeatsatstart = $minoptions;
         }
 
-        $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions, $rows),
+        $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions),
                 $repeatsatstart, $repeatedoptions,
                 'norows', 'addrows', $addoptions,
                 $this->get_more_blanks('rows'), true);
@@ -334,14 +329,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /**
      * @param MoodleQuickForm $mform
      * @param string $label
-     * @param array $repeatedoptions
-     * @param array $rows
+     * @param array $repeatedoptions reference to array of repeated options to fill
      * @return array
      */
-    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array $repeatedoptions, array $rows): array {
+    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions): array {
         $repeated = [];
         $rowoptions = [];
-        $rowoptions[] = $mform->createElement('text', 'rowname', 'Name', ['size' => 40]);
+        $rowoptions[] = $mform->createElement('text', 'rowname', '', ['size' => 40]);
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
@@ -353,11 +347,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 $rowoptions[] = $mform->createElement('checkbox', "rowanswers$columnvalue", '', $anslabel);
             }
         }
-        $rowoptions[] = $mform->createElement('editor', 'feedback',
-                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
+        $repeated[] = $mform->createElement('editor', 'feedback',
+                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $mform->setType('rowname', PARAM_RAW);
-        $repeatedoptions['row']['type'] = PARAM_RAW;
+        $repeatedoptions['rowname']['type'] = PARAM_RAW;
         return $repeated;
     }
 
