@@ -130,8 +130,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->grademethod = $grademethod;
 
         $columns = optional_param_array('columnname', '', PARAM_TEXT);
-        $this->numcolumns = $columns ? count($columns) :
-            ($this->question->options->columns ? count($this->question->options->columns) : self::COL_NUM_START);
+        $this->numcolumns = $columns ? count($columns) : self::COL_NUM_START;
+        if (isset($this->question->options->columns)) {
+            $this->numcolumns = count($this->question->options->columns);
+        }
     }
 
     /**

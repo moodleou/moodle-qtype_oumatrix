@@ -179,6 +179,8 @@ class qtype_oumatrix extends question_type {
     public function save_rows($question, $columnslist) {
         global $DB;
         $result = new stdClass();
+        print_object('****************************************************');
+        print_object($question);
         $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id ASC');
         $numrows = count($question->rowname);
 
@@ -202,33 +204,23 @@ class qtype_oumatrix extends question_type {
                 $questionrow->number = $i;
                 $questionrow->name = $question->rowname[$i];
                 // Prepare correct answers.
-                if ($question->inputtype == 'multiple') {
-                    //for ($c = 0; $c < count($question->columnname); $c++) {
-                    //    if ($question->columnname[$c] === '') {
-                    //        continue;
-                    //    }
-                    //    $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
-                    //
-                    //    if (!array_key_exists($i, $question->$rowanswerslabel)) {
-                    //        $answerslist[$question->columnname[$c]] = "0";
-                    for ($c = 0; $c < count($columnslist); $c++) {
-                        if ($question->inputtype == 'multiple') {
-                            $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
-                            if ($question->columnname[$c] === '' || !array_key_exists($i, $question->$rowanswerslabel)) {
-                                continue;
-                            }
-                            $answerslist[$columnslist[$c]->id] = $question->$rowanswerslabel[$i];
-                        } else {
-                            $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
-                            $answerslist[$columnslist[$columnindex - 1]->id] = "1";
+                for ($c = 0; $c < count($columnslist); $c++) {
+                    if ($question->inputtype == 'multiple') {
+                        $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
+                        if (!isset($question->$rowanswerslabel) || !array_key_exists($i, $question->$rowanswerslabel)) {
+                            continue;
                         }
+                        $answerslist[$columnslist[$c]->id] = $question->$rowanswerslabel[$i];
+                    } else {
+                        $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
+                        $answerslist[$columnslist[$columnindex - 1]->id] = "1";
                     }
-                    $questionrow->correctanswers = json_encode($answerslist);
-                    $questionrow->feedback = $question->feedback[$i]['text'];
-                    $questionrow->feedbackitemid = $question->feedback[$i]['itemid'];
-                    $questionrow->feedbackformat = FORMAT_HTML;
-                    $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
                 }
+                $questionrow->correctanswers = json_encode($answerslist);
+                $questionrow->feedback = $question->feedback[$i]['text'];
+                $questionrow->feedbackitemid = $question->feedback[$i]['itemid'];
+                $questionrow->feedbackformat = FORMAT_HTML;
+                $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
         }
         // Remove old rows.
