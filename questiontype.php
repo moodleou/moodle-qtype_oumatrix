@@ -49,11 +49,11 @@ class qtype_oumatrix extends question_type {
         if (!$question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id])) {
             $question->options = $this->create_default_options($question);
         }
-        if (!$question->options->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id])) {
+        if (!$question->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id])) {
             echo $OUTPUT->notification('Error: Missing question columns!');
             return false;
         }
-        if (!$question->options->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id])) {
+        if (!$question->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id])) {
             echo $OUTPUT->notification('Error: Missing question rows!');
             return false;
         }
@@ -177,6 +177,7 @@ class qtype_oumatrix extends question_type {
      * @throws dml_exception
      */
     public function save_rows($question, $columnslist) {
+        print_object($question);
         global $DB;
         $context = $question->context;
         $result = new stdClass();
@@ -273,7 +274,7 @@ class qtype_oumatrix extends question_type {
 
     protected function get_num_correct_choices($questiondata) {
         $numright = 0;
-        foreach ($questiondata->options->rows as $row) {
+        foreach ($questiondata->rows as $row) {
             $rowanwers = json_decode($row->correctanswers);
             foreach ($rowanwers as $key => $value) {
                 if ((int) $value === 1) {
@@ -293,7 +294,7 @@ class qtype_oumatrix extends question_type {
 
         //TODO: improve this.
         return $this->get_num_correct_choices($questiondata) /
-                count($questiondata->options->rows);
+                count($questiondata->rows);
    }
 
     public function get_possible_responses($questiondata) {
@@ -315,14 +316,16 @@ class qtype_oumatrix extends question_type {
      * @param object $questiondata the question data loaded from the database.
      */
     protected function initialise_question_rows(question_definition $question, $questiondata) {
-        if (!empty($questiondata->options->rows)) {
-            foreach ($questiondata->options->rows as $row) {
+        print_object($questiondata);
+        print_object('-------------------------- $questiondata');
+        if (!empty($questiondata->rows)) {
+            foreach ($questiondata->rows as $row) {
                 $newrow  = $this->make_row($row);
                 if ($newrow->correctanswers != '') {
                     $correctAnswers = [];
                     $todecode = implode(",", $newrow->correctanswers);
                     $decodedanswers = json_decode($todecode, true);
-                    foreach($questiondata->options->columns as $key => $column) {
+                    foreach($questiondata->columns as $key => $column) {
                         if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
                             if ($questiondata->options->inputtype == 'single') {
                                 $anslabel = 'a' . $column->number+1;
@@ -345,7 +348,7 @@ class qtype_oumatrix extends question_type {
      * @param object $questiondata the question data loaded from the database.
      */
     protected function initialise_question_columns(question_definition $question, $questiondata) {
-        $question->columns = $questiondata->options->columns;
+        $question->columns = $questiondata->columns;
     }
 
     protected function make_column($columndata) {

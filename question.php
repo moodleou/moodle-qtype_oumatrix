@@ -273,12 +273,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         }
     }
 
-    /*public function prepare_simulated_post_data($simulatedresponse) {
-        print_object("simulated response&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        print_object($simulatedresponse);
-        return $simulatedresponse;
-    }*/
-
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
     }
@@ -496,8 +490,6 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        print_object("simulated response&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        print_object($simulatedresponse);
         return $simulatedresponse;
     }
 

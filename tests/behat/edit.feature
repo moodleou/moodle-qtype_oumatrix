@@ -1,7 +1,7 @@
 @qtype @qtype_numerical
-Feature: Test editing a Numerical question
+Feature: Test editing an ouMatrix question
   As a teacher
-  In order to be able to update my Numerical question
+  In order to be able to update my Matrix question
   I need to edit them
 
   Background:
@@ -18,40 +18,37 @@ Feature: Test editing a Numerical question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype     | name                  | template |
-      | Test questions   | numerical | Numerical for editing | pi       |
+      | questioncategory | qtype    | name                        | template       |
+      | Test questions   | oumatrix | Single matrix for editing   | animals_single |
+      | Test questions   | oumatrix | Multiple matrix for editing | food_multiple  |
 
-  Scenario: Edit a Numerical question when using a custom decimal separator
-    Given the following "language customisations" exist:
-      | component       | stringid | value |
-      | core_langconfig | decsep   | #     |
-    When I am on the "Numerical for editing" "core_question > edit" page logged in as teacher
-    And the field "id_answer_0" matches value "3#14"
+  Scenario: Edit a Matrix question with single response (radio buttons)
+    When I am on the "Single matrix for editing" "core_question > edit" page logged in as teacher
+    And I set the following fields to these values:
+      | Question name | Edited Single matrix name |
+    And I press "id_submitbutton"
+    Then I should see "Edited Single choice name"
+
+  Scenario: Edit a Matrix question with multiple response (checkboxes)
+    When I am on the "Multiple matrix for editing" "core_question > edit" page logged in as teacher
     And I set the following fields to these values:
       | Question name | |
     And I press "id_submitbutton"
     And I should see "You must supply a value here."
     And I set the following fields to these values:
-      | Question name | Edited Numerical name |
+      | Question name | Edited Multiple matrix name |
     And I press "id_submitbutton"
-    Then I should see "Edited Numerical name"
-    And I choose "Edit question" action for "Edited Numerical name" in the question bank
-    And I set the following fields to these values:
-      | id_answer_1    | 3#141592 |
-      | id_tolerance_1 | 0#005    |
-      | id_answer_2    | 3.05     |
-      | id_tolerance_2 | 0.005    |
-      | id_answer_3    | 3,01     |
-    And I press "id_submitbutton"
-    And I should see "Edited Numerical name"
+    Then I should see "Edited Multiple matrix name"
 
-  Scenario: Edit a Numerical question with very small answer
-    When I am on the "Numerical for editing" "core_question > edit" page logged in as teacher
-    And I set the following fields to these values:
-      | id_answer_0    | 0.00000123456789 |
-      | id_tolerance_1 | 0.0000123456789  |
-    And I press "id_submitbutton"
-    And I choose "Edit question" action for "Numerical for editing" in the question bank
-    Then the following fields match these values:
-      | id_answer_0    | 0.00000123456789 |
-      | id_tolerance_1 | 0.0000123456789  |
+
+
+#  Scenario: Edit a Numerical question with very small answer
+#    When I am on the "Numerical for editing" "core_question > edit" page logged in as teacher
+#    And I set the following fields to these values:
+#      | id_answer_0    | 0.00000123456789 |
+#      | id_tolerance_1 | 0.0000123456789  |
+#    And I press "id_submitbutton"
+#    And I choose "Edit question" action for "Numerical for editing" in the question bank
+#    Then the following fields match these values:
+#      | id_answer_0    | 0.00000123456789 |
+#      | id_tolerance_1 | 0.0000123456789  |

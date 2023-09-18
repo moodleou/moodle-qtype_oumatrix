@@ -26,7 +26,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
 
     public function get_test_questions() {
         return [
-                'oumatrix_single',
+                'animals_single',
                 'oumatrix_multiple'
         ];
     }
@@ -35,7 +35,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public function get_oumatrix_question_data_oumatrix_single() {
+    public function get_oumatrix_question_data_animals_single() {
         global $USER;
 
         $qdata = new stdClass();
@@ -43,7 +43,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->createdby = $USER->id;
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
-        $qdata->name = 'oumatrix_single01';
+        $qdata->name = 'oumatrix_animals_single01';
         $qdata->questiontext = 'Animal classification. Please answer the sub questions in all 4 rows.';
         $qdata->questiontextformat = FORMAT_HTML;
         $qdata->generalfeedback = 'We are recognising different type of animals';
@@ -70,7 +70,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
         $qdata->options->incorrectfeedbackformat = FORMAT_HTML;
 
-        $qdata->options->columns = [
+        $qdata->columns = [
                 11 => (object) [
                         'id' => 11,
                         'number' => 0,
@@ -92,7 +92,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Mammals',
                 ],
         ];
-        $qdata->options->rows = [
+        $qdata->rows = [
                 11 => (object) [
                         'id' => 11,
                         'number' => 0,
@@ -150,10 +150,10 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public static function get_oumatrix_question_form_data_oumatrix__single() {
+    public static function get_oumatrix_question_form_data_animals_single() {
         $qfdata = new stdClass();
 
-        $qfdata->name = 'oumatrix_single01';
+        $qfdata->name = 'oumatrix_animals_single01';
         $qfdata->questiontext = [
                 'text' => 'Animal classification. Please answer the sub questions in all 4 rows.',
                 'format' => FORMAT_HTML
@@ -237,7 +237,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public function get_oumatrix_question_data_oumatrix_multiple() {
+    public function get_oumatrix_question_data_food_multiple() {
         global $USER;
 
         $qdata = new stdClass();
@@ -246,9 +246,10 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
         $qdata->name = 'oumatrix_multiple01';
-        $qdata->questiontext = 'Please answer the sub questions in each row';
+        $qdata->questiontext = 'Please classify the list of food item in the follwoing groups:
+        Proteins, Vegetables, Fats, and Herbs & Spices';
         $qdata->questiontextformat = FORMAT_HTML;
-        $qdata->generalfeedback = 'We are dealing with even and odd numbers';
+        $qdata->generalfeedback = 'A delicious and healthy meal is a balanced one.';
         $qdata->generalfeedbackformat = FORMAT_HTML;
         $qdata->defaultmark = 1;
         $qdata->length = 1;
@@ -272,30 +273,50 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
         $qdata->options->incorrectfeedbackformat = FORMAT_HTML;
 
-        $qdata->options->columns = [
+        $qdata->columns = [
                 21 => (object) [
                         'id' => 21,
-                        'numbdr' => 0,
-                        'name' => 'one',
+                        'number' => 0,
+                        'name' => 'Chicken breast',
                 ],
                 22 => (object) [
                         'id' => 22,
-                        'numbdr' => 1,
-                        'name' => 'two',
+                        'number' => 1,
+                        'name' => 'carrots',
                 ],
                 23 => (object) [
                         'id' => 23,
-                        'numbdr' => 2,
-                        'name' => 'three',
+                        'number' => 2,
+                        'name' => 'Salmon fillet',
                 ],
-            ];
-        $qdata->options->rows = [
+                24 => (object) [
+                        'id' => 24,
+                        'number' => 3,
+                        'name' => 'Asparagus',
+                ],
+                25 => (object) [
+                        'id' => 25,
+                        'number' => 4,
+                        'name' => 'Olive oil',
+                ],
+                26 => (object) [
+                        'id' => 26,
+                        'numbdr' => 5,
+                        'name' => 'Steak',
+                ],
+                27 => (object) [
+                        'id' => 27,
+                        'number' => 6,
+                        'name' => 'Potatos',
+                ],
+        ];
+        $qdata->rows = [
                 21 => (object) [
                         'id' => 21,
                         'numbdr' => 0,
-                        'name' => 'Even numbers',
+                        'name' => 'Proteins',
                         'correctanswers' => '{"one":"0","two":"1","three":"0"}',
-                        'feedback' => 'Even numbers are divisible by 2 without remainders.',
+                        'feedback' => 'Chicken, fish and read meat containing proteins.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
                 22 => (object) [
@@ -408,6 +429,10 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->hintclearwrong = [0, 1];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;
+    }
+
+    public function get_test_question_data($witch) {
+        return \test_question_maker::get_question_data('oumatrix', $witch);
     }
 
     // TODO: following methods are copied from the old marix and may need some chnages.

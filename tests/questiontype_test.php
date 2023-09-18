@@ -53,20 +53,18 @@ class questiontype_test extends \advanced_testcase {
         $this->assertEquals($this->qtype->name(), 'oumatrix');
     }
 
-    protected function get_test_question_data() {
-        return \test_question_maker::get_question_data('oumatrix', 'oumatrix_single');
-    }
-
     public function test_initialise_question_instance() {
         $h = new qtype_oumatrix_test_helper();
-        //$qsingle = $h->get_oumatrix_question_data_oumatrix_single();
-        //$this->assertEquals(0.5, $this->qtype->get_random_guess_score($qsingle));
+        $qdata = $h->get_oumatrix_question_data_animals_single();
+        $expected = $h->get_test_question_data('animals_single');
 
-        $qmultiple = $h->get_oumatrix_question_data_oumatrix_multiple();
-        //print_object($qmultiple);
-        $qdata = $this->get_test_question_data();
+        $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qdata));
 
-        $expected = \test_question_maker::make_question('ddwtos');
+        $qdata = $h->get_oumatrix_question_data_oumatrix_multiple();
+        $expected = $h->get_test_question_data('oumatrix_multiple');
+
+
+        $expected = \test_question_maker::make_question('oumatrix', );
         $expected->stamp = $qdata->stamp;
         $expected->idnumber = null;
 
@@ -78,19 +76,16 @@ class questiontype_test extends \advanced_testcase {
     public function test_get_random_guess_score() {
         $h = new qtype_oumatrix_test_helper();
 
-        $qsingle = $h->get_oumatrix_question_data_oumatrix_single();
+        $qsingle = $h->get_oumatrix_question_data_animals_single();
         $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qsingle));
 
         $qmultiple = $h->get_oumatrix_question_data_oumatrix_multiple();
-        print_object('$qsingle ------------------------------------------------');
-        print_object($qmultiple);
-        return;
         $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qmultiple));
     }
 
     public function test_get_random_guess_score_broken_question() {
         $q = $this->get_test_question_data();
-        $q->options->rows= [];
+        $q->rows= [];
         $this->assertNull($this->qtype->get_random_guess_score($q));
     }
 
@@ -104,14 +99,16 @@ class questiontype_test extends \advanced_testcase {
         ), $this->qtype->get_possible_responses($q));
     }
 
-    public function get_question_saving_which() {
-        return [['four_by_four_songle'], ['three_by_three_multiple']];
+    public function get_save_question_which() {
+        return [['animals_single'], ['oumatrix_multiple']];
     }
 
     /**
-     * @dataProvider get_question_saving
+     * Test
+     * @dataProvider get_save_question_which
+     * @param $which
      */
-    public function test_question_saving($which) {
+    public function test_save_question($which) {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
@@ -119,7 +116,13 @@ class questiontype_test extends \advanced_testcase {
         $formdata = \test_question_maker::get_question_form_data('oumatrix', $which);
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $generator->create_question_category(array());
+        //
+        //$syscontext = \context_system::instance();
+        ///** @var core_question_generator $generator */
+        //$generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        //$category = $generator->create_question_category(['contextid' => $syscontext->id]);
+
+        $cat = $generator->create_question_category([]);
 
         $formdata->category = "{$cat->id},{$cat->contextid}";
         qtype_oumatrix_edit_form::mock_submit((array)$formdata);
@@ -148,13 +151,13 @@ class questiontype_test extends \advanced_testcase {
             $this->assertEquals($value, $actualquestiondata->options->$optionname);
         }
 
-        foreach ($questiondata->options->columns as $id => $column) {
-            $actualcolumn = array_shift($actualquestiondata->options->columns);
+        foreach ($questiondata->columns as $id => $column) {
+            $actualcolumn = array_shift($actualquestiondata->columns);
             // TODO: finsih this.
         }
 
-        foreach ($questiondata->options->rows as $id => $row) {
-            $actualrow = array_shift($actualquestiondata->options->rows);
+        foreach ($questiondata->rows as $id => $row) {
+            $actualrow = array_shift($actualquestiondata->rows);
             // TODO: finsih this.
         }
 
@@ -178,11 +181,11 @@ class questiontype_test extends \advanced_testcase {
         $this->setAdminUser();
 
         // Create a complete, in DB question to use.
-        $questiondata = \test_question_maker::get_question_data('oumatrix', 'four_by_four_single');
-        $formdata = \test_question_maker::get_question_form_data('oumatrix', 'four_by_four_single');
+        $questiondata = \test_question_maker::get_question_data('oumatrix', 'animals_single');
+        $formdata = \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $generator->create_question_category(array());
+        $cat = $generator->create_question_category([]);
 
         $formdata->category = "{$cat->id},{$cat->contextid}";
         qtype_oumatrix_edit_form::mock_submit((array)$formdata);
