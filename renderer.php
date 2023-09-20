@@ -113,6 +113,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         $result .= html_writer::end_tag('div'); // Answer.
         $result .= html_writer::end_tag('fieldset'); // Ablock.
+
+        if ($qa->get_state() == question_state::$invalid) {
+            $result .= html_writer::nonempty_tag('div',
+                    $question->get_validation_error($qa->get_last_qt_data()),
+                    array('class' => 'validationerror'));
+        }
+
         return $result;
     }
 
@@ -140,6 +147,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         // Creating table rows for the row questions.
         $table .= "<tr> ";
+
+        if ($options->readonly) {
+            $inputattributes['disabled'] = 'disabled';
+        }
 
         // Set the input attribute based on the single or multiple answer mode.
         if ( $this->get_input_type() == "single") {

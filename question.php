@@ -86,7 +86,37 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public abstract function is_choice_selected($response, $rowkey, $colkey);
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-        return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
+        //return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
+        if ($component == 'question' && in_array($filearea,
+                        array('correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'))) {
+            return $this->check_combined_feedback_file_access($qa, $options, $filearea, $args);
+        } else if ($component == 'qtype_oumatrix' && $filearea == 'feedback') {
+            $responseid = reset($args); // Itemid is answer id.
+            $response = $qa->get_last_qt_data();
+            $isselected = false;
+            foreach ($this->roworder as $value => $rowid) {
+
+                if ($this->inputtype == 'single' && $rowid == $responseid) {
+                    $isselected = true;
+                    break;
+                }
+            }
+            // Param $options->suppresschoicefeedback is a hack specific to the
+            // oumultiresponse question type. It would be good to refactor to
+            // avoid refering to it here.
+            return $options->feedback && empty($options->suppresschoicefeedback) &&
+                    $isselected;
+            //return $options->feedback;
+
+        } else if ($component == 'question' && $filearea == 'hint') {
+            return $this->check_hint_file_access($qa, $options, $args);
+
+        } else {
+            return parent::check_file_access($qa, $options, $component, $filearea,
+                    $args, $forcedownload);
+        }
+
+
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
@@ -277,8 +307,18 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
     }
 
+    public function prepare_simulated_post_data($simulatedresponse) {
+        return $simulatedresponse;
+    }
+
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        return  parent::is_same_response($prevresponse, $newresponse);
+        foreach ($this->roworder as $key => $notused) {
+            $fieldname = $this->field($key);
+            if (!question_utils::arrays_same_at_key_missing_is_blank($prevresponse, $newresponse, $fieldname)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -492,33 +532,21 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function prepare_simulated_post_data($simulatedresponse) {
         return $simulatedresponse;
     }
-
-    public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-        return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
-    }
+    //
+    //public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
+    //    return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
+    //}
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
-        return  parent::is_same_response($prevresponse, $newresponse);
-        /*if (!$this->is_complete_response($prevresponse)) {
-            $prevresponse = [];
-        }
-        if (!$this->is_complete_response($newresponse)) {
-            $newresponse = [];
-        }
-        foreach ($this->rows as $k => $row) {
-            print_object('$row -------------');
-            print_object($row);
-            // TODO:
-            foreach ($row->correctanswers as $key =>$value) {
-                $fieldname = $this->field($key);
-                if (!question_utils::arrays_same_at_key(
-                        $prevresponse, $newresponse, $fieldname)) {
+        foreach ($this->roworder as $key => $notused) {
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($key, $column->number);
+                if (!question_utils::arrays_same_at_key_integer($prevresponse, $newresponse, $fieldname)) {
                     return false;
                 }
-                return question_utils::arrays_same_at_key($prevresponse, $newresponse, 'answer');
             }
         }
-        return true;*/
+        return true;
     }
 
     public function get_correct_response(): ?array {
@@ -549,15 +577,17 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                     $answers[] =  $column->name;
                 }
             }
-            $rowresponse = $rowresponse . implode(', ', $answers);
-            $responsewords[] = $rowresponse;
+            if (count($answers) > 0) {
+                $rowresponse = $rowresponse . implode(', ', $answers);
+                $responsewords[] = $rowresponse;
+            }
         }
         return implode('; ', $responsewords);
     }
 
     public function is_complete_response(array $response): bool {
-        $inputresponse = false;
         foreach ($this->rows as $row) {
+            $inputresponse = false;
             foreach ($this->columns as $col) {
                 $fieldname = $this->field($row->number, $col->number);
                 if (array_key_exists($fieldname, $response)) {
@@ -568,7 +598,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                 return $inputresponse;
             }
         }
-        return $inputresponse;
+        return true;
     }
 
     public function is_gradable_response(array $response): bool {
@@ -579,7 +609,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         if ($this->is_complete_response($response)) {
             return '';
         }
-        return get_string('pleaseananswerallrows', 'qtype_oumatrix');
+        return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
 
     public function grade_response(array $response): array {

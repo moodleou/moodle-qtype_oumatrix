@@ -19,7 +19,7 @@
   margin-bottom: 0.5m;
 }
 
-.que.oumatrix .mform .form-inline .form-group [data-groupname^=rowanswerlist] {
+body#page-question-type-oumatrix .rowanswerlistlabel {
     padding: 0 0.5rem 0 1.0rem;
 }
 

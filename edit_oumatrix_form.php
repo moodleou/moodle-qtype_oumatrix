@@ -233,7 +233,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $question->feedback[] = $feedback[$key];
             $key++;
         }
-        $question->feedback = $feedback;
         return $question;
     }
 
@@ -353,7 +352,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $rowanswerlistlabel = ($this->inputtype === 'single') ?
             get_string('correctanswer', 'qtype_oumatrix') :
             get_string('correctanswers', 'qtype_oumatrix');
-        // TODO: To find a better way tio display $rowanswerlistlabel string after the rowname.
+        $rowoptions[] = $mform->createElement('html',
+            html_writer::tag('div', $rowanswerlistlabel, ['class' => 'rowanswerlistlabel']));
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
@@ -365,7 +365,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 $rowoptions[] = $mform->createElement('checkbox', "rowanswers$columnvalue", '', $anslabel);
             }
         }
-        //$rowoptions[] = $mform->createElement('group', 'rowanswerlist', $rowanswerlistlabel, $rowanswerlist, null, false);
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $repeated[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);

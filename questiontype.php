@@ -316,10 +316,8 @@ class qtype_oumatrix extends question_type {
      * @param object $questiondata the question data loaded from the database.
      */
     protected function initialise_question_rows(question_definition $question, $questiondata) {
-        print_object($questiondata);
-        print_object('-------------------------- $questiondata');
         if (!empty($questiondata->rows)) {
-            foreach ($questiondata->rows as $row) {
+            foreach ($questiondata->rows as $index => $row) {
                 $newrow  = $this->make_row($row);
                 if ($newrow->correctanswers != '') {
                     $correctAnswers = [];
@@ -337,7 +335,7 @@ class qtype_oumatrix extends question_type {
                     }
                     $newrow->correctanswers = $correctAnswers;
                 }
-                $question->rows[] = $newrow;
+                $question->rows[$index] = $newrow;
             }
         }
     }
