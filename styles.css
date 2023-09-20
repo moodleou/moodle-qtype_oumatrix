@@ -19,6 +19,10 @@
   margin-bottom: 0.5m;
 }
 
+.que.oumatrix .mform .form-inline .form-group [data-groupname^=rowanswerlist] {
+    padding: 0 0.5rem 0 1.0rem;
+}
+
 .que.oumatrix .question_row {
   text-align: left;
   margin-right: 0.1em;
@@ -43,6 +47,12 @@ body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
     padding-top: 5px;
     border: 1px solid #bbb;
     border-top: 0;
+}
+
+.que.oumatrix .answer .specificfeedback {
+    display: inline;
+    padding: 0 0.7em;
+    background: #fff3bf;
 }
 
 /*

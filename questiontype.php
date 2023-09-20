@@ -178,9 +178,8 @@ class qtype_oumatrix extends question_type {
      */
     public function save_rows($question, $columnslist) {
         global $DB;
+        $context = $question->context;
         $result = new stdClass();
-        print_object('****************************************************');
-        print_object($question);
         $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id ASC');
         $numrows = count($question->rowname);
 
@@ -222,6 +221,11 @@ class qtype_oumatrix extends question_type {
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
+            $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
+                    $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
+            $questionrow->feedbackformat = $question->feedback[$i]['format'];
+
+            $DB->update_record('qtype_oumatrix_rows', $questionrow);
         }
         // Remove old rows.
         // TODO: we shpould revisit this part of the code, btw, $fs seems not to be used.

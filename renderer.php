@@ -52,42 +52,55 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     protected abstract function get_input_id(question_attempt $qa, $value, $columnnumber);
 
     /**
-     * Whether a choice should be considered right, wrong or partially right.
-     * @param question_answer $ans representing one of the choices.
-     * @return fload 1.0, 0.0 or something in between, respectively.
+     * Whether a choice should be considered right or wrong.
+     * @param question_definition $question the question
+     * @param int $rowkey representing the row.
+     * @param int $columnkey representing the column.
+     * @return float 1.0, 0.0 or something in between, respectively.
      */
-    protected abstract function is_right(question_answer $ans);
+    protected function is_right(question_definition $question, $rowkey, $columnkey) {
+        $row = $question->rows[$rowkey];
+        if ($row->correctanswers != '') {
+            foreach ($question->columns as $column) {
+                if ($column->number == $columnkey && array_key_exists($column->id, $row->correctanswers)) {
+                    return 1;
+                }
+            }
+        }
+    }
 
     protected abstract function prompt();
+
+
+    protected function feedback_class($fraction) {
+        return question_state::graded_state_for_fraction($fraction)->get_feedback_class();
+    }
+
+    /**
+     * Return an appropriate icon (green tick, red cross, etc.) for a grade.
+     * @param float $fraction grade on a scale 0..1.
+     * @param bool $selected whether to show a big or small icon. (Deprecated)
+     * @return string html fragment.
+     */
+    protected function feedback_image($fraction, $selected = true) {
+        $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
+
+        return $this->output->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
+    }
 
     public function formulation_and_controls(question_attempt $qa,
             question_display_options $options) {
         $question = $qa->get_question();
-        $response = $qa->get_last_qt_data();
-        $inputname = $qa->get_qt_field_name('answer');
-        $inputattributes = array(
-                'type' => $this->get_input_type(),
-                'name' => $inputname,
-        );
-
-        if ($options->readonly) {
-            $inputattributes['disabled'] = 'disabled';
-        }
-
-        $radiobuttons = array();
-        $feedbackimg = array();
-        $feedback = array();
-        $classes = array();
         $result = '';
-        $hidden = '';
-
-        if (!$options->readonly && $this->get_input_type() == 'multiple') {
-            $hidden = html_writer::empty_tag('input', array(
-                    'type' => 'hidden',
-                    'name' => $inputattributes['name'],
-                    'value' => 0,
-            ));
-        }
+        //$hidden = '';
+        //
+        //if (!$options->readonly && $this->get_input_type() == 'multiple') {
+        //    $hidden = html_writer::empty_tag('input', array(
+        //            'type' => 'hidden',
+        //            'name' => $inputattributes['name'],
+        //            'value' => 0,
+        //    ));
+        //}
 
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
                 array('class' => 'qtext'));
@@ -95,132 +108,15 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
 
         $result .= html_writer::start_tag('div', array('class' => 'answer'));
-        $result .= $this->get_matrix($qa);
-        /*$result .= "\n";
-        $inputtype = $this->get_input_type();
-        $inputattributes['id'] = $this->get_input_id($qa, $value);
-        $radiobuttons[] = $hidden . html_writer::empty_tag('input', $inputattributes) .
-                html_writer::div(1, 'd-flex w-auto', [
-                        'id' => $inputattributes['id'] . '_label',
-                        'data-region' => 'answer-label',
-                ]);
+        $result .= $this->get_matrix($qa, $options);
         // todo: get inputtype
-        foreach ($question->rows as $key => $value) {
-            $result .= html_writer::tag('div', $value->name);
-        }
-        foreach ($radiobuttons as $key => $radio) {
-            $result .= html_writer::tag('div', $radio . ' ' . $feedbackimg[$key] . $feedback[$key],
-                            array('class' => $classes[$key])) . "\n";
-        }
-
-        $result .= "\n";*/
 
         $result .= html_writer::end_tag('div'); // Answer.
-
         $result .= html_writer::end_tag('fieldset'); // Ablock.
-        /*foreach ($question->get_order($qa) as $value => $ansid) {
-            $ans = $question->answers[$ansid];
-            $inputattributes['name'] = $this->get_input_name($qa, $value);
-            $inputattributes['value'] = $this->get_input_value($value);
-            $inputattributes['id'] = $this->get_input_id($qa, $value);
-            $inputattributes['aria-labelledby'] = $inputattributes['id'] . '_label';
-            $isselected = $question->is_choice_selected($response, $value);
-            if ($isselected) {
-                $inputattributes['checked'] = 'checked';
-            } else {
-                unset($inputattributes['checked']);
-            }
-            $hidden = '';
-            if (!$options->readonly && $this->get_input_type() == 'checkbox') {
-                $hidden = html_writer::empty_tag('input', array(
-                        'type' => 'hidden',
-                        'name' => $inputattributes['name'],
-                        'value' => 0,
-                ));
-            }
-
-            $choicenumber = '';
-            if ($question->answernumbering !== 'none') {
-                $choicenumber = html_writer::span(
-                        $this->number_in_style($value, $question->answernumbering), 'answernumber');
-            }
-            $choicetext = $question->format_text($ans->answer, $ans->answerformat, $qa, 'question', 'answer', $ansid);
-            $choice = html_writer::div($choicetext, 'flex-fill ml-1');
-
-            $radiobuttons[] = $hidden . html_writer::empty_tag('input', $inputattributes) .
-                    html_writer::div($choicenumber . $choice, 'd-flex w-auto', [
-                            'id' => $inputattributes['id'] . '_label',
-                            'data-region' => 'answer-label',
-                    ]);
-
-            // Param $options->suppresschoicefeedback is a hack specific to the
-            // oumultiresponse question type. It would be good to refactor to
-            // avoid refering to it here.
-            if ($options->feedback && empty($options->suppresschoicefeedback) &&
-                    $isselected && trim($ans->feedback)) {
-                $feedback[] = html_writer::tag('div',
-                        $question->make_html_inline($question->format_text(
-                                $ans->feedback, $ans->feedbackformat,
-                                $qa, 'question', 'answerfeedback', $ansid)),
-                        array('class' => 'specificfeedback'));
-            } else {
-                $feedback[] = '';
-            }
-            $class = 'r' . ($value % 2);
-            if ($options->correctness && $isselected) {
-                // Feedback images will be rendered using Font awesome.
-                // Font awesome icons are actually characters(text) with special glyphs,
-                // so the icons cannot be aligned correctly even if the parent div wrapper is using align-items: flex-start.
-                // To make the Font awesome icons follow align-items: flex-start, we need to wrap them inside a span tag.
-                $feedbackimg[] = html_writer::span($this->feedback_image($this->is_right($ans)), 'ml-1');
-                $class .= ' ' . $this->feedback_class($this->is_right($ans));
-            } else {
-                $feedbackimg[] = '';
-            }
-            $classes[] = $class;
-        }
-
-        $result = '';
-        $result .= html_writer::tag('div', $question->format_questiontext($qa),
-                array('class' => 'qtext'));
-
-        $result .= html_writer::start_tag('fieldset', array('class' => 'ablock no-overflow visual-scroll-x'));
-        if ($question->showstandardinstruction == 1) {
-            $legendclass = '';
-            $questionnumber = $options->add_question_identifier_to_label($this->prompt(), true, true);
-        } else {
-            $questionnumber = $options->add_question_identifier_to_label(get_string('answer'), true, true);
-            $legendclass = 'sr-only';
-        }
-        $legendattrs = [
-                'class' => 'prompt h6 font-weight-normal ' . $legendclass,
-        ];
-        $result .= html_writer::tag('legend', $questionnumber, $legendattrs);
-
-        $result .= html_writer::start_tag('div', array('class' => 'answer'));
-        foreach ($radiobuttons as $key => $radio) {
-            $result .= html_writer::tag('div', $radio . ' ' . $feedbackimg[$key] . $feedback[$key],
-                            array('class' => $classes[$key])) . "\n";
-        }
-        $result .= html_writer::end_tag('div'); // Answer.
-
-        // Load JS module for the question answers.
-        $this->page->requires->js_call_amd('qtype_multichoice/answers', 'init',
-                [$qa->get_outer_question_div_unique_id()]);
-        $result .= $this->after_choices($qa, $options);
-
-        $result .= html_writer::end_tag('fieldset'); // Ablock.
-
-        if ($qa->get_state() == question_state::$invalid) {
-            $result .= html_writer::nonempty_tag('div',
-                    $question->get_validation_error($qa->get_last_qt_data()),
-                    array('class' => 'validationerror'));
-        }*/
-
         return $result;
     }
 
-    public function get_matrix(question_attempt $qa) {
+    public function get_matrix(question_attempt $qa, question_display_options $options) {
 
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
@@ -232,41 +128,77 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 <tr>
                     <th scope='col'></th>";
         $index = 0;
-        foreach ($question->columns as $key => $value) {
+
+        // Creating the matrix headers.
+        foreach ($question->columns as $value) {
             $colname[$index] = $value->name;
-            $table .= "<th scope='col'><span id='$colname[$index]' class='answer_col' >$colname[$index]</span></th>";
+            $table .= "<th scope='col'><span id=col" . $index . " class='answer_col' >$colname[$index]</span></th>";
             $index +=  1;
         }
-        $table .= "</tr>
-        <tr> ";
-        $i = 0;
-        foreach ($question->get_order($qa) as $key => $rowid) {
+        // Adding an extra column for feedback.
+        $table .= "<th></th></tr>";
+
+        // Creating table rows for the row questions.
+        $table .= "<tr> ";
+
+        // Set the input attribute based on the single or multiple answer mode.
+        if ( $this->get_input_type() == "single") {
+            $inputattributes['type'] = "radio";
+        } else {
+            $inputattributes['type'] = "checkbox";
+        }
+
+        foreach ($question->get_order($qa) as $rowkey => $rowid) {
             $row = $question->rows[$rowid];
             $rowname = $row->name;
-            $rowid = 'row_'. $key;
-            $table .= "<th scope='col'><span id='$rowid'>$rowname</span></th>";
+            $rownewid = 'row_'. $rowkey;
+            $feedback = '';
+            $table .= "<th scope='col'><span id='$rownewid'>$rowname</span></th>";
+
             for ($j = 0; $j < count($colname); $j++) {
-                $inputattributes['name'] = $this->get_input_name($qa, $key, $j);
+                $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $j);
                 $inputattributes['value'] = $this->get_input_value($j);
-                $inputattributes['id'] = $this->get_input_id($qa, $key, $j);
+                $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $j);
                 $inputattributes['aria-labelledby'] = $inputattributes['id'] . '_label';
-                if($question->inputtype == 'single') {
-                    $table .= "<td><input type='radio' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
-                        value=" . $inputattributes['value'] . " aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
-                } else {
-                    $table .= "<td><input type='checkbox' name=" . $inputattributes['name'] . " id=" . $inputattributes['id'] . " 
-                        value=$colname[$j] " . "aria-labelledby=" . $inputattributes['aria-labelledby'] . " " . $rowname;
-                    //$table .= "<td><input type='checkbox' name=rowanswers[$i] id=id_rowanswers_" . $i . "_" .
-                    //        $colname[$j]. " value=$colname[$j] " . "aria-labelledby=" . $colname[$j]. " " . $rowname . "></td>";
+
+                $isselected = $question->is_choice_selected($response, $rowkey, $j);
+
+                // Get the row per feedback.
+                if ($options->feedback && empty($options->suppresschoicefeedback) && $feedback == '' &&
+                        $isselected && trim($row->feedback)) {
+                    $feedback = html_writer::tag('div',
+                        $question->make_html_inline($question->format_text($row->feedback, $row->feedbackformat,
+                            $qa, 'qtype_oumatrix', 'feedback', $rowid)),
+                        ['class' => 'specificfeedback']);
                 }
-                //$table .= " checked='checked' ";
-                $isselected = $question->is_choice_selected($colname[$j], $response, $key, $j);
+
+                $class = 'r' . ($rowkey % 2);
+                $feedbackimg = '';
+
+                // Select the radio button or checkbox and display feedback image.
                 if ($isselected) {
-                    $table .= " checked='checked' ";
+                    $inputattributes['checked'] = 'checked';
+                    if ($options->correctness) {
+                        // Feedback images will be rendered using Font awesome.
+                        // Font awesome icons are actually characters(text) with special glyphs,
+                        // so the icons cannot be aligned correctly even if the parent div wrapper is using align-items: flex-start.
+                        // To make the Font awesome icons follow align-items: flex-start, we need to wrap them inside a span tag.
+                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $j)), 'ml-1');
+                        $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $j));
+                    }
+                } else {
+                    unset($inputattributes['checked']);
                 }
-                $table .= "></td>";
+
+                // Write row and its attributes.
+                $button = html_writer::empty_tag('input', $inputattributes);
+                $table .= "<td>" . html_writer::start_tag('div', ['class' => 'answer']);
+                $table .= html_writer::tag('div', $button . ' ' . $feedbackimg,
+                                    ['class' => $class]) . "\n";
+                $table .= html_writer::end_tag('div');
+                $table .= "</td>";
             }
-            $i++;
+            $table .= "<td>" . $feedback . "</td>";
             $table .= "</tr>";
         }
         $table .= "</table>";
@@ -303,10 +235,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
 
 /**
- * Subclass for generating the bits of output specific to multiple choice
- * single questions.
+ * Subclass for generating the bits of output specific to oumatrix
+ * single choice questions.
  *
- * @copyright  2009 The Open University
+ * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
@@ -326,18 +258,12 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
     }
 
-    protected function is_right(question_answer $ans) {
-        return $ans->fraction;
-    }
-
     protected function prompt() {
         return get_string('selectone', 'qtype_multichoice');
     }
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-        //print_object("Inside single choice correct_response");
-        //print_object($question);
         $right = [];
         foreach ($question->rows as $row) {
             if ($row->correctanswers != '') {
@@ -407,10 +333,10 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
 }
 
 /**
- * Subclass for generating the bits of output specific to multiple choice
- * multi=select questions.
+ * Subclass for generating the bits of output specific to oumatrix
+ * multiple choice questions.
  *
- * @copyright  2009 The Open University
+ * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
@@ -434,35 +360,25 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
         return $this->get_input_name($qa, $value, $columnnumber);
     }
 
-    protected function is_right(question_answer $ans) {
-        if ($ans->fraction > 0) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
     protected function prompt() {
         return get_string('selectmulti', 'qtype_multichoice');
     }
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-        print_object("Inside multiple choice correct_response");
-        print_object($question);
-        $right = [];
         foreach ($question->rows as $row) {
+            // Get the correct row.
+            $rowanswer = $row->name . " => ";
+            $answers = [];
             if ($row->correctanswers != '') {
-                $answers = [];
-                foreach ($question->columns as $col) {
-                    if ($row->correctanswers[$col->number] == "1") {
-                        $answers[] =  $col->name;
-                    }
+                foreach ($row->correctanswers as $columnkey => $notused) {
+                    $answers[] = $question->columns[$columnkey]->name;
                 }
+                $rowanswer .= implode(', ', $answers);
+                $rightanswers[] = $rowanswer;
             }
-            $right[] = $row->name . " => " . implode(', ', $answers);
         }
-        return $this->correct_choices($right);
+        return $this->correct_choices($rightanswers);
     }
 
     protected function num_parts_correct(question_attempt $qa) {

@@ -83,7 +83,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
             $this->roworder = explode(',', $qa->get_step(0)->get_qt_var('_roworder'));
         }
     }
-    public abstract function is_choice_selected($colname, $response, $rowkey, $colkey);
+    public abstract function is_choice_selected($response, $rowkey, $colkey);
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
@@ -117,21 +117,10 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         if ($this->is_complete_response($response)) {
             return '';
         }
-        return get_string('pleaseananswerallparts', 'qtype_crossword');
+        return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
 
-    public function grade_response(array $response): array {
-        // Retrieve a number of right answers and total answers.
-        //[$numrightparts, $total] = $this->get_num_parts_right($response);
-        //// Retrieve a number of wrong accent numbers.
-        //$numpartialparts = $this->get_num_parts_partial($response);
-        //// Calculate fraction.
-        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-        //        / $total;
-        //
-        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
-        return [];
-    }
+    public abstract function grade_response(array $response);
 
     public function get_num_parts_right(array $response): array {
         $numright = 0;
@@ -277,7 +266,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $expected;
     }
 
-    public function is_choice_selected($colname, $response, $rowkey, $colkey) {
+    public function is_choice_selected($response, $rowkey, $colkey) {
         $responsekey = $this->field($rowkey);
         if($response && array_key_exists($responsekey, $response)) {
             return (string) $response[$responsekey] == $colkey;
@@ -338,7 +327,13 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
-        return !empty($response);
+        foreach ($this->rows as $row) {
+            $fieldname = $this->field($row->number);
+            if (!array_key_exists($fieldname, $response)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function is_gradable_response(array $response): bool {
@@ -349,7 +344,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         if ($this->is_complete_response($response)) {
             return '';
         }
-        return get_string('pleaseananswerallparts', 'qtype_crossword');
+        return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
 
     public function grade_response(array $response): array {
@@ -475,21 +470,17 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         foreach ($this->rows as $row) {
             if ($row->correctanswers != '') {
                 foreach($this->columns as $column) {
-                    $expected[$this->field($row->number, $column->number)] = PARAM_RAW;
+                    $expected[$this->field($row->number, $column->number)] = PARAM_INT;
                 }
             }
         }
         return $expected;
-
     }
 
-    public function is_choice_selected($colname, $response, $rowkey, $colkey) {
-        if($response) {
-            $fieldname = $this->field($rowkey, $colkey);
-            if($response[$fieldname] == "1" || $response[$fieldname] == $colname) {
-                return true;
-            }
-            return false;
+    public function is_choice_selected($response, $rowkey, $colkey) {
+        $responsekey = $this->field($rowkey, $colkey);
+        if($response && array_key_exists($responsekey, $response)) {
+            return (string) $response[$responsekey] == 1;
         }
     }
 
@@ -539,34 +530,31 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function get_correct_response(): ?array {
-        print_object("get_correct_response");
-        print_object($this);
-        $response = [];
-        foreach ($this->rows as $row) {
+        $answers = [];
+        foreach ($this->roworder as $key => $rownumber) {
+            $row = $this->rows[$rownumber];
             if ($row->correctanswers != '') {
                 foreach ($row->correctanswers as $colkey => $answer) {
-                    $response[$this->field($row->number, $colkey)] = $answer;
+                    // Get the corresponding column object associated with the column key.
+                    $column = $this->columns[$colkey];
+                    $answers[$this->field($key, $column->number)] = $answer;
                 }
             }
         }
-        print_object("=====================================");
-        print_object($response);
-        return $response;
+        return $answers;
     }
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        print_object("summarise_response");
-        print_object($response);
-        print_object($this);
-
-        foreach ($this->rows as $row) {
+        foreach ($this->roworder as $rownumber) {
+            // Get the correct row.
+            $row = $this->rows[$rownumber];
             $rowresponse = $row->name . " => ";
             $answers = [];
-            foreach ($this->columns as $col) {
-                $fieldname = $this->field($row->number, $col->number);
-                if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
-                    $answers[] =  $col->name;
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($row->number, $column->number);
+                if (array_key_exists($fieldname, $response)) {
+                    $answers[] =  $column->name;
                 }
             }
             $rowresponse = $rowresponse . implode(', ', $answers);
@@ -576,15 +564,19 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
+        $inputresponse = false;
         foreach ($this->rows as $row) {
             foreach ($this->columns as $col) {
                 $fieldname = $this->field($row->number, $col->number);
-                if (!empty($response[$fieldname] && $response[$fieldname] != "0")) {
-                    return true;
+                if (array_key_exists($fieldname, $response)) {
+                    $inputresponse = true;
                 }
             }
+            if (!$inputresponse) {
+                return $inputresponse;
+            }
         }
-        return false;
+        return $inputresponse;
     }
 
     public function is_gradable_response(array $response): bool {
@@ -600,45 +592,93 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function grade_response(array $response): array {
         // Retrieve a number of right answers and total answers.
-        //[$numrightparts, $total] = $this->get_num_parts_right($response);
-        //// Retrieve a number of wrong accent numbers.
-        //$numpartialparts = $this->get_num_parts_partial($response);
-        //// Calculate fraction.
-        //$fraction = ($numrightparts + $numpartialparts - $numpartialparts * $this->accentpenalty)
-        //        / $total;
-        //
-        //return [$fraction, question_state::graded_state_for_fraction($fraction)];
-        print_object("grade_response££££££££££££££££££££££££££££");
-        print_object($response);
-        $fraction = 1;
-        return [$fraction, question_state::graded_state_for_fraction($fraction)];
-    }
-
-    public function get_num_parts_right(array $response): array {
-        $numright = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_full_fraction($answer, $response[$this->field($key)])) {
-                $numright++;
-            }
+        if ($this->grademethod == 'allnone') {
+            [$numrightparts, $total] = $this->get_num_parts_right($response);
+        } else {
+            [$numrightparts, $total] = $this->get_num_parts_grade_partial($response);
         }
-        return [$numright, count($this->answers)];
+
+        $fraction = $numrightparts / $total;
+        return array($fraction, question_state::graded_state_for_fraction($fraction));
     }
 
     /**
-     * Get number of words in the response which are not right, but are if you ignore accents.
+     * Get the number of correct choices selected in the response, for All-or-nothing grade method.
      *
-     * @param array $response The answer list.
-     * @return int The number of partial answers.
+     * @param array $response The response list.
+     * @return array The array of number of correct response and the total rows.
      */
-    public function get_num_parts_partial(array $response): int {
-        $numpartial = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_partial_fraction($answer, $response[$this->field($key)])) {
-                $numpartial++;
+    public function get_num_parts_right(array $response): array {
+        $numright = 0;
+        foreach ($this->roworder as $rowkey => $rownumber) {
+            $row = $this->rows[$rownumber];
+            $rowrightresponse = 0;
+           if ($row->correctanswers != '' ) {
+               foreach ($this->columns as $column) {
+                   $reponsekey = $this->field($rowkey, $column->number);
+                   if (array_key_exists($reponsekey, $response) && array_key_exists($column->id, $row->correctanswers)) {
+                       $rowrightresponse++;
+                   }
+               }
+               if ($rowrightresponse == count($row->correctanswers)) {
+                   $numright++;
+               }
+           }
+        }
+        return [$numright, count($this->rows)];
+    }
+
+    /**
+     * Get the number of correct choices selected in the response, for Partial grade method.
+     *
+     * @param array $response The response list.
+     * @return array The array of number of correct response and the total correct answers.
+     */
+    public function get_num_parts_grade_partial(array $response): array {
+        $numcorrectanswers = 0;
+        $rightresponse = 0;
+        foreach ($this->roworder as $rowkey => $rownumber) {
+            $row = $this->rows[$rownumber];
+            if ($row->correctanswers != '' ) {
+                foreach ($this->columns as $column) {
+                    $reponsekey = $this->field($rowkey, $column->number);
+                    if (array_key_exists($reponsekey, $response) && array_key_exists($column->id, $row->correctanswers)) {
+                        $rightresponse++;
+                    }
+                }
+                $numcorrectanswers += count($row->correctanswers);
             }
         }
+        return [$rightresponse, $numcorrectanswers];
+    }
 
-        return $numpartial;
+    /**
+     * @param array $response responses, as returned by
+     *      {@link question_attempt_step::get_qt_data()}.
+     * @return int the number of choices that were selected in this response.
+     */
+    public function get_num_selected_choices(array $response) {
+        $numselected = 0;
+        foreach ($response as $key => $value) {
+            // Response keys starting with _ are internal values like _order, so ignore them.
+            if (!empty($value) && $key[0] != '_') {
+                $numselected += 1;
+            }
+        }
+        return $numselected;
+    }
+
+    /**
+     * @return int the number of choices that are correct.
+     */
+    public function get_num_correct_choices() {
+        $numcorrect = 0;
+        foreach ($this->rows as $row) {
+            if ($row->correctanswers != '') {
+                $numcorrect += count($row->correctanswers);
+            }
+        }
+        return $numcorrect;
     }
 
     public function clear_wrong_from_response(array $response): array {
