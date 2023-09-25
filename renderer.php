@@ -41,15 +41,17 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      *
      * @return string HTML output.
      */
-    protected abstract function after_choices(question_attempt $qa, question_display_options $options);
+    abstract protected function after_choices(question_attempt $qa, question_display_options $options);
 
-    protected abstract function get_input_type();
+    abstract protected function get_input_type();
 
-    protected abstract function get_input_name(question_attempt $qa, $value, $columnnumber);
+    abstract protected function get_input_name(question_attempt $qa, $value, $columnnumber);
 
-    protected abstract function get_input_value($value);
+    abstract protected function get_input_value($value);
 
-    protected abstract function get_input_id(question_attempt $qa, $value, $columnnumber);
+    abstract protected function get_input_id(question_attempt $qa, $value, $columnnumber);
+
+    abstract protected function prompt();
 
     /**
      * Whether a choice should be considered right or wrong.
@@ -68,9 +70,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             }
         }
     }
-
-    protected abstract function prompt();
-
 
     protected function feedback_class($fraction) {
         return question_state::graded_state_for_fraction($fraction)->get_feedback_class();
@@ -106,10 +105,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 array('class' => 'qtext'));
         $result .= html_writer::start_tag('fieldset', array('class' => 'ablock no-overflow visual-scroll-x'));
 
-
         $result .= html_writer::start_tag('div', array('class' => 'answer'));
         $result .= $this->get_matrix($qa, $options);
-        // todo: get inputtype
+        // TODO: get inputtype
 
         $result .= html_writer::end_tag('div'); // Answer.
         $result .= html_writer::end_tag('fieldset'); // Ablock.
@@ -140,7 +138,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         foreach ($question->columns as $value) {
             $colname[$index] = $value->name;
             $table .= "<th scope='col'><span id=col" . $index . " class='answer_col' >$colname[$index]</span></th>";
-            $index +=  1;
+            $index += 1;
         }
         // Adding an extra column for feedback.
         $table .= "<th></th></tr>";

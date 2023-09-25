@@ -1,4 +1,4 @@
-@qtype @qtype_numerical
+@qtype @qtype_oumatrix
 Feature: Preview a Numerical question
   As a teacher
   In order to check my Numerical questions will work for students

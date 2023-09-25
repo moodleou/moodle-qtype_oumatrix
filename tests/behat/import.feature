@@ -1,4 +1,4 @@
-@qtype @qtype_numerical
+@qtype @qtype_oumatrix
 Feature: Test importing Numerical questions
   As a teacher
   In order to reuse Numerical questions

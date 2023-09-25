@@ -184,7 +184,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'number' => 0,
                         'name' => 'Insects'
                 ],
-                12 =>  [
+                12 => [
                         'number' => 1,
                         'name' => 'Fish'
                 ],
@@ -391,7 +391,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'number' => 0,
                         'name' => 'one'
                 ],
-                22 =>  [
+                22 => [
                         'number' => 1,
                         'name' => 'two'
                 ],

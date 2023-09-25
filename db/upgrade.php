@@ -68,6 +68,5 @@ function xmldb_qtype_oumatrix_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023081400, 'qtype', 'oumatrix');
     }
 
-
     return true;
 }

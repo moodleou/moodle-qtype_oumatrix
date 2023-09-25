@@ -63,7 +63,6 @@ class questiontype_test extends \advanced_testcase {
         $qdata = $h->get_oumatrix_question_data_oumatrix_multiple();
         $expected = $h->get_test_question_data('oumatrix_multiple');
 
-
         $expected = \test_question_maker::make_question('oumatrix', );
         $expected->stamp = $qdata->stamp;
         $expected->idnumber = null;
@@ -85,7 +84,7 @@ class questiontype_test extends \advanced_testcase {
 
     public function test_get_random_guess_score_broken_question() {
         $q = $this->get_test_question_data();
-        $q->rows= [];
+        $q->rows = [];
         $this->assertNull($this->qtype->get_random_guess_score($q));
     }
 

@@ -99,7 +99,7 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $context = $question->context;
         $result = new stdClass();
-        $options = $DB->get_record('qtype_oumatrix_options',['questionid' => $question->id]);
+        $options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
         if (!$options) {
             $config = get_config('qtype_oumatrix');
             $options = new stdClass();
@@ -172,7 +172,6 @@ class qtype_oumatrix extends question_type {
      * @throws dml_exception
      */
     public function save_rows($question, $columnslist) {
-        print_object($question);
         global $DB;
         $context = $question->context;
         $result = new stdClass();
@@ -290,7 +289,7 @@ class qtype_oumatrix extends question_type {
         //TODO: improve this.
         return $this->get_num_correct_choices($questiondata) /
                 count($questiondata->rows);
-   }
+    }
 
     public function get_possible_responses($questiondata) {
         $numright = $this->get_num_correct_choices($questiondata);
@@ -315,20 +314,20 @@ class qtype_oumatrix extends question_type {
             foreach ($questiondata->rows as $index => $row) {
                 $newrow  = $this->make_row($row);
                 if ($newrow->correctanswers != '') {
-                    $correctAnswers = [];
+                    $correctanswers = [];
                     $todecode = implode(",", $newrow->correctanswers);
                     $decodedanswers = json_decode($todecode, true);
-                    foreach($questiondata->columns as $key => $column) {
+                    foreach ($questiondata->columns as $key => $column) {
                         if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
                             if ($questiondata->options->inputtype == 'single') {
-                                $anslabel = 'a' . $column->number+1;
-                                $correctAnswers[$column->id] = $anslabel;
+                                $anslabel = 'a' . ($column->number+1);
+                                $correctanswers[$column->id] = $anslabel;
                             } else {
-                                $correctAnswers[$column->id] = $decodedanswers[$column->id];
+                                $correctanswers[$column->id] = $decodedanswers[$column->id];
                             }
                         }
                     }
-                    $newrow->correctanswers = $correctAnswers;
+                    $newrow->correctanswers = $correctanswers;
                 }
                 $question->rows[$index] = $newrow;
             }
@@ -351,7 +350,7 @@ class qtype_oumatrix extends question_type {
     public function make_row($rowdata) {
         // Need to explode correctanswers as it is in the string format.
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-            explode(',',$rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
+            explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
     public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
@@ -403,12 +402,10 @@ class qtype_oumatrix extends question_type {
     }
 
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
-        //print_object($question);
         $output = '';
 
         $output .= "    <shuffleanswers>" . $format->get_single(
                         $question->options->shuffleanswers) . "</shuffleanswers>\n";
-        //$output .= "    <answernumbering>{$question->options->answernumbering}</answernumbering>\n";
         $output .= "    <showstandardinstruction>{$question->options->showstandardinstruction}</showstandardinstruction>\n";
         $output .= '    <grademethod>' . $format->xml_escape($question->options->grademethod)
                 . "</grademethod>\n";

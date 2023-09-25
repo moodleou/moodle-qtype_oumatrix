@@ -1,4 +1,4 @@
-@qtype @qtype_numerical
+@qtype @qtype_oumatrix
 Feature: Test duplicating a quiz containing a Numerical question
   As a teacher
   In order re-use my courses containing Numerical questions

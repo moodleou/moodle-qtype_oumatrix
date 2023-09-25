@@ -110,8 +110,9 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
         $contents = [];
 
         $contents[] = new restore_decode_content('qtype_oumatrix_options',
-                ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'], 'qtype_oumatrix_options');
-        $contents[] = new restore_decode_content('qtype_crossword_rows', ['number', 'name', 'correctanswers', 'feedback', 'feedbackformat'], 'qtype_crossword_rows');
+            ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'], 'qtype_oumatrix_options');
+        $contents[] = new restore_decode_content('qtype_crossword_rows',
+            ['number', 'name', 'correctanswers', 'feedback', 'feedbackformat'], 'qtype_crossword_rows');
         $contents[] = new restore_decode_content('qtype_crossword_columns', ['number', 'name'], 'qtype_crossword_rows');
 
         return $contents;

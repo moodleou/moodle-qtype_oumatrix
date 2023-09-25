@@ -59,7 +59,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     protected function definition_inner($mform) {
 
-        // Sett the number of columns and rows.self::COL_NUM_START;
+        // Set the number of columns and rows.
         $this->numcolumns = $this->numcolumns ?? self::COL_NUM_START;
         $this->numrows = $this->numrows ?? self::ROW_NUM_START;
 
@@ -96,8 +96,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->add_per_row_fields($mform, get_string('row', 'qtype_oumatrix', '{no}'), $this->numrows);
 
         $this->add_combined_feedback_fields(true);
-
-        ///$mform->disabledIf('shownumcorrect', 'single', 'eq', 1);
 
         $this->add_interactive_settings(true, true);
 
@@ -152,7 +150,12 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return $question;
     }
 
-     function data_preprocessing_options($question) {
+    /**
+     * Perform the necessary preprocessing for the options fields.
+     * @param object $question the data being passed to the form.
+     * @return object $question the modified data.
+     */
+    protected function data_preprocessing_options($question) {
         if (empty($question->options)) {
             return $question;
         }
@@ -191,7 +194,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @return object The modified data.
      */
     private function data_preprocessing_rows($question) {
-        // preprocess rows.
+        // Preprocess rows.
         if (empty($question->rows)) {
             return $question;
         }
@@ -202,7 +205,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->columns as $key => $column) {
                 if (array_key_exists($column->id, $decodedanswers)) {
-                    $columnvalue = 'a' . $column->number + 1;
+                    $columnvalue = 'a' . ($column->number + 1);
                     if ($question->options->inputtype == 'single') {
                         $question->rowanswers[] = $columnvalue;
                     } else {
@@ -365,8 +368,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
-            $anslabel = get_string('a', 'qtype_oumatrix', $i+1);
-            $columnvalue = 'a' . $i + 1;
+            $anslabel = get_string('a', 'qtype_oumatrix', $i + 1);
+            $columnvalue = 'a' . ($i + 1);
             if ($this->inputtype === 'single') {
                 $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', $anslabel, $columnvalue);
             } else {

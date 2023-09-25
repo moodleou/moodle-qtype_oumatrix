@@ -1,4 +1,4 @@
-@qtype @qtype_numerical
+@qtype @qtype_oumatrix
 Feature: Test editing an ouMatrix question
   As a teacher
   In order to be able to update my Matrix question
