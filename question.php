@@ -566,13 +566,13 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function summarise_response(array $response): ?string {
         $responsewords = [];
-        foreach ($this->roworder as $rownumber) {
+        foreach ($this->roworder as $key => $rownumber) {
             // Get the correct row.
             $row = $this->rows[$rownumber];
             $rowresponse = $row->name . " => ";
             $answers = [];
             foreach ($this->columns as $column) {
-                $fieldname = $this->field($row->number, $column->number);
+                $fieldname = $this->field($key, $column->number);
                 if (array_key_exists($fieldname, $response)) {
                     $answers[] =  $column->name;
                 }
