@@ -38,11 +38,6 @@ require_once($CFG->libdir.'/questionlib.php');
  * in various formats.
  */
 class qtype_oumatrix extends question_type {
-
-    const MIN_NUMBER_OF_columns = 2;
-    const MIN_NUMBER_OF_ROWS = 2;
-
-
     public function get_question_options($question) {
         global $DB, $OUTPUT;;
         parent::get_question_options($question);
@@ -138,8 +133,8 @@ class qtype_oumatrix extends question_type {
         $numcolumns = count($formdata->columnname);
 
         // Check if the question has the minimum number of colunms.
-        if ($numcolumns < self::MIN_NUMBER_OF_columns) {
-            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix',  self::MIN_NUMBER_OF_columns);
+        if ($numcolumns < column::MIN_NUMBER_OF_COLUMNS) {
+            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix',  column::MIN_NUMBER_OF_COLUMNS);
             return $result;
         }
         $columnslist = [];
@@ -185,8 +180,8 @@ class qtype_oumatrix extends question_type {
         $numrows = count($question->rowname);
 
         // Check if the question has the minimum number of rows.
-        if ($numrows < self::MIN_NUMBER_OF_ROWS) {
-            $result->error = get_string('notenoughquestionrows', 'qtype_oumatrix',  self::MIN_NUMBER_OF_ROWS);
+        if ($numrows < row::MIN_NUMBER_OF_ROWS) {
+            $result->error = get_string('notenoughquestionrows', 'qtype_oumatrix',  row::MIN_NUMBER_OF_ROWS);
             return $result;
         }
 
@@ -205,15 +200,15 @@ class qtype_oumatrix extends question_type {
                 $questionrow->name = $question->rowname[$i];
                 // Prepare correct answers.
                 for ($c = 0; $c < count($columnslist); $c++) {
-                    if ($question->inputtype == 'multiple') {
+                    if ($question->inputtype == 'single') {
+                        $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
+                        $answerslist[$columnslist[$columnindex - 1]->id] = "1";
+                    } else {
                         $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
                         if (!isset($question->$rowanswerslabel) || !array_key_exists($i, $question->$rowanswerslabel)) {
                             continue;
                         }
                         $answerslist[$columnslist[$c]->id] = $question->$rowanswerslabel[$i];
-                    } else {
-                        $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
-                        $answerslist[$columnslist[$columnindex - 1]->id] = "1";
                     }
                 }
                 $questionrow->correctanswers = json_encode($answerslist);

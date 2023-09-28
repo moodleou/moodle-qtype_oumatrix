@@ -22,9 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-//namespace gtype_oumatirx;
-use \qtype_oumatirx\row;
-use \qtype_oumatirx\column;
+use qtype_oumatrix\row;
+use qtype_oumatrix\column;
 
 /**
  * Editing form for the oumatrix question type.
@@ -238,6 +237,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        print_object($data);
+        //if (count($data->columns) < column::MIN_NUMBER_OF_COLUMNS) {
+        //    $errors['columnname'] = get_string('noduplication', 'qtype_oumatix');
+        //}
+        if (count($data->rowname) < row::MIN_NUMBER_OF_ROWS) {
+            $errors['columnname'] = get_string('noduplication', 'qtype_oumatix');
+        }
         //print_object($data->columnname);
 
         // Check for duplicated column name.
@@ -300,7 +306,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->repeat_elements($this->get_per_column_fields($mform, $label, $repeatedoptions),
                 $repeatsatstart, $repeatedoptions,
                 'nocolumns', 'addcolumns', $addoptions,
-                $this->get_more_blanks('columns'), true);
+                get_string('addmoreblanks', 'qtype_oumatrix', 'columns'), true);
     }
 
     protected function get_per_column_fields($mform, $label, $repeatedoptions) {
@@ -334,16 +340,18 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions),
                 $repeatsatstart, $repeatedoptions,
                 'norows', 'addrows', $addoptions,
-                $this->get_more_blanks('rows'), true);
+                get_string('addmoreblanks', 'qtype_oumatrix', 'rows'), true);
     }
 
     /**
+     * Returns a row object with relevant input fields.
+     *
      * @param object $mform
      * @param string $label
-     * @param array $repeatedoptions reference to array of repeated options to fill
+     * @param array $repeatedoptions
      * @return array
      */
-    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions): array {
+    protected function get_per_row_fields(object $mform, string $label, array &$repeatedoptions): array {
         $repeated = [];
         $rowoptions = [];
         $rowoptions[] = $mform->createElement('text', 'rowname', '', ['size' => 40]);
@@ -372,12 +380,4 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $repeatedoptions['rowname']['type'] = PARAM_RAW;
         return $repeated;
     }
-
-    /**
-     * Language string to use for 'Add {no} more {rows or columns}'.
-     */
-    protected function get_more_blanks(string $string) {
-        return get_string('addmoreblanks', 'qtype_oumatrix', $string);
-    }
-
 }
