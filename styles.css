@@ -8,15 +8,24 @@
   text-align: center;
 }
 
+.que.oumatrix .answer .generaltable {
+  text-align: center;
+  width: 75%;
+}
+
 .que.oumatrix .answer_col {
   text-align: center;
-  margin-left: 2em;
 }
 .que.oumatrix input[type="radio"],
 .que.oumatrix input[type="checkbox"] {
   box-sizing: border-box;
-  margin-left: 2.5em;
   margin-bottom: 0.5m;
+  text-align: center;
+}
+
+.que.oumatrix .answer div[class^=r] .icon {
+  position: absolute;
+  margin-left: 0.25rem;
 }
 
 body#page-question-type-oumatrix .rowanswerlistlabel {

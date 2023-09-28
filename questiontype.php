@@ -216,20 +216,23 @@ class qtype_oumatrix extends question_type {
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
-            $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
-                    $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
-            $questionrow->feedbackformat = $question->feedback[$i]['format'];
+            if ($question->feedback[$i]['text'] != '') {
+                $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
+                        $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
+                $questionrow->feedbackformat = $question->feedback[$i]['format'];
 
-            $DB->update_record('qtype_oumatrix_rows', $questionrow);
+                $DB->update_record('qtype_oumatrix_rows', $questionrow);
+            }
         }
         // Remove old rows.
         // TODO: we shpould revisit this part of the code, btw, $fs seems not to be used.
         $fs = get_file_storage();
         if ($oldrows) {
-            $ids = array_map(function($question){
+            $ids = array_map(function($question) {
                 return $question->id;
             }, $oldrows);
             [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
+            $fs->delete_area_files_select($context->id, 'qtype_oumatrix', 'feedback', "id $idssql", $idsparams);
             $DB->delete_records_select('qtype_oumatrix_rows', "id $idssql", $idsparams);
         }
     }
@@ -306,13 +309,14 @@ class qtype_oumatrix extends question_type {
 
     /**
      * Initialise the question rows.
+     *
      * @param question_definition $question the question_definition we are creating.
      * @param object $questiondata the question data loaded from the database.
      */
     protected function initialise_question_rows(question_definition $question, $questiondata) {
         if (!empty($questiondata->rows)) {
             foreach ($questiondata->rows as $index => $row) {
-                $newrow  = $this->make_row($row);
+                $newrow = $this->make_row($row);
                 if ($newrow->correctanswers != '') {
                     $correctanswers = [];
                     $todecode = implode(",", $newrow->correctanswers);
@@ -320,7 +324,7 @@ class qtype_oumatrix extends question_type {
                     foreach ($questiondata->columns as $key => $column) {
                         if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
                             if ($questiondata->options->inputtype == 'single') {
-                                $anslabel = 'a' . ($column->number+1);
+                                $anslabel = 'a' . ($column->number + 1);
                                 $correctanswers[$column->id] = $anslabel;
                             } else {
                                 $correctanswers[$column->id] = $decodedanswers[$column->id];
@@ -336,6 +340,7 @@ class qtype_oumatrix extends question_type {
 
     /**
      * Initialise the question columns.
+     *
      * @param question_definition $question the question_definition we are creating.
      * @param object $questiondata the question data loaded from the database.
      */
@@ -350,44 +355,37 @@ class qtype_oumatrix extends question_type {
     public function make_row($rowdata) {
         // Need to explode correctanswers as it is in the string format.
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-            explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
+                explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
-    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
-        if (!isset($data['@']['type']) || $data['@']['type'] != 'oumultiresponse') {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
+        if (!isset($data['@']['type']) || $data['@']['type'] != 'oumatrix') {
             return false;
         }
 
         $question = $format->import_headers($data);
-        $question->qtype = 'oumultiresponse';
+        $question->qtype = 'oumatrix';
 
+        $question->inputtype = $format->import_text(
+                $format->getpath($data, array('#', 'inputtype'), 'single'));
+        $question->grademethod = $format->import_text(
+                $format->getpath($data, array('#', 'grademethod'), 'partial'));
         $question->shuffleanswers = $format->trans_single(
                 $format->getpath($data, array('#', 'shuffleanswers', 0, '#'), 1));
-        $question->answernumbering = $format->getpath($data,
-                array('#', 'answernumbering', 0, '#'), 'abc');
-        $question->showstandardinstruction = $format->getpath($data,
-                array('#', 'showstandardinstruction', 0, '#'), 1);
 
-        $format->import_combined_feedback($question, $data, true);
-
-        // TODO: To be done correctly
-        // Run through the answers.
-        $answers = $data['#']['answer'];
-        foreach ($answers as $answer) {
-            $ans = $format->import_answer($answer, true,
-                    $format->get_format($question->questiontextformat));
-            $question->answer[] = $ans->answer;
-            $question->correctanswer[] = !empty($ans->fraction);
-            $question->feedback[] = $ans->feedback;
-
-            // Backwards compatibility.
-            if (array_key_exists('correctanswer', $answer['#'])) {
-                $keys = array_keys($question->correctanswer);
-                $question->correctanswer[end($keys)] = $format->getpath($answer,
-                        array('#', 'correctanswer', 0, '#'), 0);
-            }
+        $columns = $format->getpath($data, ['#', 'columns', 0, '#', 'column'], false);
+        if ($columns) {
+            $this->import_columns($format, $question, $columns);
+        } else {
+            $question->columns = [];
         }
-
+        $rows = $format->getpath($data, ['#', 'rows', 0, '#', 'row'], false);
+        if ($rows) {
+            $this->import_rows($format, $question, $rows);
+        } else {
+            $question->rows = [];
+        }
+        $format->import_combined_feedback($question, $data, true);
         $format->import_hints($question, $data, true, true,
                 $format->get_format($question->questiontextformat));
 
@@ -401,42 +399,110 @@ class qtype_oumatrix extends question_type {
         return $question;
     }
 
+    public function import_columns(qformat_xml $format, stdClass $question, array $columns): void {
+        foreach ($columns as $column) {
+            static $indexno = 0;
+            $question->columns[$indexno]['name'] =
+                    $format->import_text($format->getpath($column, ['#', 'text'], ''));
+            $question->columns[$indexno]['id'] = $format->getpath($column, array('@', 'key'), $indexno);
+
+            $question->columnname[$indexno] =
+                    $format->import_text($format->getpath($column, ['#', 'text'], ''));
+            $indexno++;
+        }
+    }
+
+    public function import_rows(qformat_xml $format, stdClass $question, array $rows): void {
+        foreach ($rows as $row) {
+            static $indexno = 0;
+            $question->rows[$indexno]['id'] = $format->getpath($row, array('@', 'key'), $indexno);
+            $question->rows[$indexno]['name'] =
+                    $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
+
+            $correctanswer = $format->getpath($row, ['#', 'correctanswers', 0, '#', 'text', 0, '#'], '');
+            $decodedanswers = json_decode($correctanswer, true);
+            foreach ($question->columns as $colindex => $col) {
+                if (array_key_exists($col['id'], $decodedanswers)) {
+                    // Import correct answers for single choice.
+                    if ($question->inputtype == 'single') {
+                        // Assigning $colindex + 1 as answers are stored as 1,2 and so on.
+                        $question->rowanswers[$indexno] = ($colindex + 1);
+                        break;
+                    } else {
+                        // Import correct answers for multiple choice.
+                        $rowanswerslabel = "rowanswers" . 'a' . ($colindex + 1);
+                        if (array_key_exists($col['id'], $decodedanswers)) {
+                            $question->$rowanswerslabel[$indexno] = "1";
+                        }
+                    }
+                }
+            }
+            $question->rowname[$indexno] =
+                    $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
+            $question->feedback[$indexno] = $this->import_text_with_files($format, $row, array('#', 'feedback', 0), '', 'html');
+            $indexno++;
+        }
+    }
+
+    public function import_text_with_files(qformat_xml $format, $data, $path, $defaultvalue = '', $defaultformat = 'html') {
+        $field = array();
+        $field['text'] = $format->getpath($data,
+                array_merge($path, array('#', 'text', 0, '#')), $defaultvalue, true);
+        $field['format'] = $format->trans_format($format->getpath($data,
+                array_merge($path, array('@', 'format')), $defaultformat));
+        $itemid = $format->import_files_as_draft($format->getpath($data,
+                array_merge($path, array('#', 'file')), array(), false));
+        if (!empty($itemid)) {
+            $field['itemid'] = $itemid;
+        } else {
+            $field['itemid'] = '';
+        }
+        return $field;
+    }
+
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
         $output = '';
 
-        $output .= "    <shuffleanswers>" . $format->get_single(
-                        $question->options->shuffleanswers) . "</shuffleanswers>\n";
-        $output .= "    <showstandardinstruction>{$question->options->showstandardinstruction}</showstandardinstruction>\n";
+        $output .= '    <inputtype>' . $format->xml_escape($question->options->inputtype)
+                . "</inputtype>\n";
         $output .= '    <grademethod>' . $format->xml_escape($question->options->grademethod)
                 . "</grademethod>\n";
-        foreach ($question->rows as $word => $value) {
-            $expout .= "    <word>\n";
-            foreach (self::WORD_FIELDS as $xmlfield) {
-                if ($xmlfield === 'clue' || $xmlfield === 'feedback') {
-                    if (!isset($value->{$xmlfield})) {
-                        $value->{$xmlfield} = '';
-                    }
-                    $formatfield = $xmlfield . 'format';
-                    if (!isset($value->{$formatfield})) {
-                        $value->{$formatfield} = FORMAT_HTML;
-                    }
-                    $files = $fs->get_area_files($question->contextid, 'question', $xmlfield, $value->id);
-                    $expout .= "      <{$xmlfield} {$format->format($value->{$formatfield})}>\n";
-                    $expout .= '        ' . $format->writetext($value->{$xmlfield});
-                    $expout .= $format->write_files($files);
-                    $expout .= "      </{$xmlfield}>\n";
-                } else {
-                    $exportedvalue = $format->xml_escape($value->{$xmlfield});
-                    $expout .= "      <$xmlfield>{$exportedvalue}</$xmlfield>\n";
-                }
-            }
-            $expout .= "    </word>\n";
+        $output .= "    <shuffleanswers>" . $format->get_single(
+                        $question->options->shuffleanswers) . "</shuffleanswers>\n";
+
+        // Export columns data.
+        $output .= "<columns>\n";
+        foreach ($question->columns as $columnkey => $column) {
+            $output .= "    <column key=\"{$columnkey}\">\n";
+            $output .= $format->writetext($column->name, 4);
+            $output .= "    </column>\n";
         }
+        $output .= "</columns>\n";
+
+        // Export rows data.
+        $fs = get_file_storage();
+        $output .= "    <rows>\n";
+        foreach ($question->rows as $rowkey => $row) {
+            $output .= "    <row key=\"{$rowkey}\">\n";
+            $output .= "       <name>\n";
+            $output .= $format->writetext($row->name, 3);
+            $output .= "       </name>\n";
+            $output .= "       <correctanswers>\n";
+            $output .= $format->writetext($row->correctanswers, 3);
+            $output .= "       </correctanswers>\n";
+            if (($row->feedback ?? '') != '') {
+                $output .= '      <feedback ' . $format->format($row->feedbackformat) . ">\n";
+                $output .= $format->writetext($row->feedback, 4);
+                $files = $fs->get_area_files($question->contextid, 'qtype_oumatrix', 'feedback', $row->id);
+                $output .= $format->write_files($files);
+                $output .= "      </feedback>\n";
+            }
+            $output .= "    </row>\n";
+        }
+        $output .= "    </rows>\n";
         $output .= $format->write_combined_feedback($question->options,
                 $question->id,
                 $question->contextid);
-        $output .= $format->write_answers($question->rows->correctanswers);
-
         return $output;
     }
 
@@ -445,7 +511,7 @@ class qtype_oumatrix extends question_type {
 
         parent::move_files($questionid, $oldcontextid, $newcontextid);
         //TODO: replace the commented line below if needed.
-        //$this->move_files_in_answers($questionid, $oldcontextid, $newcontextid, true);
+        $this->move_files_in_rowanswers($questionid, $oldcontextid, $newcontextid);
         $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 
         $fs->move_area_files_to_new_context($oldcontextid,
@@ -456,19 +522,55 @@ class qtype_oumatrix extends question_type {
                 $newcontextid, 'question', 'incorrectfeedback', $questionid);
     }
 
+    /**
+     * Move all the files belonging to each rows question answers when the question
+     * is moved from one context to another.
+     *
+     * @param int $questionid the question being moved.
+     * @param int $oldcontextid the context it is moving from.
+     * @param int $newcontextid the context it is moving to.
+     */
+    protected function move_files_in_rowanswers($questionid, $oldcontextid,
+            $newcontextid) {
+        global $DB;
+        $fs = get_file_storage();
+
+        $rowids = $DB->get_records_menu('qtype_oumatrix_rows',
+                ['questionid' => $questionid], 'id', 'id,1');
+        foreach ($rowids as $rowid => $notused) {
+            $fs->move_area_files_to_new_context($oldcontextid,
+                    $newcontextid, 'qtype_oumatrix', 'feedback', $rowid);
+        }
+    }
+
     protected function delete_files($questionid, $contextid) {
         $fs = get_file_storage();
 
         parent::delete_files($questionid, $contextid);
-        $this->delete_files_in_answers($questionid, $contextid, true);
+        $this->delete_files_in_row_feedback($questionid, $contextid);
         $this->delete_files_in_hints($questionid, $contextid);
         $fs->delete_area_files($contextid, 'question', 'correctfeedback', $questionid);
         $fs->delete_area_files($contextid, 'question', 'partiallycorrectfeedback', $questionid);
         $fs->delete_area_files($contextid, 'question', 'incorrectfeedback', $questionid);
     }
+
+    /**
+     * Delete all the files belonging to this question's row feedbacks.
+     *
+     * @param int $questionid the question being deleted.
+     * @param int $contextid the context the question is in.
+     */
+    protected function delete_files_in_row_feedback($questionid, $contextid) {
+        global $DB;
+        $fs = get_file_storage();
+
+        $rowids = $DB->get_records_menu('qtype_oumatrix_rows',
+                ['questionid' => $questionid], 'id', 'id,1');
+        foreach ($rowids as $rowid => $notused) {
+            $fs->delete_area_files($contextid, 'qtype_oumatrix', 'feedback', $rowid);
+        }
+    }
 }
-
-
 /**
  * An extension of {@link question_hint_with_parts} for qtype_oumatrix questions
  * with an extra option for whether to show the feedback for each row.

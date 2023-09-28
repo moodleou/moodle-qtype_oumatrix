@@ -129,7 +129,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $colname[] = null;
         $table = "
             <table class='generaltable'>
-                <caption class='table_caption'>$caption</caption>
+                <caption class='table_caption sr-only'>$caption</caption>
                 <tr>
                     <th scope='col'></th>";
         $index = 0;
@@ -173,7 +173,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 $isselected = $question->is_choice_selected($response, $rowkey, $j);
 
                 // Get the row per feedback.
-                if ($options->feedback && empty($options->suppresschoicefeedback) && $feedback == '' &&
+                if ($options->feedback && $feedback == '' &&
                         $isselected && trim($row->feedback)) {
                     $feedback = html_writer::tag('div',
                         $question->make_html_inline($question->format_text($row->feedback, $row->feedbackformat,
@@ -192,7 +192,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                         // Font awesome icons are actually characters(text) with special glyphs,
                         // so the icons cannot be aligned correctly even if the parent div wrapper is using align-items: flex-start.
                         // To make the Font awesome icons follow align-items: flex-start, we need to wrap them inside a span tag.
-                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $j)), 'ml-1');
+                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $j)));
                         $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $j));
                     }
                 } else {
@@ -230,12 +230,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      */
     protected function correct_choices(array $right) {
         // Return appropriate string for single/multiple correct answer(s).
+        $right = array_merge(["<br>"], $right);
         if (count($right) == 1) {
             return get_string('correctansweris', 'qtype_multichoice',
-                    implode(', ', $right));
+                    implode("<br>", $right));
         } else if (count($right) > 1) {
             return get_string('correctanswersare', 'qtype_multichoice',
-                    implode(', ', $right));
+                    implode("<br>", $right));
         } else {
             return "";
         }

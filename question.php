@@ -93,19 +93,20 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
                         array('correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'))) {
             return $this->check_combined_feedback_file_access($qa, $options, $filearea, $args);
         } else if ($component == 'qtype_oumatrix' && $filearea == 'feedback') {
-            $responseid = reset($args); // Itemid is answer id.
-            $isselected = false;
-            foreach ($this->roworder as $value => $rowid) {
-                if ($this->inputtype == 'single' && $rowid == $responseid) {
-                    $isselected = true;
-                    break;
-                }
-            }
+            //$responseid = reset($args); // Itemid is answer id.
+            //$isselected = false;
+            //foreach ($this->roworder as $value => $rowid) {
+            //    if ($this->inputtype == 'single' && $rowid == $responseid) {
+            //        $isselected = true;
+            //        break;
+            //    }
+            //}
             // Param $options->suppresschoicefeedback is a hack specific to the
             // oumultiresponse question type. It would be good to refactor to
             // avoid refering to it here.
-            return $options->feedback && empty($options->suppresschoicefeedback) &&
-                    $isselected;
+            //return $options->feedback && empty($options->suppresschoicefeedback) &&
+            //        $isselected;
+            return $options->feedback;
 
         } else if ($component == 'question' && $filearea == 'hint') {
             return $this->check_hint_file_access($qa, $options, $args);
@@ -295,10 +296,10 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         }
         return false;
     }
-
-    public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-        return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
-    }
+    //
+    //public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
+    //    return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
+    //}
 
     public function prepare_simulated_post_data($simulatedresponse) {
         return $simulatedresponse;
@@ -526,7 +527,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function prepare_simulated_post_data($simulatedresponse) {
         return $simulatedresponse;
     }
-
+    //
     //public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
     //    return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
     //}
