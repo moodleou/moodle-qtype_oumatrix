@@ -239,6 +239,12 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     }
 
     public function validation($data, $files) {
+        if (!$data) {
+            return;
+        }
+        if (!isset($data->rowname)) {
+            return;
+        }
         $errors = parent::validation($data, $files);
         $countcols = count(array_filter($data['columnname']));
         if ($countcols < column::MIN_NUMBER_OF_COLUMNS) {
