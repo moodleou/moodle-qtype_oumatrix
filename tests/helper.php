@@ -27,7 +27,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     public function get_test_questions() {
         return [
                 'animals_single',
-                'oumatrix_multiple'
+                'food_multiple'
         ];
     }
 
@@ -179,52 +179,43 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->incorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
                 'format' => FORMAT_HTML];
-        $qfdata->columns = [
-                11 => [
-                        'number' => 0,
-                        'name' => 'Insects'
+        $qfdata->columnname = [
+                0 => 'Insects',
+                1 => 'Fish',
+                2 => 'Birdas',
+                3 => 'Mammals'
+        ];
+        $qfdata->rowname = [
+                0 => 'Fly, bee, spider',
+                1 => 'Fish',
+                2 => 'Birdas',
+                3 => 'Mammals'
+        ];
+         $qfdata->feedback = [
+                0 => [
+                        'text' => 'Flies, bees and spiders are insects.',
+                        'format' => FORMAT_HTML
                 ],
-                12 => [
-                        'number' => 1,
-                        'name' => 'Fish'
+                1 => [
+                        'text' => 'Cod, Salmon and Trout are fish.',
+                        'format' => FORMAT_HTML
                 ],
-                13 => [
-                        'number' => 2,
-                        'name' => 'Birdas'
+                2 => [
+                        'text' => 'Gull and Owl are birds.',
+                        'format' => FORMAT_HTML
                 ],
-                14 => [
-                        'number' => 2,
-                        'name' => 'Mammals'
+                3 => [
+                        'text' => 'Cow, Dog and  Horse are mammals',
+                        'format' => FORMAT_HTML
                 ],
         ];
-        $qfdata->rows = [
-                11 => [
-                        'number' => 0,
-                        'name' => 'Fly, bee, spider',
-                        'correctanswers' => '{"Insects":"1","Fish":"0","Birds":"0", "mammals":"0"}',
-                        'feedback' => ['text' => 'Flies, bees and spiders are insects.', 'format' => FORMAT_HTML]
-                ],
-                12 => [
-                        'number' => 0,
-                        'name' => 'Cod, Salmon, Trout',
-                        'correctanswers' => '{"Insects":"0","Fish":"1","Birds":"0", "mammals":"0"}',
-                        'feedback' => ['text' => 'Cod, Salmon and Trout are fish.', 'format' => FORMAT_HTML]
-                ],
-                13 => [
-                        'number' => 0,
-                        'name' => 'Gull, Owl',
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"1", "mammals":"0"}',
-                        'feedback' => ['text' => 'Gull and Owl are birds.', 'format' => FORMAT_HTML]
-                ],
-                14 => (object) [
-                        'number' => 0,
-                        'name' => 'Cow, Dog, Horse',
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"0", "mammals":"1"}',
-                        'feedback' => ['text' => 'Cow, Dog and  Horse are mammals', 'format' => FORMAT_HTML]
-                ],
+        $qfdata->rowanswers = [
+                0 => "1",
+                1 => "2",
+                2 => "3",
+                3 => "4"
         ];
-
-        $qfdata->hints = [
+        $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
                 1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
             ];
@@ -245,7 +236,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->createdby = $USER->id;
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
-        $qdata->name = 'oumatrix_multiple01';
+        $qdata->name = 'oumatrix_food_multiple01';
         $qdata->questiontext = 'Please classify the list of food item in the follwoing groups:
         Proteins, Vegetables, Fats, and Herbs & Spices';
         $qdata->questiontextformat = FORMAT_HTML;
@@ -360,10 +351,10 @@ class qtype_oumatrix_test_helper extends question_test_helper {
      * Get the question data, as it would be loaded by get_question_options.
      * @return object
      */
-    public static function get_oumatrix_question_form_data_oumatrix_pultiple() {
+    public static function get_oumatrix_question_form_data_food_multiple() {
         $qfdata = new stdClass();
 
-        $qfdata->name = 'oumatrix_multiple01';
+        $qfdata->name = 'oumatrix_food_multiple01';
         $qfdata->questiontext = ['text' => 'Please answer the sub questions in each row', 'format' => FORMAT_HTML];
         $qfdata->generalfeedback = ['text' => 'We are dealing with even and odd numbers', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
@@ -386,43 +377,43 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->incorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
                 'format' => FORMAT_HTML];
-        $qfdata->columns = [
-                21 => [
-                        'number' => 0,
-                        'name' => 'one'
+        $qfdata->columnname = [
+                0 => 'one',
+                1 => 'two',
+                2 => 'three',
+        ];
+        $qfdata->rowname = [
+                0 => 'Even numbers',
+                1 => 'Odd numbers',
+                2 => 'Number less than 4',
+        ];
+        $qfdata->feedback = [
+                0 => [
+                        'text' => 'Even numbers are divisible by 2 without remainders.',
+                        'format' => FORMAT_HTML
                 ],
-                22 => [
-                        'number' => 1,
-                        'name' => 'two'
+                1 => [
+                        'text' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
+                        'format' => FORMAT_HTML
                 ],
-                23 => [
-                        'number' => 2,
-                        'name' => 'three'
+                2 => [
+                        'text' => 'All numbers smaller than 4.',
+                        'format' => FORMAT_HTML
                 ],
         ];
-        $qfdata->rows = [
-                21 => [
-                        'number' => 0,
-                        'name' => 'Even numbers',
-                        'correctanswers' => '{"one":"0","two":"1","three":"0"}',
-                        'feedback' => ['text' => 'Even numbers are divisible by 2 without remainders.', 'format' => FORMAT_HTML]
-                ],
-                22 => [
-                        'number' => 1,
-                        'name' => 'Odd numbers',
-                        'correctanswers' => '{"one":"1","two":"0","three":"1"}',
-                        'feedback' => ['text' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
-                                'format' => FORMAT_HTML]
-                ],
-                23 => [
-                        'number' => 2,
-                        'name' => 'Number less than 3',
-                        'correctanswers' => '{"one":"1","two":"1","three":"0"}',
-                        'feedback' => ['text' => 'All numbers smaller than 3.', 'format' => FORMAT_HTML]
-                ],
+        $qfdata->rowanswersa1 = [
+                1 => "1",
+                2 => "1",
         ];
-
-        $qfdata->hints = [
+        $qfdata->rowanswersa2 = [
+                0 => "1",
+                2 => "1",
+        ];
+        $qfdata->rowanswersa3 = [
+                1 => "1",
+                2 => "1",
+        ];
+        $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
                 1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
         ];

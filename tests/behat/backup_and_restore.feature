@@ -12,16 +12,17 @@ Feature: Test duplicating a quiz containing a Numerical question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype     | name          | template    |
-      | Test questions   | numerical | Numerical-001 | pi          |
+      | questioncategory | qtype    | name              | template       |
+      | Test questions   | oumatrix | OUMatrix single   | animals_single |
+      | Test questions   | oumatrix | OUMatrix multiple | food_multiple |
     And the following "activities" exist:
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And quiz "Test quiz" contains the following questions:
-      | Numerical-001 | 1 |
+      | OUMatrix single | 1 |
 
   @javascript
-  Scenario: Backup and restore a course containing a Numerical question
+  Scenario: Backup and restore a course containing an OUMatrix question
     When I am on the "Course 1" course page logged in as admin
     And I backup "Course 1" course using this options:
       | Confirmation | Filename | test_backup.mbz |
@@ -29,29 +30,30 @@ Feature: Test duplicating a quiz containing a Numerical question
       | Schema | Course name       | Course 2 |
       | Schema | Course short name | C2       |
     And I am on the "Course 2" "core_question > course question bank" page
-    And I choose "Edit question" action for "Numerical-001" in the question bank
+    And I choose "Edit question" action for "OUMatrix single" in the question bank
     Then the following fields match these values:
-      | Question name                      | Numerical-001                              |
-      | Question text                      | What is pi to two d.p.?                    |
-      | General feedback                   | Generalfeedback: 3.14 is the right answer. |
-      | Default mark                       | 1                                          |
-      | id_answer_0                        | 3.14                                       |
-      | id_tolerance_0                     | 0                                          |
-      | id_fraction_0                      | 100%                                       |
-      | id_feedback_0                      | Very good.                                 |
-      | id_answer_1                        | 3.142                                      |
-      | id_tolerance_1                     | 0                                          |
-      | id_fraction_1                      | None                                       |
-      | id_feedback_1                      | Too accurate.                              |
-      | id_answer_2                        | 3.1                                        |
-      | id_tolerance_2                     | 0                                          |
-      | id_fraction_2                      | None                                       |
-      | id_feedback_2                      | Not accurate enough.                       |
-      | id_answer_3                        | 3                                          |
-      | id_tolerance_3                     | 0                                          |
-      | id_fraction_3                      | None                                       |
-      | id_feedback_3                      | Not accurate enough.                       |
-      | id_answer_4                        | *                                          |
-      | id_tolerance_4                     | 0                                          |
-      | id_fraction_4                      | None                                       |
-      | id_feedback_4                      | Completely wrong.                          |
+      | Question name     | OUMatrix single                                                       |
+      | Question text     | Animal classification. Please answer the sub questions in all 4 rows. |
+      | General feedback  | We are recognising different type of animals.                         |
+      | Default mark      | 1                                                                     |
+      | id_inputtype      | Single choice                                                         |
+      | id_shuffleanswers | 1                                                                     |
+      | id_columnname_0   | Insects                                                               |
+      | id_columnname_1   | Fish                                                                  |
+      | id_columnname_2   | Birdas                                                                |
+      | id_columnname_3   | Mammals                                                               |
+      | id_rowname_0      | Fly, bee, spider                                                      |
+      | id_feedback_0     | Flies, bees and spiders are insects.                                  |
+      | id_rowname_1      | Fish                                                                  |
+      | id_feedback_1     | Cod, Salmon and Trout are fish.                                       |
+      | id_rowname_2      | Birdas                                                                |
+      | id_feedback_2     | Gull and Owl are birds.                                               |
+      | id_rowname_3      | Mammals                                                               |
+      | id_feedback_3     | Cow, Dog and Horse are mammals                                        |
+      | id_hint_0         | Hint 1.                                                               |
+      | id_hint_1         | Hint 2.                                                               |
+      #| id_rowanswers_0_a4 | 1                                                    |
+      #| id_rowanswers_0_a3 | 0                                                    |
+      #| id_rowanswers_1_a3 | 1                                                    |
+      #| id_rowanswers_2_a2 | 1                                                    |
+      #| id_rowanswers_3_a1 | 1                                                    |

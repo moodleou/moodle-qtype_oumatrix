@@ -63,3 +63,5 @@ $string['shuffleanswers_desc'] = 'Whether options should be randomly shuffled fo
 $string['shuffleanswers_help'] = 'If enabled, the order of the row items is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';
 $string['toomanyselected'] = 'You have selected too many options.';
 $string['updateform'] = 'Update the response matrix';
+$string['yougotnright'] = 'You have correctly answered {$a->num} sub-question.';
+$string['yougot1right'] = 'You have correctly answered one sub-question.';

@@ -212,7 +212,6 @@ class qtype_oumatrix extends question_type {
                 }
                 $questionrow->correctanswers = json_encode($answerslist);
                 $questionrow->feedback = $question->feedback[$i]['text'];
-                $questionrow->feedbackitemid = $question->feedback[$i]['itemid'];
                 $questionrow->feedbackformat = FORMAT_HTML;
                 $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }

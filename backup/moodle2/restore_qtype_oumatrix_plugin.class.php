@@ -33,8 +33,8 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
         // We used get_recommended_name() so this works.
         $elements = [
                 'qtype_oumatrix' => '/oumatrix',
+                'qtype_oumatrix_column' => '/columns/column',
                 'qtype_oumatrix_row' => '/rows/row',
-                'qtype_oumatrix_column' => '/columns/column'
         ];
 
         foreach ($elements as $elename => $path) {
@@ -57,15 +57,12 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
     /**
      *
-     * Process the qtype_oumatrix_rows element.
+     * Process the qtype_oumatrix_columns element.
      *
      * @param array $data
      */
-    public function process_qtype_oumatrix_row(array $data): void {
-        if (!isset($data['feedbackformat'])) {
-            $data['feedbackformat'] = FORMAT_HTML;
-        }
-        self::process_qtype_oumatrix_data_with_table_name($data, 'qtype_crossword_rows');
+    public function process_qtype_oumatrix_column(array $data): void {
+        self::process_qtype_oumatrix_data_with_table_name($data, 'qtype_oumatrix_columns');
     }
 
     /**
@@ -74,9 +71,30 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
      *
      * @param array $data
      */
-    public function process_qtype_oumatrix_column(array $data): void {
-        self::process_qtype_oumatrix_data_with_table_name($data, 'qtype_crossword_columns');
+    public function process_qtype_oumatrix_row(array $data): void {
+        if (!isset($data['feedbackformat'])) {
+            $data['feedbackformat'] = FORMAT_HTML;
+        }
+        $data = (object)$data;
+
+        // Detect if the question is created or mapped.
+        $questioncreated = $this->get_mappingid('question_created',
+                $this->get_old_parentid('question')) ? true : false;
+
+        // If the question has been created by restore, we need to update the correctanswers to store new column id's.
+        if ($questioncreated) {
+            // Adjust correct answers.
+            $decodedanswers = json_decode($data->correctanswers, true);
+            foreach ($decodedanswers as $columnid => $value) {
+                $newcolumnid = $this->get_mappingid('qtype_oumatrix_columns', $columnid);
+                $decodedanswers[$newcolumnid] = $value;
+                unset($decodedanswers[$columnid]);
+            }
+            $data->correctanswers = json_encode($decodedanswers);
+        }
+        self::process_qtype_oumatrix_data_with_table_name((array)$data, 'qtype_oumatrix_rows');
     }
+
     /**
      * Process the qtype oumatrix data with the table name.
      *
@@ -108,13 +126,10 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
      */
     public static function define_decode_contents(): array {
         $contents = [];
-
         $contents[] = new restore_decode_content('qtype_oumatrix_options',
             ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'], 'qtype_oumatrix_options');
-        $contents[] = new restore_decode_content('qtype_crossword_rows',
-            ['number', 'name', 'correctanswers', 'feedback', 'feedbackformat'], 'qtype_crossword_rows');
-        $contents[] = new restore_decode_content('qtype_crossword_columns', ['number', 'name'], 'qtype_crossword_rows');
-
+        $contents[] = new restore_decode_content('qtype_oumatrix_rows',
+            ['feedback'], 'qtype_oumatrix_rows');
         return $contents;
     }
 }

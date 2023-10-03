@@ -18,15 +18,16 @@ Feature: Test exporting Numerical questions
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype     | name          | template |
-      | Test questions   | numerical | Numerical-001 | pi       |
-      | Test questions   | numerical | Numerical-002 | pi3tries |
+      | questioncategory | qtype     | name             | template       |
+      | Test questions   | oumatrix | OUMatrix-001      | animals_single |
+      | Test questions   | oumatrix | OUMatrix multiple | food_multiple  |
 
-  Scenario: Export a Numerical question
+    @javascript
+  Scenario: Export an OUMatrix question
     When I am on the "Course 1" "core_question > course question export" page logged in as teacher
     And I set the field "id_format_xml" to "1"
     And I press "Export questions to file"
-    Then following "click here" should download between "3650" and "3750" bytes
+    Then following "click here" should download between "5100" and "5400" bytes
     # If the download step is the last in the scenario then we can sometimes run
     # into the situation where the download page causes a http redirect but behat
     # has already conducted its reset (generating an error). By putting a logout

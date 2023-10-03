@@ -16,13 +16,13 @@ Feature: Test importing Numerical questions
       | teacher | C1     | editingteacher |
 
   @javascript @_file_upload
-  Scenario: import Numerical question.
+  Scenario: Import OUMatrix question.
     When I am on the "Course 1" "core_question > course question import" page logged in as teacher
     And I set the field "id_format_xml" to "1"
-    And I upload "question/type/numerical/tests/fixtures/testquestion.moodle.xml" file to "Import" filemanager
+    And I upload "question/type/oumatrix/tests/fixtures/testquestion_multiple.moodle.xml" file to "Import" filemanager
     And I press "id_submitbutton"
     Then I should see "Parsing questions from import file."
     And I should see "Importing 1 questions from file"
-    And I should see "1. What is the average of 4, 5, 6 and 10?"
+    And I should see "1. Test this multiple choice question"
     And I press "Continue"
-    And I should see "Numerical-001"
+    And I should see "Test converting a question to multiple"

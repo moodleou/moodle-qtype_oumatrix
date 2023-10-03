@@ -627,6 +627,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
      */
     public function get_num_parts_right(array $response): array {
         $numright = 0;
+        $totalrightresponse = 0;
         foreach ($this->roworder as $rowkey => $rownumber) {
             $row = $this->rows[$rownumber];
             $rowrightresponse = 0;
@@ -637,6 +638,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                         $rowrightresponse++;
                     }
                 }
+                $totalrightresponse += $rowrightresponse;
                 if ($rowrightresponse == count($row->correctanswers)) {
                     $numright++;
                 }

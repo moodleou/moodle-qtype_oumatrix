@@ -48,6 +48,11 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
     border-bottom: 0;
 }
 
+/* Row validation error display. */
+body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
+    border: 0;
+}
+
 body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
     background: #eee;
     margin-bottom: 2em;

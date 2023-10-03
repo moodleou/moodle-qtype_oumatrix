@@ -41,18 +41,21 @@ class backup_qtype_oumatrix_plugin extends backup_qtype_plugin {
         $matrix = new backup_nested_element('oumatrix', ['id'], ['inputtype', 'grademethod', 'shuffleanswers',
             'correctfeedback', 'correctfeedbackformat', 'partiallycorrectfeedback', 'partiallycorrectfeedbackformat',
             'incorrectfeedback', 'incorrectfeedbackformat', 'shownumcorrect']);
+        $pluginwrapper->add_child($matrix);
 
-        // Define the rows.
-        $rows = new backup_nested_element('rows');
-        $row = new backup_nested_element('row', ['id'], ['number', 'name', 'correctanswers', 'feedback', 'feedbackformat']);
-        $rows->add_child($row);
         // Define the columns.
         $columns = new backup_nested_element('columns');
         $column = new backup_nested_element('column', ['id'], ['number', 'name']);
         $columns->add_child($column);
-        $pluginwrapper->add_child($matrix);
-        $pluginwrapper->add_child($rows);
+        // This qtype uses column id's for correct answers in rows,
+        // so adding columns to the tree before rows.
         $pluginwrapper->add_child($columns);
+
+        // Define the rows.
+        $rows = new backup_nested_element('rows');
+        $row = new backup_nested_element('row', ['id'], ['number', 'name', 'feedback', 'feedbackformat', 'correctanswers']);
+        $rows->add_child($row);
+        $pluginwrapper->add_child($rows);
 
         // Set source to populate the data.
         $matrix->set_source_table('qtype_oumatrix_options', ['questionid' => backup::VAR_PARENTID]);
@@ -62,10 +65,12 @@ class backup_qtype_oumatrix_plugin extends backup_qtype_plugin {
         return $plugin;
     }
 
-    /*public static function get_qtype_fileareas() {
+    public static function get_qtype_fileareas() {
         return [
-                'clue' => 'qtype_crossword_words',
-                'feedback' => 'qtype_crossword_words'
+                'feedback' => 'question_created',
+                'correctfeedback' => 'question_created',
+                'partiallycorrectfeedback' => 'question_created',
+                'incorrectfeedback' => 'question_created',
         ];
-    }*/
+    }
 }

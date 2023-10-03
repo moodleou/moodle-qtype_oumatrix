@@ -1,4 +1,4 @@
-@qtype @qtype_oumatrix
+@qtype @qtype_oumatrix @javascript
 Feature: Test editing an ouMatrix question
   As a teacher
   In order to be able to update my Matrix question
@@ -22,6 +22,7 @@ Feature: Test editing an ouMatrix question
       | Test questions   | oumatrix | Single matrix for editing   | animals_single |
       | Test questions   | oumatrix | Multiple matrix for editing | food_multiple  |
 
+  @javascript
   Scenario: Edit a Matrix question with single response (radio buttons)
     When I am on the "Single matrix for editing" "core_question > edit" page logged in as teacher
     And I set the following fields to these values:
@@ -38,6 +39,7 @@ Feature: Test editing an ouMatrix question
     And I set the following fields to these values:
       | Question name | Edited Multiple matrix name |
     And I press "id_submitbutton"
+    And I pause
     Then I should see "Edited Multiple matrix name"
 
 

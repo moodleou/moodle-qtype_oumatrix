@@ -240,21 +240,17 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        print_object($data);
-        //if (count($data->columns) < column::MIN_NUMBER_OF_COLUMNS) {
-        //    $errors['columnname'] = get_string('noduplication', 'qtype_oumatix');
-        //}
-        if (count($data->rowname) < row::MIN_NUMBER_OF_ROWS) {
-            $errors['columnname'] = get_string('noduplication', 'qtype_oumatix');
+        $countcols = count(array_filter($data['columnname']));
+        if ($countcols < column::MIN_NUMBER_OF_COLUMNS) {
+            $errors['columnname[' . $countcols .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
+                column::MIN_NUMBER_OF_COLUMNS);
         }
-        //print_object($data->columnname);
 
-        // Check for duplicated column name.
-        //$colnames = array_unique((array)$data->columnname);
-        //if (sizeof($colnames) < sizeof($data->columnname)) {
-        //    $errors['columnname'] = get_string('noduplication', 'qtype_oumatix');
-        //}
-
+        $countrows = count(array_filter($data['rowname']));
+        if ($countrows < row::MIN_NUMBER_OF_ROWS) {
+            $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
+                row::MIN_NUMBER_OF_ROWS);
+        }
         return $errors;
     }
 
@@ -364,7 +360,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             get_string('correctanswer', 'qtype_oumatrix') :
             get_string('correctanswers', 'qtype_oumatrix');
         $rowoptions[] = $mform->createElement('html',
-            html_writer::tag('div', $rowanswerlistlabel, ['class' => 'rowanswerlistlabel']));
+            html_writer::tag('span', $rowanswerlistlabel, ['class' => 'rowanswerlistlabel']));
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
@@ -379,7 +375,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
         $repeated[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
-        $mform->setType('rowname', PARAM_RAW);
         $repeatedoptions['rowname']['type'] = PARAM_RAW;
         return $repeated;
     }

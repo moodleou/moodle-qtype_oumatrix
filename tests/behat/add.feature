@@ -44,7 +44,10 @@ Feature: Test creating a Matrix question
   @javascript
   Scenario: Create a Matrix question with multiple response option
     Given I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    And I add a "Matrix" question filling the form with:
+    And I press "Create a new question ..."
+    And I set the field "Matrix" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the following fields to these values:
       | Question name                      | Matrix-mulriple-002                         |
       | Question text                      | Choose a correct answers for each row.      |
       | General feedback                   | One and Three, Two, Two and Three           |
@@ -52,8 +55,7 @@ Feature: Test creating a Matrix question
       | id_defaultmark                     | 1                                           |
       | id_inputtype                       | multiple                                    |
       | id_grademethod                     | partial                                     |
-    When I press "id_updateform"
-    And I pause
+    When I press "Update the response matrix"
     And I set the following fields to these values:
       | id_columnname_0                    | One                                         |
       | id_columnname_1                    | Two                                         |
@@ -71,4 +73,5 @@ Feature: Test creating a Matrix question
       | For any incorrect response         | Incorrect feedback.                         |
       | Hint 1                             | First hint                                  |
       | Hint 2                             | Second hint                                 |
+    And I press "id_submitbutton"
     Then I should see "Matrix-mulriple-002"
