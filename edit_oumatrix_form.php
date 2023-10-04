@@ -239,23 +239,45 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     }
 
     public function validation($data, $files) {
-        if (!$data) {
-            return;
-        }
-        if (!isset($data->rowname)) {
-            return;
-        }
         $errors = parent::validation($data, $files);
+
         $countcols = count(array_filter($data['columnname']));
         if ($countcols < column::MIN_NUMBER_OF_COLUMNS) {
             $errors['columnname[' . $countcols .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
-                column::MIN_NUMBER_OF_COLUMNS);
+                    column::MIN_NUMBER_OF_COLUMNS);
+        }
+        if ($countcols > column::MAX_NUMBER_OF_COLUMNS) {
+            $errors['columnname[' . $countcols .']'] = get_string('toomanyanswercols', 'qtype_oumatrix',
+                    column::MAX_NUMBER_OF_COLUMNS);
+        }
+        $uniquecount = count(array_unique($data['columnname']));
+        $duplicate = [];
+        if ($uniquecount < $countcols) {
+            foreach ($data['columnname'] as $key => $name) {
+                if (in_array($name, $duplicate)) {
+                    $errors['columnname[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
+                }
+                $duplicate[] = $name;
+            }
         }
 
         $countrows = count(array_filter($data['rowname']));
         if ($countrows < row::MIN_NUMBER_OF_ROWS) {
             $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
-                row::MIN_NUMBER_OF_ROWS);
+                    row::MIN_NUMBER_OF_ROWS);
+        }
+        if ($countrows > row::MAX_NUMBER_OF_ROWS) {
+            $errors['rowoptions[' . $countrows . ']'] = get_string('toomanyquestionrows', 'qtype_oumatrix',
+                    row::MAX_NUMBER_OF_ROWS);
+        }
+        $duplicate = [];
+        if ($uniquecount < $countcols) {
+            foreach ($data['rowname'] as $key => $name) {
+                if (in_array($name, $duplicate)) {
+                    $errors['rowoptions[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
+                }
+                $duplicate[] = $name;
+            }
         }
         return $errors;
     }

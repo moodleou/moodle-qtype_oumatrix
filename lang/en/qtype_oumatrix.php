@@ -38,6 +38,7 @@ $string['correctanswer'] = 'Correct answer';
 $string['correctansweris'] = 'The correct answer is: {$a}';
 $string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswers'] = 'Correct answers';
+$string['duplicates'] = 'Dupication is not allowed, (\'{$a}\' is a duplicate)';
 $string['grademethod'] = 'Marking mode';
 $string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
 All or nothing: students must get every response correct, otherwise they score zero.';
@@ -61,6 +62,8 @@ $string['rowx'] = 'Row{$a})';
 $string['shuffleanswers'] = 'Shuffle the items?';
 $string['shuffleanswers_desc'] = 'Whether options should be randomly shuffled for each attempt by default.';
 $string['shuffleanswers_help'] = 'If enabled, the order of the row items is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';
+$string['toomanyanswercols'] = 'Matrix question type can have maximum {$a} answers columns';
+$string['toomanyquestionrows'] = 'Matrix question type  can have maximum {$a} question rows';
 $string['toomanyselected'] = 'You have selected too many options.';
 $string['updateform'] = 'Update the response matrix';
 $string['yougotnright'] = 'You have correctly answered {$a->num} sub-question.';
