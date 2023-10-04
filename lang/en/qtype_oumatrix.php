@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 $string['a'] = 'A{$a}';
 $string['addmoreblanks'] = 'Blanks for {no} more {$a}';
-$string['answermode'] = 'Answer mode';
+$string['answermode'] = 'One or multiple answers?';
 $string['answermodesingle'] = 'Single';
 $string['answermodemultiple'] = 'Multiple';
 $string['answermode_desc'] = 'Answer mode can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
@@ -39,7 +39,7 @@ $string['correctansweris'] = 'The correct answer is: {$a}';
 $string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswers'] = 'Correct answers';
 $string['duplicates'] = 'Dupication is not allowed, (\'{$a}\' is a duplicate)';
-$string['grademethod'] = 'Marking mode';
+$string['grademethod'] = 'Grading type';
 $string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['grademethod_help'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
@@ -66,5 +66,7 @@ $string['toomanyanswercols'] = 'Matrix question type can have maximum {$a} answe
 $string['toomanyquestionrows'] = 'Matrix question type  can have maximum {$a} question rows';
 $string['toomanyselected'] = 'You have selected too many options.';
 $string['updateform'] = 'Update the response matrix';
-$string['yougotnright'] = 'You have correctly answered {$a->num} sub-question.';
-$string['yougot1right'] = 'You have correctly answered one sub-question.';
+$string['yougot1right'] = 'You have correctly selected one option.';
+$string['yougotnright'] = 'You have correctly selected {$a->num} options';
+$string['yougot1rightsubquestion'] = 'You have correctly answered one sub-question.';
+$string['yougotnrightsubquestion'] = 'You have correctly answered {$a->num} sub-question.';

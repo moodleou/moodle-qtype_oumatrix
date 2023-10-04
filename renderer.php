@@ -232,10 +232,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         // Return appropriate string for single/multiple correct answer(s).
         $right = array_merge(["<br>"], $right);
         if (count($right) == 1) {
-            return get_string('correctansweris', 'qtype_multichoice',
+            return get_string('correctansweris', 'qtype_oumatrix',
                     implode("<br>", $right));
         } else if (count($right) > 1) {
-            return get_string('correctanswersare', 'qtype_multichoice',
+            return get_string('correctanswersare', 'qtype_oumatrix',
                     implode("<br>", $right));
         } else {
             return "";
@@ -396,16 +396,30 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
                 $qa->get_question()->get_num_correct_choices()) {
             return get_string('toomanyselected', 'qtype_oumatrix');
         }
+
         $a = new stdClass();
-        list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right($qa->get_last_qt_data());
-        if (is_null($a->outof)) {
-            return '';
+        if ($qa->get_question()->grademethod == 'allnone') {
+            list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right($qa->get_last_qt_data());
+            if (is_null($a->outof)) {
+                return '';
+            }
+            if ($a->num == 1) {
+                return get_string('yougot1rightsubquestion', 'qtype_oumatrix');
+            }
+            $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
+            $a->num = $f->format($a->num);
+            return get_string('yougotnrightsubquestion', 'qtype_oumatrix', $a);
+        } else {
+            list($a->num, $a->outof) = $qa->get_question()->get_num_parts_grade_partial($qa->get_last_qt_data());
+            if (is_null($a->outof)) {
+                return '';
+            }
+            if ($a->num == 1) {
+                return get_string('yougot1right', 'qtype_oumatrix');
+            }
+            $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
+            $a->num = $f->format($a->num);
+            return get_string('yougotnright', 'qtype_oumatrix', $a);
         }
-        if ($a->num == 1) {
-            return get_string('yougot1right', 'qtype_oumatrix');
-        }
-        $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
-        $a->num = $f->format($a->num);
-        return get_string('yougotnright', 'qtype_oumatrix', $a);
     }
 }

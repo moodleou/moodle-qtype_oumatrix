@@ -97,7 +97,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         $this->add_combined_feedback_fields(true);
 
-        $this->add_interactive_settings(true, true);
+        $this->add_interactive_settings(false, true);
 
     }
 

@@ -611,11 +611,12 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         // Retrieve a number of right answers and total answers.
         if ($this->grademethod == 'allnone') {
             [$numrightparts, $total] = $this->get_num_parts_right($response);
+            $fraction = $numrightparts / $total;
         } else {
             [$numrightparts, $total] = $this->get_num_parts_grade_partial($response);
+            $numwrong = $this->get_num_selected_choices($response) - $total;
+            $fraction = max(min($numrightparts, $total - $numwrong), 0) / $total;
         }
-
-        $fraction = $numrightparts / $total;
         return array($fraction, question_state::graded_state_for_fraction($fraction));
     }
 
@@ -627,18 +628,26 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
      */
     public function get_num_parts_right(array $response): array {
         $numright = 0;
-        $totalrightresponse = 0;
+        // Use the shuffled order.
         foreach ($this->roworder as $rowkey => $rownumber) {
             $row = $this->rows[$rownumber];
             $rowrightresponse = 0;
-            if ($row->correctanswers != '' ) {
+            if (isset($row->correctanswers)) {
                 foreach ($this->columns as $column) {
                     $reponsekey = $this->field($rowkey, $column->number);
-                    if (array_key_exists($reponsekey, $response) && array_key_exists($column->id, $row->correctanswers)) {
-                        $rowrightresponse++;
+                    if (array_key_exists($reponsekey, $response)) {
+                        if (array_key_exists($column->id, $row->correctanswers)) {
+                            // Add to the count of correct responses.
+                            $rowrightresponse++;
+                        } else {
+                            // Check if there are too many responses selected.
+                            // Then set it to -1 so marks are not allotted for it.
+                            $rowrightresponse = -1;
+                            break;
+                        }
                     }
                 }
-                $totalrightresponse += $rowrightresponse;
+                // Check if the row has the correct response.
                 if ($rowrightresponse == count($row->correctanswers)) {
                     $numright++;
                 }
