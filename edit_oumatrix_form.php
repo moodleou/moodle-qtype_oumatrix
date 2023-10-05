@@ -122,11 +122,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->inputtype = $inputtype;
         $this->grademethod = $grademethod;
 
-        $columns = optional_param_array('columnname', '', PARAM_TEXT);
-        $this->numcolumns = $columns ? count($columns) : self::COL_NUM_START;
         if (isset($this->question->columns)) {
             $this->numcolumns = count($this->question->columns);
         }
+        $columns = optional_param_array('columnname', '', PARAM_TEXT);
+        $this->numcolumns = $columns ? count($columns) : $this->numcolumns;
     }
 
     /**
@@ -241,26 +241,50 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        $countcols = count(array_filter($data['columnname']));
-        if ($countcols < column::MIN_NUMBER_OF_COLUMNS) {
-            $errors['columnname[' . $countcols .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
+        // Validate required number of min and max columns.
+        // Ignore the blank columns.
+        $filteredcolscount = count(array_filter($data['columnname']));
+        if ($filteredcolscount < column::MIN_NUMBER_OF_COLUMNS) {
+            $errors['columnname[' . $filteredcolscount .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
                     column::MIN_NUMBER_OF_COLUMNS);
         }
-        if ($countcols > column::MAX_NUMBER_OF_COLUMNS) {
-            $errors['columnname[' . $countcols .']'] = get_string('toomanyanswercols', 'qtype_oumatrix',
+        if ($filteredcolscount > column::MAX_NUMBER_OF_COLUMNS) {
+            $errors['columnname[' . $filteredcolscount .']'] = get_string('toomanyanswercols', 'qtype_oumatrix',
                     column::MAX_NUMBER_OF_COLUMNS);
         }
-        $uniquecount = count(array_unique($data['columnname']));
+
+        // Validate duplication of columns.
+        $uniquecolscount = count(array_unique($data['columnname']));
         $duplicate = [];
-        if ($uniquecount < $countcols) {
+        if ($uniquecolscount < count($data['columnname'])) {
             foreach ($data['columnname'] as $key => $name) {
-                if (in_array($name, $duplicate)) {
+                // If duplicate, then display error message.
+                if ($name != '' && in_array($name, $duplicate)) {
                     $errors['columnname[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
                 }
                 $duplicate[] = $name;
             }
         }
 
+        // Validate if there are any empty columns in the middle.
+        // If there are any empty, then the count of filtered array will be lesser than the columns array.
+        if ($filteredcolscount < count($data['columnname'])) {
+            $valuefound = false;
+            $i = count($data['columnname']) - 1;
+            for ($i; $i >= 0; $i--) {
+                // The blanks at the end of the columns list could be ignored.
+                // This checks if there are empty columns in the middle.
+                if ($data['columnname'][$i] != '') {
+                    $valuefound = true;
+                    continue;
+                }
+                if ($valuefound) {
+                    $errors['columnname[' . $i . ']'] = get_string('blankcolumnsnotallowed', 'qtype_oumatrix');
+                }
+            }
+        }
+
+        // Validate required number of min and max rows.
         $countrows = count(array_filter($data['rowname']));
         if ($countrows < row::MIN_NUMBER_OF_ROWS) {
             $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
@@ -270,13 +294,41 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $errors['rowoptions[' . $countrows . ']'] = get_string('toomanyquestionrows', 'qtype_oumatrix',
                     row::MAX_NUMBER_OF_ROWS);
         }
+
+        // Validate duplication of rows.
         $duplicate = [];
-        if ($uniquecount < $countcols) {
+        $uniquerowscount = count(array_unique($data['rowname']));
+        if ($uniquerowscount < count($data['rowname'])) {
             foreach ($data['rowname'] as $key => $name) {
-                if (in_array($name, $duplicate)) {
+                if ($name != '' && in_array($name, $duplicate)) {
                     $errors['rowoptions[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
                 }
                 $duplicate[] = $name;
+            }
+        }
+
+        // Validate if correct answers have been input for oumatrix single choice question.
+        $nonemptyrows = array_filter($data['rowname']);
+        if ($data['inputtype'] == 'single') {
+            foreach ($nonemptyrows as $key => $rowname ) {
+                if (!isset($data['rowanswers']) || !array_key_exists($key, $data['rowanswers'])) {
+                    $errors['rowoptions[' . $key .']'] = get_string('noinputanswer', 'qtype_oumatrix');
+                }
+            }
+        } else {
+            // Validate if correct answers have been input for oumatrix multiple choice question.
+            foreach ($nonemptyrows as $rowkey => $rowname) {
+                $answerfound = false;
+                foreach($data['columnname'] as $colkey => $colname) {
+                    $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
+                    if (isset($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
+                        $answerfound = true;
+                        break;
+                    }
+                }
+                if (!$answerfound) {
+                    $errors['rowoptions[' . $rowkey .']'] = get_string('noinputanswer', 'qtype_oumatrix');
+                }
             }
         }
         return $errors;

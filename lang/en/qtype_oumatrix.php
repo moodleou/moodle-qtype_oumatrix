@@ -32,13 +32,14 @@ $string['answermodemultiple'] = 'Multiple';
 $string['answermode_desc'] = 'Answer mode can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
 $string['answermodemultiple'] = 'Multiple response';
 $string['answermodesingle'] = 'Single choice';
+$string['blankcolumnsnotallowed'] = 'Blank columns in the middle are not allowed.';
 $string['column'] = 'Column {$a}';
 $string['columnshdr'] = 'Matrix columns (answers)';
 $string['correctanswer'] = 'Correct answer';
 $string['correctansweris'] = 'The correct answer is: {$a}';
 $string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswers'] = 'Correct answers';
-$string['duplicates'] = 'Dupication is not allowed, (\'{$a}\' is a duplicate)';
+$string['duplicates'] = 'Duplication is not allowed, (\'{$a}\' is a duplicate)';
 $string['grademethod'] = 'Grading type';
 $string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
 All or nothing: students must get every response correct, otherwise they score zero.';
@@ -47,6 +48,7 @@ $string['grademethod_help'] = 'Standard (subpoints): each correct response in th
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
+$string['noinputanswer'] = 'Each matrix sub-question should have atleast one correct answer';
 $string['notenoughanswercols'] = 'Matrix question type requires at least {$a} answers columns';
 $string['notenoughquestionrows'] = 'Matrix question type requires at least {$a} question rows';
 $string['pleaseananswerallparts'] = 'Please answer all parts of the question.';
