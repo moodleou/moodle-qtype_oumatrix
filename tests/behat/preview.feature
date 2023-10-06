@@ -18,30 +18,49 @@ Feature: Preview a Numerical question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype     | name          | template |
-      | Test questions   | numerical | Numerical-001 | pi       |
-      | Test questions   | numerical | Numerical-002 | pi3tries |
-    And the following "language customisations" exist:
-      | component       | stringid | value |
-      | core_langconfig | decsep   | #     |
+      | questioncategory | qtype    | name                | template       |
+      | Test questions   | oumatrix | Single matrix 001   | animals_single |
+      | Test questions   | oumatrix | Multiple matrix 001 | food_multiple  |
 
-  @javascript @_switch_window
-  Scenario: Preview a Numerical question and submit a correct response.
-    When I am on the "Numerical-001" "core_question > preview" page logged in as teacher
-    And I should see "What is pi to two d.p.?"
-    And I expand all fieldsets
-    And I set the field "How questions behave" to "Immediate feedback"
-    And I press "Save preview options and start again"
-    And I set the field with xpath "//span[@class='answer']//input[contains(@id, '1_answer')]" to "3.14"
-    And I press "Check"
-    Then I should see "Very good."
-    And I should see "Mark 1#00 out of 1#00"
-    And I press "Start again"
-    And I set the field with xpath "//span[@class='answer']//input[contains(@id, '1_answer')]" to "3,14"
-    And I press "Check"
-    And I should see "Please enter your answer without using the thousand separator (,)."
-    And I press "Start again"
-    And I set the field with xpath "//span[@class='answer']//input[contains(@id, '1_answer')]" to "3#14"
-    And I press "Check"
-    And I should see "Very good."
-    And I should see "Mark 1#00 out of 1#00"
+  @javascript
+  Scenario: Preview a Matrix(single) question and submit correct responses.
+    Given I am on the "Single matrix 001" "core_question > preview" page logged in as teacher
+    And I should see "Animal classification. Please answer the sub questions in all 4 rows."
+    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col0 row0']" to "1"
+    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col1 row1']" to "1"
+    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col2 row2']" to "1"
+    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col3 row3']" to "1"
+    When I click on "Submit and finish" "button"
+    Then I should see "Fly, Bee and Spider are insects."
+    And I should see "Cod, Salmon and Trout are fish."
+    And I should see "Gull and Owl are birds."
+    And I should see "Cow, Dog and Horse are mammals."
+    And I should see "Well done!"
+    And I should see "We are recognising different type of animals."
+    And I should see "The correct answers are:"
+    And I should see "Bee → Insects"
+    And I should see "Salmon → Fish"
+    And I should see "Seagull → Birds"
+    And I should see "Dog → Mammals"
+
+#  @javascript
+#  Scenario: Preview a Matrix(multiple) question and submit correct responses.
+#    Given I am on the "Multiple matrix 001" "core_question > preview" page logged in as teacher
+#    And I pause
+#    And I should see "Animal classification. Please answer the sub questions in all 4 rows."
+#    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col0 row0']" to "1"
+#    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col1 row1']" to "1"
+#    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col2 row2']" to "1"
+#    And I set the field with xpath "//input[@type='radio' and @aria-labelledby='col3 row3']" to "1"
+#    When I click on "Submit and finish" "button"
+#    Then I should see "Fly, Bee and Spider are insects."
+#    And I should see "Cod, Salmon and Trout are fish."
+#    And I should see "Gull and Owl are birds."
+#    And I should see "Cow, Dog and Horse are mammals."
+#    And I should see "Well done!"
+#    And I should see "We are recognising different type of animals."
+#    And I should see "The correct answers are:"
+#    And I should see "Bee → Insects"
+#    And I should see "Salmon → Fish"
+#    And I should see "Seagull → Birds"
+#    And I should see "Dog → Mammals"

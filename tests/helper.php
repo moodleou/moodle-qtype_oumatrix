@@ -58,17 +58,14 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->options = new stdClass();
         $qdata->options->inputtype = 'single';
         $qdata->options->grademethod = 'partial';
-        $qdata->options->shuffleanswers = 1;
-        $qdata->options->correctfeedback =
-                test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
+        $qdata->options->shuffleanswers = 0;
+        $qdata->options->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
         $qdata->options->correctfeedbackformat = FORMAT_HTML;
-        $qdata->options->partiallycorrectfeedback =
-                test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
+        $qdata->options->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
         $qdata->options->partiallycorrectfeedbackformat = FORMAT_HTML;
-        $qdata->options->shownumcorrect = 1;
-        $qdata->options->incorrectfeedback =
-                test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
+        $qdata->options->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
         $qdata->options->incorrectfeedbackformat = FORMAT_HTML;
+        $qdata->options->shownumcorrect = 1;
 
         $qdata->columns = [
                 11 => (object) [
@@ -84,7 +81,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 13 => (object) [
                         'id' => 13,
                         'number' => 2,
-                        'name' => 'Birdas',
+                        'name' => 'Birds',
                 ],
                 14 => (object) [
                         'id' => 13,
@@ -96,34 +93,34 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 11 => (object) [
                         'id' => 11,
                         'number' => 0,
-                        'name' => 'Fly, bee, spider',
-                        'feedback' => 'Flies, bees and spiders are insects.',
+                        'name' => 'Bee',
+                        'feedback' => 'Fly, Bee and spider are insects.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"1","Fish":"0","Birds":"0", "mammals":"0"}',
+                        'correctanswers' => '{"Insects":"1"}',
                 ],
                 12 => (object) [
                         'id' => 12,
                         'number' => 1,
-                        'name' => 'Cod, Salmon, Trout',
+                        'name' => 'Salmon',
                         'feedback' => 'Cod, Salmon and Trout are fish.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"1","Birds":"0", "mammals":"0"}',
+                        'correctanswers' => '{"Fish":"1"}',
                 ],
                 13 => (object) [
                         'id' => 13,
                         'number' => 2,
-                        'name' => 'Gull, Owl',
-                        'feedback' => 'Gull and Owl are birds.',
+                        'name' => 'Seagull',
+                        'feedback' => 'Gulls and Owls are birds.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"1", "mammals":"0"}',
+                        'correctanswers' => '{"Birds":"1"}',
                 ],
                 14 => (object) [
                         'id' => 14,
                         'number' => 3,
-                        'name' => 'Cow, Dog, Horse',
-                        'feedback' => 'Cow, Dog and  Horse are mammals',
+                        'name' => 'Dog',
+                        'feedback' => 'Cow, Dog and Horse are mammals.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"0","Fish":"0","Birds":"0", "mammals":"1"}',
+                        'correctanswers' => '{"Mammals":"1"}',
                 ],
         ];
 
@@ -168,7 +165,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->questionbankentryid = 0;
         $qfdata->inputtype = 'single';
         $qfdata->grademethod = 'partial';
-        $qfdata->shuffleanswers = 1;
+        $qfdata->shuffleanswers = 0;
         $qfdata->correctfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
                 'format' => FORMAT_HTML];
@@ -182,18 +179,18 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->columnname = [
                 0 => 'Insects',
                 1 => 'Fish',
-                2 => 'Birdas',
+                2 => 'Birds',
                 3 => 'Mammals'
         ];
         $qfdata->rowname = [
-                0 => 'Fly, bee, spider',
-                1 => 'Fish',
-                2 => 'Birdas',
-                3 => 'Mammals'
+                0 => 'Bee',
+                1 => 'Salmon',
+                2 => 'Seagull',
+                3 => 'Dog'
         ];
-         $qfdata->feedback = [
+        $qfdata->feedback = [
                 0 => [
-                        'text' => 'Flies, bees and spiders are insects.',
+                        'text' => 'Fly, Bee and Spider are insects.',
                         'format' => FORMAT_HTML
                 ],
                 1 => [
@@ -205,7 +202,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'format' => FORMAT_HTML
                 ],
                 3 => [
-                        'text' => 'Cow, Dog and  Horse are mammals',
+                        'text' => 'Cow, Dog and Horse are mammals.',
                         'format' => FORMAT_HTML
                 ],
         ];
@@ -219,7 +216,6 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
                 1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
             ];
-        $qfdata->hintclearwrong = [0, 1];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;
     }
@@ -237,8 +233,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->modifiedby = $USER->id;
         $qdata->qtype = 'oumatrix';
         $qdata->name = 'oumatrix_food_multiple01';
-        $qdata->questiontext = 'Please classify the list of food item in the follwoing groups:
-        Proteins, Vegetables, Fats, and Herbs & Spices';
+        $qdata->questiontext = 'Please classify the list of food item as Proteins, Vegetables, Fats.';
         $qdata->questiontextformat = FORMAT_HTML;
         $qdata->generalfeedback = 'A delicious and healthy meal is a balanced one.';
         $qdata->generalfeedbackformat = FORMAT_HTML;
@@ -252,17 +247,14 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qdata->options = new stdClass();
         $qdata->options->inputtype = 'multiple';
         $qdata->options->grademethod = 'partial';
-        $qdata->options->shuffleanswers = 1;
-        $qdata->options->correctfeedback =
-                test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
+        $qdata->options->shuffleanswers = 0;
+        $qdata->options->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
         $qdata->options->correctfeedbackformat = FORMAT_HTML;
-        $qdata->options->partiallycorrectfeedback =
-                test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
+        $qdata->options->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
         $qdata->options->partiallycorrectfeedbackformat = FORMAT_HTML;
-        $qdata->options->shownumcorrect = 1;
-        $qdata->options->incorrectfeedback =
-                test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
+        $qdata->options->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
         $qdata->options->incorrectfeedbackformat = FORMAT_HTML;
+        $qdata->options->shownumcorrect = 1;
 
         $qdata->columns = [
                 21 => (object) [
@@ -273,7 +265,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 22 => (object) [
                         'id' => 22,
                         'number' => 1,
-                        'name' => 'carrots',
+                        'name' => 'Carrot',
                 ],
                 23 => (object) [
                         'id' => 23,
@@ -292,38 +284,38 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 ],
                 26 => (object) [
                         'id' => 26,
-                        'numbdr' => 5,
+                        'number' => 5,
                         'name' => 'Steak',
                 ],
                 27 => (object) [
                         'id' => 27,
                         'number' => 6,
-                        'name' => 'Potatos',
+                        'name' => 'Potato',
                 ],
         ];
         $qdata->rows = [
                 21 => (object) [
                         'id' => 21,
-                        'numbdr' => 0,
+                        'number' => 0,
                         'name' => 'Proteins',
-                        'correctanswers' => '{"one":"0","two":"1","three":"0"}',
-                        'feedback' => 'Chicken, fish and read meat containing proteins.',
+                        'correctanswers' => '{"Chicken breast":"1","Salmon fillet":"1","Steak":"1"}',
+                        'feedback' => 'Chicken, fish and red meat containing proteins.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
                 22 => (object) [
                         'id' => 22,
-                        'numbdr' => 1,
-                        'name' => 'Odd numbers',
-                        'correctanswers' => '{"one":"1","two":"0","three":"1"}',
-                        'feedback' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
+                        'number' => 1,
+                        'name' => 'Vegetables',
+                        'correctanswers' => '{"Carrot":"1","Asparagus":"1","Potato":"1"}',
+                        'feedback' => 'Carrot, Asparagus, Potato are vegetables.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
                 23 => (object) [
                         'id' => 23,
-                        'numbdr' => 2,
-                        'name' => 'Number less than 3',
-                        'correctanswers' => '{"one":"1","two":"1","three":"0"}',
-                        'feedback' => 'All numbers smaller than 3.',
+                        'number' => 2,
+                        'name' => 'Fats',
+                        'correctanswers' => '{"Olive oil":"1"}',
+                        'feedback' => 'Olive oil contains fat.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
         ];
@@ -355,8 +347,8 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata = new stdClass();
 
         $qfdata->name = 'oumatrix_food_multiple01';
-        $qfdata->questiontext = ['text' => 'Please answer the sub questions in each row', 'format' => FORMAT_HTML];
-        $qfdata->generalfeedback = ['text' => 'We are dealing with even and odd numbers', 'format' => FORMAT_HTML];
+        $qfdata->questiontext = ['text' => 'Please classify the list of food item as Proteins, Vegetables, Fats.', 'format' => FORMAT_HTML];
+        $qfdata->generalfeedback = ['text' => 'A delicious and healthy meal is a balanced one.', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
         $qfdata->length = 1;
         $qfdata->penalty = 0.3333333;
@@ -366,7 +358,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->questionbankentryid = 0;
         $qfdata->inputtype = 'multiple';
         $qfdata->grademethod = 'partial';
-        $qfdata->shuffleanswers = 1;
+        $qfdata->shuffleanswers = 0;
         $qfdata->correctfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
                 'format' => FORMAT_HTML];
@@ -378,46 +370,50 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
                 'format' => FORMAT_HTML];
         $qfdata->columnname = [
-                0 => 'one',
-                1 => 'two',
-                2 => 'three',
+                0 => 'Chicken breast',
+                1 => 'Carrot',
+                2 => 'Salmon fillet',
+                3 => 'Asparagus',
+                4 => 'Olive oil',
+                5 => 'Steak',
+                6 => 'Potato'
         ];
         $qfdata->rowname = [
-                0 => 'Even numbers',
-                1 => 'Odd numbers',
-                2 => 'Number less than 4',
+                0 => 'Proteins',
+                1 => 'Vegetables',
+                2 => 'Fats',
         ];
         $qfdata->feedback = [
                 0 => [
-                        'text' => 'Even numbers are divisible by 2 without remainders.',
+                        'text' => 'Chicken, fish and red meat containing proteins.',
                         'format' => FORMAT_HTML
                 ],
                 1 => [
-                        'text' => 'Odd numbers are not evenly divisible by 2 and end in 1, 3, 5, 7, or 9.',
+                        'text' => 'Carrot, Asparagus, Potato are vegetables.',
                         'format' => FORMAT_HTML
                 ],
                 2 => [
-                        'text' => 'All numbers smaller than 4.',
+                        'text' => 'Olive oil contains fat.',
                         'format' => FORMAT_HTML
                 ],
         ];
         $qfdata->rowanswersa1 = [
-                1 => "1",
-                2 => "1",
-        ];
-        $qfdata->rowanswersa2 = [
                 0 => "1",
                 2 => "1",
+                5 => "1",
+        ];
+        $qfdata->rowanswersa2 = [
+                1 => "1",
+                3 => "1",
+                6 => "1",
         ];
         $qfdata->rowanswersa3 = [
-                1 => "1",
-                2 => "1",
+                4 => "1"
         ];
         $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
                 1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
         ];
-        $qfdata->hintclearwrong = [0, 1];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;
     }

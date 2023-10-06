@@ -40,16 +40,16 @@ Feature: Test duplicating a quiz containing a Numerical question
       | id_shuffleanswers | 1                                                                     |
       | id_columnname_0   | Insects                                                               |
       | id_columnname_1   | Fish                                                                  |
-      | id_columnname_2   | Birdas                                                                |
+      | id_columnname_2   | Birds                                                                 |
       | id_columnname_3   | Mammals                                                               |
-      | id_rowname_0      | Fly, bee, spider                                                      |
-      | id_feedback_0     | Flies, bees and spiders are insects.                                  |
-      | id_rowname_1      | Fish                                                                  |
+      | id_rowname_0      | Bee                                                                   |
+      | id_feedback_0     | Fly, Bee and Spider are insects.                               |
+      | id_rowname_1      | Salmon                                                                |
       | id_feedback_1     | Cod, Salmon and Trout are fish.                                       |
-      | id_rowname_2      | Birdas                                                                |
+      | id_rowname_2      | Seagull                                                               |
       | id_feedback_2     | Gull and Owl are birds.                                               |
-      | id_rowname_3      | Mammals                                                               |
-      | id_feedback_3     | Cow, Dog and Horse are mammals                                        |
+      | id_rowname_3      | Dog                                                                   |
+      | id_feedback_3     | Cow, Dog and Horse are mammals.                                       |
       | id_hint_0         | Hint 1.                                                               |
       | id_hint_1         | Hint 2.                                                               |
       #| id_rowanswers_0_a4 | 1                                                    |
