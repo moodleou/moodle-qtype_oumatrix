@@ -346,7 +346,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
             if (array_key_exists($fieldname, $response)) {
                 foreach ($this->columns as $column) {
                     if ($response[$fieldname] == $column->number) {
-                        $responsewords[] = $row->name . " => " . $column->name;
+                        $responsewords[] = $row->name . ' → ' . $column->name;
                     }
                 }
             }
@@ -564,7 +564,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         foreach ($this->roworder as $key => $rownumber) {
             // Get the correct row.
             $row = $this->rows[$rownumber];
-            $rowresponse = $row->name . " => ";
+            $rowresponse = $row->name . ' → ';
             $answers = [];
             foreach ($this->columns as $column) {
                 $fieldname = $this->field($key, $column->number);

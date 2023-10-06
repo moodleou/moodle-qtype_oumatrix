@@ -125,11 +125,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
-        $caption = "Matrix question";
+        $caption = $options->add_question_identifier_to_label('', true, true);
         $colname[] = null;
         $table = "
             <table class='generaltable'>
-                <caption class='table_caption sr-only'>$caption</caption>
+                <caption class='table_caption'>$caption</caption>
                 <tr>
                     <th scope='col'></th>";
         $index = 0;
@@ -160,15 +160,15 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         foreach ($question->get_order($qa) as $rowkey => $rowid) {
             $row = $question->rows[$rowid];
             $rowname = $row->name;
-            $rownewid = 'row_'. $rowkey;
+            $rownewid = 'row'. $rowkey;
             $feedback = '';
-            $table .= "<th scope='col'><span id='$rownewid'>$rowname</span></th>";
+            $table .= "<th scope='row'><span id='$rownewid'>$rowname</span></th>";
 
             for ($j = 0; $j < count($colname); $j++) {
                 $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $j);
                 $inputattributes['value'] = $this->get_input_value($j);
                 $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $j);
-                $inputattributes['aria-labelledby'] = $inputattributes['id'] . '_label';
+                $inputattributes['aria-labelledby'] = 'col' . $j . ' ' . $rownewid;
 
                 $isselected = $question->is_choice_selected($response, $rowkey, $j);
 
@@ -277,7 +277,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         $right = [];
         foreach ($question->rows as $row) {
             if ($row->correctanswers != '') {
-                $right[] = $row->name . " => " . $question->columns[array_key_first($row->correctanswers)]->name;
+                $right[] = $row->name . ' → ' . $question->columns[array_key_first($row->correctanswers)]->name;
             }
         }
         return $this->correct_choices($right);
@@ -378,7 +378,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
         $question = $qa->get_question();
         foreach ($question->rows as $row) {
             // Get the correct row.
-            $rowanswer = $row->name . " => ";
+            $rowanswer = $row->name . ' → ';
             $answers = [];
             if ($row->correctanswers != '') {
                 foreach ($row->correctanswers as $columnkey => $notused) {
