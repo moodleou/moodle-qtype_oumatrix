@@ -135,8 +135,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         }
         // Add feedback header.
         if ($options->feedback) {
-            $table .= html_writer::tag('th', html_writer::span('Feedback', 'answer_col', ['id' => 'col' . $index]),
-                ['scope' => 'col', 'class' => 'align-middle']);
+            $table .= html_writer::tag('th', html_writer::span(get_string('feedback', 'question'),
+                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'align-middle']);
         }
         $table .= html_writer::end_tag('tr');
 
@@ -200,6 +200,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 $button = html_writer::empty_tag('input', $inputattributes);
                 $table .= html_writer::tag('td', html_writer::tag('div', $button . ' ' . $feedbackimg,
                     ['class' => $class]), ['class' => 'align-middle matrixanswer']);
+            }
+            if ($options->feedback) {
+                $table .= html_writer::tag('td', $feedback);
             }
             $table .= html_writer::end_tag('tr');
         }
