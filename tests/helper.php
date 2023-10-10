@@ -399,16 +399,24 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
         $qfdata->rowanswersa1 = [
                 0 => "1",
-                2 => "1",
-                5 => "1",
         ];
         $qfdata->rowanswersa2 = [
-                1 => "1",
-                3 => "1",
-                6 => "1",
+                1 => "1"
         ];
         $qfdata->rowanswersa3 = [
-                4 => "1"
+                0 => "1"
+        ];
+        $qfdata->rowanswersa4 = [
+                1 => "1"
+        ];
+        $qfdata->rowanswersa5 = [
+                2 => "1"
+        ];
+        $qfdata->rowanswersa6 = [
+                0 => "1"
+        ];
+        $qfdata->rowanswersa7 = [
+                1 => "1"
         ];
         $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],

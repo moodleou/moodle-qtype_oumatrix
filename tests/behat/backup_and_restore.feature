@@ -37,7 +37,7 @@ Feature: Test duplicating a quiz containing a Numerical question
       | General feedback  | We are recognising different type of animals.                         |
       | Default mark      | 1                                                                     |
       | id_inputtype      | Single choice                                                         |
-      | id_shuffleanswers | 1                                                                     |
+      | id_shuffleanswers | 0                                                                     |
       | id_columnname_0   | Insects                                                               |
       | id_columnname_1   | Fish                                                                  |
       | id_columnname_2   | Birds                                                                 |
