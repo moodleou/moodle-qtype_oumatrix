@@ -136,7 +136,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         // Add feedback header.
         if ($options->feedback) {
             $table .= html_writer::tag('th', html_writer::span(get_string('feedback', 'question'),
-                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'align-middle']);
+                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'align-middle rowfeedback']);
         }
         $table .= html_writer::end_tag('tr');
 

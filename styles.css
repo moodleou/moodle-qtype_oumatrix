@@ -1,16 +1,13 @@
-/* Styles for oumatrix. */
-.que.oumatrix .question_text {
-    background-color: lightyellow;
-}
+/* Styles for OUMatrix. */
 
-/*Styles for sub-question text. */
+/* Styles for preview. */
 .que.oumatrix .answer .generaltable {
     text-align: left;
     width: 75%;
 }
-/*Styles for column headers and radio/checkboxes. */
+/* Styles for column headers and radio/checkboxes. */
 .que.oumatrix .answer .generaltable td,
-.que.oumatrix .answer .generaltable th:not(:first-child) {
+.que.oumatrix .answer .generaltable th:not(:first-child, .rowfeedback) {
     text-align: center;
 }
 .que.oumatrix .matrixanswer {
@@ -20,14 +17,15 @@
 .que.oumatrix input[type="checkbox"] {
     box-sizing: border-box;
 }
-
 .que.oumatrix .matrixanswer span .icon {
     position: absolute;
     margin-left: 0.25rem;
 }
-
-body#page-question-type-oumatrix .rowanswerlistlabel {
-    padding: 0 0.5rem 0 1.0rem;
+.que.oumatrix .answer .specificfeedback {
+    /*display: inline;*/
+    padding: 0 0.7em;
+    background: #fff3bf;
+    text-align: left;
 }
 
 /* Editing form. */
@@ -40,12 +38,13 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
     border: 1px solid #bbb;
     border-bottom: 0;
 }
-
+body#page-question-type-oumatrix .rowanswerlistlabel {
+    padding: 0 0.5rem 0 1.0rem;
+}
 /* Row validation error display. */
 body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
     border: 0;
 }
-
 body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
     background: #eee;
     margin-bottom: 2em;
@@ -54,10 +53,4 @@ body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
     padding-top: 5px;
     border: 1px solid #bbb;
     border-top: 0;
-}
-
-.que.oumatrix .answer .specificfeedback {
-    display: inline;
-    padding: 0 0.7em;
-    background: #fff3bf;
 }
