@@ -91,31 +91,23 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             question_display_options $options) {
         $question = $qa->get_question();
         $result = '';
-        //$hidden = '';
-        //
-        //if (!$options->readonly && $this->get_input_type() == 'multiple') {
-        //    $hidden = html_writer::empty_tag('input', array(
-        //            'type' => 'hidden',
-        //            'name' => $inputattributes['name'],
-        //            'value' => 0,
-        //    ));
-        //}
 
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
-                array('class' => 'qtext'));
-        $result .= html_writer::start_tag('fieldset', array('class' => 'ablock no-overflow visual-scroll-x'));
+                ['class' => 'qtext']);
+        $result .= html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow visual-scroll-x']);
 
-        $result .= html_writer::start_tag('div', array('class' => 'answer'));
+        $result .= html_writer::start_tag('div', ['class' => 'answer']);
+
+        // Display the matrix.
         $result .= $this->get_matrix($qa, $options);
-        // TODO: get inputtype
 
         $result .= html_writer::end_tag('div'); // Answer.
         $result .= html_writer::end_tag('fieldset'); // Ablock.
 
         if ($qa->get_state() == question_state::$invalid) {
             $result .= html_writer::nonempty_tag('div',
-                    $question->get_validation_error($qa->get_last_qt_data()),
-                    array('class' => 'validationerror'));
+                $question->get_validation_error($qa->get_last_qt_data()),
+                ['class' => 'validationerror']);
         }
 
         return $result;
@@ -126,30 +118,31 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
         $caption = $options->add_question_identifier_to_label('', true, true);
-        $colname[] = null;
-        $table = "
-            <table class='generaltable'>
-                <caption class='table_caption'>$caption</caption>
-                <tr>
-                    <th scope='col'></th>";
-        $index = 0;
 
-        // Creating the matrix headers.
+        // Create table and caption.
+        $table = html_writer::start_tag('table', ['class' => 'generaltable']);
+        $table .= html_writer::tag('caption', $caption, ['class' => 'table_caption']);
+
+        // Creating the matrix column headers.
+        $table .= html_writer::start_tag('tr');
+        $table .= html_writer::tag('th', '', ['scope' => 'col']);
+        $index = 0;
         foreach ($question->columns as $value) {
             $colname[$index] = $value->name;
-            $table .= "<th scope='col'><span id=col" . $index . " class='answer_col' >$colname[$index]</span></th>";
+            $table .= html_writer::tag('th', html_writer::span($colname[$index], 'answer_col', ['id' => 'col' . $index]),
+                ['scope' => 'col', 'class' => 'align-middle']);
             $index += 1;
         }
-        // Adding an extra column for feedback.
-        $table .= "<th></th></tr>";
-
-        // Creating table rows for the row questions.
-        $table .= "<tr> ";
+        // Add feedback header.
+        if ($options->feedback) {
+            $table .= html_writer::tag('th', html_writer::span('Feedback', 'answer_col', ['id' => 'col' . $index]),
+                ['scope' => 'col', 'class' => 'align-middle']);
+        }
+        $table .= html_writer::end_tag('tr');
 
         if ($options->readonly) {
             $inputattributes['disabled'] = 'disabled';
         }
-
         // Set the input attribute based on the single or multiple answer mode.
         if ( $this->get_input_type() == "single") {
             $inputattributes['type'] = "radio";
@@ -157,12 +150,16 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $inputattributes['type'] = "checkbox";
         }
 
+        // Adding table rows for the sub-questions.
         foreach ($question->get_order($qa) as $rowkey => $rowid) {
             $row = $question->rows[$rowid];
             $rowname = $row->name;
             $rownewid = 'row'. $rowkey;
             $feedback = '';
-            $table .= "<th scope='row'><span id='$rownewid'>$rowname</span></th>";
+
+            $table .= html_writer::start_tag('tr');
+            $table .= html_writer::tag('th', html_writer::span($rowname, '', ['id' => $rownewid]),
+                ['class' => 'align-middle', 'scope' => 'row']);
 
             for ($j = 0; $j < count($colname); $j++) {
                 $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $j);
@@ -201,16 +198,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
-                $table .= "<td>" . html_writer::start_tag('div', ['class' => 'answer']);
-                $table .= html_writer::tag('div', $button . ' ' . $feedbackimg,
-                                    ['class' => $class]) . "\n";
-                $table .= html_writer::end_tag('div');
-                $table .= "</td>";
+                $table .= html_writer::tag('td', html_writer::tag('div', $button . ' ' . $feedbackimg,
+                    ['class' => $class]), ['class' => 'align-middle matrixanswer']);
             }
-            $table .= "<td>" . $feedback . "</td>";
-            $table .= "</tr>";
+            $table .= html_writer::end_tag('tr');
         }
-        $table .= "</table>";
+
+        $table .= html_writer::end_tag('table');
         return $table;
     }
 

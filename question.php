@@ -145,16 +145,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     public abstract function grade_response(array $response);
 
-    public function get_num_parts_right(array $response): array {
-        $numright = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_full_fraction($answer, $response[$this->field($key)])) {
-                $numright++;
-            }
-        }
-        return [$numright, count($this->answers)];
-    }
-
     /**
      * Get number of words in the response which are not right, but are if you ignore accents.
      *
@@ -386,7 +376,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $numright = 0;
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            if ($row->correctanswers != '' &&
+            if (array_key_exists($this->field($key), $response) && $row->correctanswers != '' &&
                 $response[$this->field($key)] == $this->columns[array_key_first($row->correctanswers)]->number) {
                 $numright++;
             }
@@ -610,7 +600,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function grade_response(array $response): array {
         // Retrieve a number of right answers and total answers.
         if ($this->grademethod == 'allnone') {
-            [$numrightparts, $total] = $this->get_num_parts_right($response);
+            [$numrightparts, $total] = $this->get_num_grade_allornone($response);
             $fraction = $numrightparts / $total;
         } else {
             [$numrightparts, $total] = $this->get_num_parts_grade_partial($response);
@@ -626,7 +616,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
      * @param array $response The response list.
      * @return array The array of number of correct response and the total rows.
      */
-    public function get_num_parts_right(array $response): array {
+    public function get_num_grade_allornone(array $response): array {
         $numright = 0;
         // Use the shuffled order.
         foreach ($this->roworder as $rowkey => $rownumber) {

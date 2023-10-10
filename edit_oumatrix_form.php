@@ -201,13 +201,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $key = 0;
         $question->rowname = [];
         foreach ($question->rows as $index => $row) {
-            $question->rowname[] = $row->name;
+            $question->rowname[$row->number] = $row->name;
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->columns as $key => $column) {
                 if (array_key_exists($column->id, $decodedanswers)) {
                     $columnvalue = 'a' . ($column->number + 1);
                     if ($question->options->inputtype == 'single') {
-                        $question->rowanswers[] = $columnvalue;
+                        $question->rowanswers[$row->number] = $columnvalue;
                     } else {
                         $rowanswerslabel = "rowanswers" . $columnvalue;
                         $question->$rowanswerslabel[$row->number] = $decodedanswers[$column->id];
@@ -232,7 +232,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
             $question->rows[$index]->feedbackformat = $feedback[$key]['format'];
             $question->rows[$index]->feedback = $feedback[$key]['text'];
-            $question->feedback[] = $feedback[$key];
+            $question->feedback[$row->number] = $feedback[$key];
             $key++;
         }
         return $question;
@@ -247,10 +247,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         if ($filteredcolscount < column::MIN_NUMBER_OF_COLUMNS) {
             $errors['columnname[' . $filteredcolscount .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
                     column::MIN_NUMBER_OF_COLUMNS);
-        }
-        if ($filteredcolscount > column::MAX_NUMBER_OF_COLUMNS) {
-            $errors['columnname[' . $filteredcolscount .']'] = get_string('toomanyanswercols', 'qtype_oumatrix',
-                    column::MAX_NUMBER_OF_COLUMNS);
         }
 
         // Validate duplication of columns.
@@ -289,10 +285,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         if ($countrows < row::MIN_NUMBER_OF_ROWS) {
             $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
                     row::MIN_NUMBER_OF_ROWS);
-        }
-        if ($countrows > row::MAX_NUMBER_OF_ROWS) {
-            $errors['rowoptions[' . $countrows . ']'] = get_string('toomanyquestionrows', 'qtype_oumatrix',
-                    row::MAX_NUMBER_OF_ROWS);
         }
 
         // Validate duplication of rows.

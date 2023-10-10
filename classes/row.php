@@ -32,7 +32,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class row {
-    const MAX_NUMBER_OF_ROWS = 12;
     const MIN_NUMBER_OF_ROWS = 2;
 
     /** @var int The id of the question. */
