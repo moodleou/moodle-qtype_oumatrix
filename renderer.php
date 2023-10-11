@@ -51,8 +51,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
     abstract protected function get_input_id(question_attempt $qa, $value, $columnnumber);
 
-    abstract protected function prompt();
-
     /**
      * Whether a choice should be considered right or wrong.
      * @param question_definition $question the question
@@ -265,10 +263,6 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
     }
 
-    protected function prompt() {
-        return get_string('selectone', 'qtype_multichoice');
-    }
-
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
         $right = [];
@@ -365,10 +359,6 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
     protected function get_input_id(question_attempt $qa, $value, $columnnumber) {
         return $this->get_input_name($qa, $value, $columnnumber);
-    }
-
-    protected function prompt() {
-        return get_string('selectmulti', 'qtype_multichoice');
     }
 
     public function correct_response(question_attempt $qa) {

@@ -60,6 +60,12 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /** @var array The order of the rows. */
     protected $columnorder = null;
 
+    /** @var string Single choice or multiple response question type. */
+    public $inputtype;
+
+    /** @var string 'All or none' or 'partial' grading method for multiple response. */
+    public $grademethod;
+
     abstract public function is_choice_selected($response, $rowkey, $colkey);
 
     abstract public function is_same_response(array $prevresponse, array $newresponse);
