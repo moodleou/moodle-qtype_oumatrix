@@ -428,7 +428,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
         $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
-                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
+                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML],
         ];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;

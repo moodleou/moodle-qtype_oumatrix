@@ -254,7 +254,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         // Retrieve the number of right and total answers.
         [$numrightparts, $total] = $this->get_num_parts_right($response);
         $fraction = $numrightparts / $total;
-        return array($fraction, question_state::graded_state_for_fraction($fraction));
+        return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }
 
     public function get_num_parts_right(array $response): array {
@@ -400,7 +400,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             $numwrong = $this->get_num_selected_choices($response) - $total;
             $fraction = max(min($numrightparts, $total - $numwrong), 0) / $total;
         }
-        return array($fraction, question_state::graded_state_for_fraction($fraction));
+        return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }
 
     /**
