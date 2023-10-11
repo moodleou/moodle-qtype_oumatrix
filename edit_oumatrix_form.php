@@ -65,7 +65,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         $answermodemenu = [
                 'single' => get_string('answermodesingle', 'qtype_oumatrix'),
-                'multiple' => get_string('answermodemultiple', 'qtype_oumatrix')
+                'multiple' => get_string('answermodemultiple', 'qtype_oumatrix'),
         ];
         $mform->addElement('select', 'inputtype', get_string('answermode', 'qtype_oumatrix'), $answermodemenu);
         $mform->setDefault('inputtype', $this->get_default_value('single',
@@ -73,7 +73,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         $grademethod = [
                 'partial' => get_string('gradepartialcredit', 'qtype_oumatrix'),
-                'allnone' => get_string('gradeallornothing', 'qtype_oumatrix')
+                'allnone' => get_string('gradeallornothing', 'qtype_oumatrix'),
         ];
         $mform->addElement('select', 'grademethod', get_string('grademethod', 'qtype_oumatrix'), $grademethod);
         $mform->addHelpButton('grademethod', 'grademethod', 'qtype_oumatrix');
@@ -152,6 +152,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
     /**
      * Perform the necessary preprocessing for the options fields.
+     *
      * @param object $question the data being passed to the form.
      * @return object $question the modified data.
      */
@@ -210,15 +211,15 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                         $question->rowanswers[$row->number] = $columnvalue;
                     } else {
                         $rowanswerslabel = "rowanswers" . $columnvalue;
-                        $question->$rowanswerslabel[$row->number] = $decodedanswers[$column->id];
+                        $question->{$rowanswerslabel}[$row->number] = $decodedanswers[$column->id];
                     }
                 }
             }
-            $itemid = (int)$row->id ?? null;
+            $itemid = (int) $row->id ?? null;
 
             // Prepare the feedback editor to display files in draft area.
             $feedback[$key] = [];
-            $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback['.$key.']');
+            $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback[' . $key . ']');
             $feedback[$key]['text'] = file_prepare_draft_area(
                     $feedbackdraftitemid,
                     $this->context->id,
@@ -245,7 +246,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         // Ignore the blank columns.
         $filteredcolscount = count(array_filter($data['columnname']));
         if ($filteredcolscount < column::MIN_NUMBER_OF_COLUMNS) {
-            $errors['columnname[' . $filteredcolscount .']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
+            $errors['columnname[' . $filteredcolscount . ']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
                     column::MIN_NUMBER_OF_COLUMNS);
         }
 
@@ -302,16 +303,16 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         // Validate if correct answers have been input for oumatrix single choice question.
         $nonemptyrows = array_filter($data['rowname']);
         if ($data['inputtype'] == 'single') {
-            foreach ($nonemptyrows as $key => $rowname ) {
+            foreach ($nonemptyrows as $key => $rowname) {
                 if (!isset($data['rowanswers']) || !array_key_exists($key, $data['rowanswers'])) {
-                    $errors['rowoptions[' . $key .']'] = get_string('noinputanswer', 'qtype_oumatrix');
+                    $errors['rowoptions[' . $key . ']'] = get_string('noinputanswer', 'qtype_oumatrix');
                 }
             }
         } else {
             // Validate if correct answers have been input for oumatrix multiple choice question.
             foreach ($nonemptyrows as $rowkey => $rowname) {
                 $answerfound = false;
-                foreach($data['columnname'] as $colkey => $colname) {
+                foreach ($data['columnname'] as $colkey => $colname) {
                     $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
                     if (isset($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
                         $answerfound = true;
@@ -319,7 +320,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                     }
                 }
                 if (!$answerfound) {
-                    $errors['rowoptions[' . $rowkey .']'] = get_string('noinputanswer', 'qtype_oumatrix');
+                    $errors['rowoptions[' . $rowkey . ']'] = get_string('noinputanswer', 'qtype_oumatrix');
                 }
             }
         }
@@ -332,27 +333,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $repeatedoptions['hintshownumcorrect']['disabledif'] = ['single', 'eq', 1];
         return [$repeated, $repeatedoptions];
     }
-    //
-    ///**
-    // * Perform the necessary preprocessing for the hint fields.
-    // *
-    // * @param object $question The data being passed to the form.
-    // * @param bool $withclearwrong Clear wrong hints.
-    // * @param bool $withshownumpartscorrect Show number correct.
-    // * @return object The modified data.
-    // */
-    //protected function data_preprocessing_hints($question, $withclearwrong = false, $withshownumpartscorrect = false) {
-    //    if (empty($question->hints)) {
-    //        return $question;
-    //    }
-    //    parent::data_preprocessing_hints($question, $withclearwrong, $withshownumpartscorrect);
-    //
-    //    $question->hintoptions = [];
-    //    foreach ($question->hints as $hint) {
-    //        $question->hintoptions[] = $hint->options;
-    //    }
-    //    return $question;
-    //}
 
     /**
      * Add a set of form fields, obtained from get_per_column_fields.

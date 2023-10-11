@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 if ($ADMIN->fulltree) {
     $inputtype = [
             'single' => get_string('answermodesingle', 'qtype_oumatrix'),
-            'multiple' => get_string('answermodemultiple', 'qtype_oumatrix')
+            'multiple' => get_string('answermodemultiple', 'qtype_oumatrix'),
     ];
     $settings->add(new admin_setting_configselect('qtype_oumatrix/inputtype',
             new lang_string('answermode', 'qtype_oumatrix'),
@@ -35,7 +35,7 @@ if ($ADMIN->fulltree) {
 
     $grademethod = [
             'partial' => get_string('gradepartialcredit', 'qtype_oumatrix'),
-            'allnone' => get_string('gradeallornothing', 'qtype_oumatrix')
+            'allnone' => get_string('gradeallornothing', 'qtype_oumatrix'),
     ];
     $settings->add(new admin_setting_configselect('qtype_oumatrix/grademethod',
             new lang_string('grademethod', 'qtype_oumatrix'),

@@ -88,17 +88,7 @@ class questiontype_test extends \advanced_testcase {
         $this->assertNull($this->qtype->get_random_guess_score($q));
     }
 
-    public function test_get_possible_responses_multi() {
-        $q = $this->get_test_question_data();
-        $q->options->single = false;
-
-        $this->assertEquals(array(
-            1 => array(1 => new question_possible_response('frog', 1)),
-            2 => array(2 => new question_possible_response('toad', 0)),
-        ), $this->qtype->get_possible_responses($q));
-    }
-
-    public function get_save_question_which() {
+    public static function get_save_question_which(): array {
         return [['animals_single'], ['oumatrix_multiple']];
     }
 
@@ -115,7 +105,7 @@ class questiontype_test extends \advanced_testcase {
         $formdata = \test_question_maker::get_question_form_data('oumatrix', $which);
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        //
+
         //$syscontext = \context_system::instance();
         ///** @var core_question_generator $generator */
         //$generator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -138,7 +128,8 @@ class questiontype_test extends \advanced_testcase {
 
         foreach ($questiondata as $property => $value) {
             if (!in_array($property, ['id', 'timemodified', 'timecreated', 'options', 'hints', 'stamp',
-                'versionid', 'questionbankentryid'])) {
+                'versionid', 'questionbankentryid',
+            ])) {
                 $this->assertEquals($value, $actualquestiondata->$property);
             }
         }
@@ -163,7 +154,7 @@ class questiontype_test extends \advanced_testcase {
         foreach ($questiondata->hints as $hint) {
             $actualhint = array_shift($actualquestiondata->hints);
             foreach ($hint as $property => $value) {
-                if (!in_array($property, array('id', 'questionid', 'options'))) {
+                if (!in_array($property, ['id', 'questionid', 'options'])) {
                     $this->assertEquals($value, $actualhint->$property);
                 }
             }

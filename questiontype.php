@@ -175,14 +175,7 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $context = $question->context;
         $result = new stdClass();
-        $oldrows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id ASC');
         $numrows = count($question->rowname);
-
-        // Check if the question has the minimum number of rows.
-        if ($numrows < row::MIN_NUMBER_OF_ROWS) {
-            $result->error = get_string('notenoughquestionrows', 'qtype_oumatrix',  row::MIN_NUMBER_OF_ROWS);
-            return $result;
-        }
 
         // Insert row input data.
         for ($i = 0; $i < $numrows; $i++) {
@@ -190,31 +183,28 @@ class qtype_oumatrix extends question_type {
             if (trim($question->rowname[$i] ?? '') === '') {
                 continue;
             }
-            // Update an existing word if possible.
-            $questionrow = array_shift($oldrows);
-            if (!$questionrow) {
-                $questionrow = new stdClass();
-                $questionrow->questionid = $question->id;
-                $questionrow->number = $i;
-                $questionrow->name = $question->rowname[$i];
-                // Prepare correct answers.
-                for ($c = 0; $c < count($columnslist); $c++) {
-                    if ($question->inputtype == 'single') {
-                        $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
-                        $answerslist[$columnslist[$columnindex - 1]->id] = "1";
-                    } else {
-                        $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
-                        if (!isset($question->$rowanswerslabel) || !array_key_exists($i, $question->$rowanswerslabel)) {
-                            continue;
-                        }
-                        $answerslist[$columnslist[$c]->id] = $question->$rowanswerslabel[$i];
+            $questionrow = new stdClass();
+            $questionrow->questionid = $question->id;
+            $questionrow->number = $i;
+            $questionrow->name = $question->rowname[$i];
+            // Prepare correct answers.
+            for ($c = 0; $c < count($columnslist); $c++) {
+                if ($question->inputtype == 'single') {
+                    $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
+                    $answerslist[$columnslist[$columnindex - 1]->id] = "1";
+                } else {
+                    $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
+                    if (!isset($question->$rowanswerslabel) || !array_key_exists($i, $question->$rowanswerslabel)) {
+                        continue;
                     }
+                    $answerslist[$columnslist[$c]->id] = $question->{$rowanswerslabel}[$i];
                 }
-                $questionrow->correctanswers = json_encode($answerslist);
-                $questionrow->feedback = $question->feedback[$i]['text'];
-                $questionrow->feedbackformat = FORMAT_HTML;
-                $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
             }
+            $questionrow->correctanswers = json_encode($answerslist);
+            $questionrow->feedback = $question->feedback[$i]['text'];
+            $questionrow->feedbackformat = FORMAT_HTML;
+            $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
+
             if ($question->feedback[$i]['text'] != '') {
                 $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
                         $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
@@ -222,17 +212,6 @@ class qtype_oumatrix extends question_type {
 
                 $DB->update_record('qtype_oumatrix_rows', $questionrow);
             }
-        }
-        // Remove old rows.
-        // TODO: we shpould revisit this part of the code, btw, $fs seems not to be used.
-        $fs = get_file_storage();
-        if ($oldrows) {
-            $ids = array_map(function($question) {
-                return $question->id;
-            }, $oldrows);
-            [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
-            $fs->delete_area_files_select($context->id, 'qtype_oumatrix', 'feedback', "id $idssql", $idsparams);
-            $DB->delete_records_select('qtype_oumatrix_rows', "id $idssql", $idsparams);
         }
     }
 
@@ -263,8 +242,12 @@ class qtype_oumatrix extends question_type {
     public function delete_question($questionid, $contextid) {
         global $DB;
         $DB->delete_records('qtype_oumatrix_options', ['questionid' => $questionid]);
-        $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $questionid]);
         $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $questionid]);
+        $rowids = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $questionid], '', 'id');
+        foreach (array_keys($rowids) as $rowid) {
+            $DB->delete_records('files', ['itemid' => $rowid]);
+        }
+        $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $questionid]);
         parent::delete_question($questionid, $contextid);
     }
 
@@ -291,19 +274,6 @@ class qtype_oumatrix extends question_type {
         //TODO: improve this.
         return $this->get_num_correct_choices($questiondata) /
                 count($questiondata->rows);
-    }
-
-    public function get_possible_responses($questiondata) {
-        $numright = $this->get_num_correct_choices($questiondata);
-        $parts = [];
-
-        // TODO: To be done correctly
-        foreach ($questiondata->options->answers as $aid => $answer) {
-            $parts[$aid] = array($aid =>
-                    new question_possible_response($answer->answer, $answer->fraction / $numright));
-        }
-
-        return $parts;
     }
 
     /**
@@ -366,11 +336,11 @@ class qtype_oumatrix extends question_type {
         $question->qtype = 'oumatrix';
 
         $question->inputtype = $format->import_text(
-                $format->getpath($data, array('#', 'inputtype'), 'single'));
+                $format->getpath($data, ['#', 'inputtype'], 'single'));
         $question->grademethod = $format->import_text(
-                $format->getpath($data, array('#', 'grademethod'), 'partial'));
+                $format->getpath($data, ['#', 'grademethod'], 'partial'));
         $question->shuffleanswers = $format->trans_single(
-                $format->getpath($data, array('#', 'shuffleanswers', 0, '#'), 1));
+                $format->getpath($data, ['#', 'shuffleanswers', 0, '#'], 1));
 
         $columns = $format->getpath($data, ['#', 'columns', 0, '#', 'column'], false);
         if ($columns) {
@@ -403,7 +373,7 @@ class qtype_oumatrix extends question_type {
             static $indexno = 0;
             $question->columns[$indexno]['name'] =
                     $format->import_text($format->getpath($column, ['#', 'text'], ''));
-            $question->columns[$indexno]['id'] = $format->getpath($column, array('@', 'key'), $indexno);
+            $question->columns[$indexno]['id'] = $format->getpath($column, ['@', 'key'], $indexno);
 
             $question->columnname[$indexno] =
                     $format->import_text($format->getpath($column, ['#', 'text'], ''));
@@ -414,7 +384,7 @@ class qtype_oumatrix extends question_type {
     public function import_rows(qformat_xml $format, stdClass $question, array $rows): void {
         foreach ($rows as $row) {
             static $indexno = 0;
-            $question->rows[$indexno]['id'] = $format->getpath($row, array('@', 'key'), $indexno);
+            $question->rows[$indexno]['id'] = $format->getpath($row, ['@', 'key'], $indexno);
             $question->rows[$indexno]['name'] =
                     $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
 
@@ -431,26 +401,26 @@ class qtype_oumatrix extends question_type {
                         // Import correct answers for multiple choice.
                         $rowanswerslabel = "rowanswers" . 'a' . ($colindex + 1);
                         if (array_key_exists($col['id'], $decodedanswers)) {
-                            $question->$rowanswerslabel[$indexno] = "1";
+                            $question->{$rowanswerslabel}[$indexno] = "1";
                         }
                     }
                 }
             }
             $question->rowname[$indexno] =
                     $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
-            $question->feedback[$indexno] = $this->import_text_with_files($format, $row, array('#', 'feedback', 0), '', 'html');
+            $question->feedback[$indexno] = $this->import_text_with_files($format, $row, ['#', 'feedback', 0], '', 'html');
             $indexno++;
         }
     }
 
     public function import_text_with_files(qformat_xml $format, $data, $path, $defaultvalue = '', $defaultformat = 'html') {
-        $field = array();
+        $field = [];
         $field['text'] = $format->getpath($data,
-                array_merge($path, array('#', 'text', 0, '#')), $defaultvalue, true);
+                array_merge($path, ['#', 'text', 0, '#']), $defaultvalue, true);
         $field['format'] = $format->trans_format($format->getpath($data,
-                array_merge($path, array('@', 'format')), $defaultformat));
+                array_merge($path, ['@', 'format']), $defaultformat));
         $itemid = $format->import_files_as_draft($format->getpath($data,
-                array_merge($path, array('#', 'file')), array(), false));
+                array_merge($path, ['#', 'file']), [], false));
         if (!empty($itemid)) {
             $field['itemid'] = $itemid;
         } else {
@@ -509,7 +479,6 @@ class qtype_oumatrix extends question_type {
         $fs = get_file_storage();
 
         parent::move_files($questionid, $oldcontextid, $newcontextid);
-        //TODO: replace the commented line below if needed.
         $this->move_files_in_rowanswers($questionid, $oldcontextid, $newcontextid);
         $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 

@@ -54,7 +54,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /** @var int The number of rows. */
     public $numrows;
 
-    //public abstract function get_response(question_attempt $qa);
     /** @var array The order of the rows. */
     protected $roworder = null;
 
@@ -90,22 +89,10 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         if ($component == 'question' && in_array($filearea,
-                        array('correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'))) {
+                        ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
             return $this->check_combined_feedback_file_access($qa, $options, $filearea, $args);
+
         } else if ($component == 'qtype_oumatrix' && $filearea == 'feedback') {
-            //$responseid = reset($args); // Itemid is answer id.
-            //$isselected = false;
-            //foreach ($this->roworder as $value => $rowid) {
-            //    if ($this->inputtype == 'single' && $rowid == $responseid) {
-            //        $isselected = true;
-            //        break;
-            //    }
-            //}
-            // Param $options->suppresschoicefeedback is a hack specific to the
-            // oumultiresponse question type. It would be good to refactor to
-            // avoid refering to it here.
-            //return $options->feedback && empty($options->suppresschoicefeedback) &&
-            //        $isselected;
             return $options->feedback;
 
         } else if ($component == 'question' && $filearea == 'hint') {
@@ -117,25 +104,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
     }
 
-    public function get_correct_response(): ?array {
-        $response = [];
-        for ($i = 0; $i < count($this->answers); $i++) {
-            $response[$this->field($i)] = $this->answers[$i]->answer;
-        }
-        return $response;
-    }
-
-    public function summarise_response(array $response): ?string {
-        return "from base";
-    }
-
-    public function is_complete_response(array $response): bool {
-    }
-
-    public function is_gradable_response(array $response): bool {
-
-    }
-
     public function get_validation_error(array $response): string {
         if ($this->is_complete_response($response)) {
             return '';
@@ -143,86 +111,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
 
-    public abstract function grade_response(array $response);
-
-    /**
-     * Get number of words in the response which are not right, but are if you ignore accents.
-     *
-     * @param array $response The answer list.
-     * @return int The number of partial answers.
-     */
-    public function get_num_parts_partial(array $response): int {
-        $numpartial = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_partial_fraction($answer, $response[$this->field($key)])) {
-                $numpartial++;
-            }
-        }
-
-        return $numpartial;
-    }
-
-    public function clear_wrong_from_response(array $response): array {
-        foreach ($this->answers as $key => $answer) {
-            if (isset($response[$this->field($key)]) && !$this->is_full_fraction($answer, $response[$this->field($key)])) {
-                $response[$this->field($key)] = '';
-            }
-        }
-        return $response;
-    }
-
-    /**
-     * Verify if the response to one clue should receive full marks.
-     *
-     * The answer must satisfy at least one of two conditions: Either
-     * Condition 1 - the answer is completely correct, including accent characters; or
-     * Condition 2 - the answer has the same letter characters but incorrect accent characters
-     * and the accent grading type of the question is disregarded.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's correct.
-     */
-    public function is_full_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $answer->is_correct($responseword) || ($this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_IGNORE &&
-                        $answer->is_wrong_accents($responseword));
-    }
-
-    /**
-     * Verify if if the response to one clue should receive partial marks.
-     *
-     * The answer must satisfy two conditions: Both
-     * Condition 1 - the answer is wrong accent only; and
-     * Condition 2 - the accent grading type of the question is penalty.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's partial correct.
-     */
-    public function is_partial_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_PENALTY &&
-                $answer->is_wrong_accents($responseword);
-    }
-
-    /**
-     * Calculate fraction of answer.
-     *
-     * @param answer $answer One of the clues.
-     * @param string $responseword The the response given to that clue.
-     * @return float the fraction for that word.
-     */
-    public function calculate_fraction_for_answer(answer $answer, string $responseword): float {
-
-        if ($this->is_full_fraction($answer, $responseword)) {
-            return 1;
-        } else {
-            if ($this->is_partial_fraction($answer, $responseword)) {
-                return 1 - $this->accentpenalty;
-            } else {
-                return 0;
-            }
-        }
-    }
+    abstract public function grade_response(array $response);
 
     public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
         $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
@@ -286,10 +175,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         }
         return false;
     }
-    //
-    //public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-    //    return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
-    //}
 
     public function prepare_simulated_post_data($simulatedresponse) {
         return $simulatedresponse;
@@ -383,94 +268,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         }
         return [$numright, count($this->rows)];
     }
-
-    /**
-     * Get number of words in the response which are not right, but are if you ignore accents.
-     *
-     * @param array $response The answer list.
-     * @return int The number of partial answers.
-     */
-    public function get_num_parts_partial(array $response): int {
-        $numpartial = 0;
-        foreach ($this->answers as $key => $answer) {
-            if ($this->is_partial_fraction($answer, $response[$this->field($key)])) {
-                $numpartial++;
-            }
-        }
-
-        return $numpartial;
-    }
-
-    public function clear_wrong_from_response(array $response): array {
-        foreach ($this->answers as $key => $answer) {
-            if (isset($response[$this->field($key)]) && !$this->is_full_fraction($answer, $response[$this->field($key)])) {
-                $response[$this->field($key)] = '';
-            }
-        }
-        return $response;
-    }
-
-    /**
-     * Verify if the response to one clue should receive full marks.
-     *
-     * The answer must satisfy at least one of two conditions: Either
-     * Condition 1 - the answer is completely correct, including accent characters; or
-     * Condition 2 - the answer has the same letter characters but incorrect accent characters
-     * and the accent grading type of the question is disregarded.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's correct.
-     */
-    public function is_full_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $answer->is_correct($responseword) || ($this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_IGNORE &&
-                        $answer->is_wrong_accents($responseword));
-    }
-
-    /*public function get_response(question_attempt $qa) {
-        $question = $qa->get_question();
-        $rowcount = count($question->rows);
-        for ($i = 0; $i < $rowcount; $i++) {
-            $response[] = $qa->get_last_qt_var("rowanswers$i", -1);
-        }
-        return $response;
-    }*/
-
-    /**
-     * Verify if if the response to one clue should receive partial marks.
-     *
-     * The answer must satisfy two conditions: Both
-     * Condition 1 - the answer is wrong accent only; and
-     * Condition 2 - the accent grading type of the question is penalty.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's partial correct.
-     */
-    public function is_partial_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_PENALTY &&
-                $answer->is_wrong_accents($responseword);
-    }
-
-    /**
-     * Calculate fraction of answer.
-     *
-     * @param answer $answer One of the clues.
-     * @param string $responseword The the response given to that clue.
-     * @return float the fraction for that word.
-     */
-    public function calculate_fraction_for_answer(answer $answer, string $responseword): float {
-
-        if ($this->is_full_fraction($answer, $responseword)) {
-            return 1;
-        } else {
-            if ($this->is_partial_fraction($answer, $responseword)) {
-                return 1 - $this->accentpenalty;
-            } else {
-                return 0;
-            }
-        }
-    }
 }
 
     /**
@@ -517,10 +314,6 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function prepare_simulated_post_data($simulatedresponse) {
         return $simulatedresponse;
     }
-    //
-    //public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-    //    return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
-    //}
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         foreach ($this->roworder as $key => $notused) {
@@ -697,47 +490,5 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return $numcorrect;
-    }
-
-    public function clear_wrong_from_response(array $response): array {
-        foreach ($this->answers as $key => $answer) {
-            if (isset($response[$this->field($key)]) && !$this->is_full_fraction($answer, $response[$this->field($key)])) {
-                $response[$this->field($key)] = '';
-            }
-        }
-        return $response;
-    }
-
-    /**
-     * Verify if the response to one clue should receive full marks.
-     *
-     * The answer must satisfy at least one of two conditions: Either
-     * Condition 1 - the answer is completely correct, including accent characters; or
-     * Condition 2 - the answer has the same letter characters but incorrect accent characters
-     * and the accent grading type of the question is disregarded.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's correct.
-     */
-    public function is_full_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $answer->is_correct($responseword) || ($this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_IGNORE &&
-                        $answer->is_wrong_accents($responseword));
-    }
-
-    /**
-     * Verify if if the response to one clue should receive partial marks.
-     *
-     * The answer must satisfy two conditions: Both
-     * Condition 1 - the answer is wrong accent only; and
-     * Condition 2 - the accent grading type of the question is penalty.
-     *
-     * @param qtype_crossword\answer $answer The answer object.
-     * @param string $responseword The inputanswer need to calculate.
-     * @return bool The result of answer. True if it's partial correct.
-     */
-    public function is_partial_fraction(qtype_crossword\answer $answer, string $responseword): bool {
-        return $this->accentgradingtype === \qtype_crossword::ACCENT_GRADING_PENALTY &&
-                $answer->is_wrong_accents($responseword);
     }
 }

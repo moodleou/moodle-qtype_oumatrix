@@ -304,7 +304,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
                 'id' => $clearchoiceid,
                 'value' => -1,
                 'class' => 'sr-only',
-                'aria-hidden' => 'true'
+                'aria-hidden' => 'true',
         ];
         $clearchoicewrapperattrs = [
                 'id' => $clearchoicefieldname,
@@ -388,7 +388,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
         return $this->correct_choices($rightanswers);
     }
 
-    protected function num_parts_correct(question_attempt $qa): string{
+    protected function num_parts_correct(question_attempt $qa): string {
         if ($qa->get_question()->get_num_selected_choices($qa->get_last_qt_data()) >
                 $qa->get_question()->get_num_correct_choices()) {
             return get_string('toomanyselected', 'qtype_oumatrix');

@@ -27,7 +27,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     public function get_test_questions() {
         return [
                 'animals_single',
-                'food_multiple'
+                'food_multiple',
         ];
     }
 
@@ -153,7 +153,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->name = 'oumatrix_animals_single01';
         $qfdata->questiontext = [
                 'text' => 'Animal classification. Please answer the sub questions in all 4 rows.',
-                'format' => FORMAT_HTML
+                'format' => FORMAT_HTML,
         ];
         $qfdata->generalfeedback = ['text' => 'We are recognising different type of animals.', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
@@ -168,53 +168,56 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->shuffleanswers = 0;
         $qfdata->correctfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->partiallycorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->shownumcorrect = 1;
         $qfdata->incorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->columnname = [
                 0 => 'Insects',
                 1 => 'Fish',
                 2 => 'Birds',
-                3 => 'Mammals'
+                3 => 'Mammals',
         ];
         $qfdata->rowname = [
                 0 => 'Bee',
                 1 => 'Salmon',
                 2 => 'Seagull',
-                3 => 'Dog'
+                3 => 'Dog',
         ];
         $qfdata->feedback = [
                 0 => [
                         'text' => 'Fly, Bee and Spider are insects.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
                 1 => [
                         'text' => 'Cod, Salmon and Trout are fish.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
                 2 => [
                         'text' => 'Gull and Owl are birds.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
                 3 => [
                         'text' => 'Cow, Dog and Horse are mammals.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
         ];
         $qfdata->rowanswers = [
                 0 => "1",
                 1 => "2",
                 2 => "3",
-                3 => "4"
+                3 => "4",
         ];
         $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
-                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML]
+                1 => ['text' => 'Hint 2.', 'format' => FORMAT_HTML],
             ];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;
@@ -347,7 +350,9 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata = new stdClass();
 
         $qfdata->name = 'oumatrix_food_multiple01';
-        $qfdata->questiontext = ['text' => 'Please classify the list of food item as Proteins, Vegetables, Fats.', 'format' => FORMAT_HTML];
+        $qfdata->questiontext = ['text' => 'Please classify the list of food item as Proteins, Vegetables, Fats.',
+            'format' => FORMAT_HTML,
+        ];
         $qfdata->generalfeedback = ['text' => 'A delicious and healthy meal is a balanced one.', 'format' => FORMAT_HTML];
         $qfdata->defaultmark = 1;
         $qfdata->length = 1;
@@ -361,14 +366,17 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->shuffleanswers = 0;
         $qfdata->correctfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->partiallycorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->shownumcorrect = 1;
         $qfdata->incorrectfeedback = [
                 'text' => test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK,
-                'format' => FORMAT_HTML];
+                'format' => FORMAT_HTML,
+        ];
         $qfdata->columnname = [
                 0 => 'Chicken breast',
                 1 => 'Carrot',
@@ -376,7 +384,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 3 => 'Asparagus',
                 4 => 'Olive oil',
                 5 => 'Steak',
-                6 => 'Potato'
+                6 => 'Potato',
         ];
         $qfdata->rowname = [
                 0 => 'Proteins',
@@ -386,37 +394,37 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $qfdata->feedback = [
                 0 => [
                         'text' => 'Chicken, fish and red meat containing proteins.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
                 1 => [
                         'text' => 'Carrot, Asparagus, Potato are vegetables.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
                 2 => [
                         'text' => 'Olive oil contains fat.',
-                        'format' => FORMAT_HTML
+                        'format' => FORMAT_HTML,
                 ],
         ];
         $qfdata->rowanswersa1 = [
                 0 => "1",
         ];
         $qfdata->rowanswersa2 = [
-                1 => "1"
+                1 => "1",
         ];
         $qfdata->rowanswersa3 = [
-                0 => "1"
+                0 => "1",
         ];
         $qfdata->rowanswersa4 = [
-                1 => "1"
+                1 => "1",
         ];
         $qfdata->rowanswersa5 = [
-                2 => "1"
+                2 => "1",
         ];
         $qfdata->rowanswersa6 = [
-                0 => "1"
+                0 => "1",
         ];
         $qfdata->rowanswersa7 = [
-                1 => "1"
+                1 => "1",
         ];
         $qfdata->hint = [
                 0 => ['text' => 'Hint 1.', 'format' => FORMAT_HTML],
