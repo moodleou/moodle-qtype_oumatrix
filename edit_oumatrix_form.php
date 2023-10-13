@@ -189,7 +189,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     }
 
     /**
-     * Perform the necessary preprocessing for rows (subquestions) fields.
+     * Perform the necessary preprocessing for rows (sub-questions) fields.
      *
      * @param object $question The data being passed to the form.
      * @return object The modified data.
@@ -312,7 +312,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             // Validate if correct answers have been input for oumatrix multiple choice question.
             foreach ($nonemptyrows as $rowkey => $rowname) {
                 $answerfound = false;
-                foreach ($data['columnname'] as $colkey => $colname) {
+                foreach ($data['columnname'] as $colkey => $unused) {
                     $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
                     if (isset($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
                         $answerfound = true;
@@ -325,13 +325,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             }
         }
         return $errors;
-    }
-
-    protected function get_hint_fields($withclearwrong = false, $withshownumpartscorrect = false) {
-        [$repeated, $repeatedoptions] = parent::get_hint_fields($withclearwrong, $withshownumpartscorrect);
-        $repeatedoptions['hintclearwrong']['disabledif'] = ['single', 'eq', 1];
-        $repeatedoptions['hintshownumcorrect']['disabledif'] = ['single', 'eq', 1];
-        return [$repeated, $repeatedoptions];
     }
 
     /**
@@ -355,9 +348,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         }
 
         $this->repeat_elements($this->get_per_column_fields($mform, $label, $repeatedoptions),
-                $repeatsatstart, $repeatedoptions,
-                'nocolumns', 'addcolumns', $addoptions,
-                get_string('addmoreblanks', 'qtype_oumatrix', 'columns'), true);
+            $repeatsatstart, $repeatedoptions,
+            'nocolumns', 'addcolumns', $addoptions,
+            get_string('addmoreblanks', 'qtype_oumatrix', 'columns'), true);
     }
 
     protected function get_per_column_fields($mform, $label, $repeatedoptions) {

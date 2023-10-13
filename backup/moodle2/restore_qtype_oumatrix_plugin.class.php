@@ -25,6 +25,8 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
     /**
      * Returns the paths to be handled by the plugin at question level.
+     *
+     * @return array The restore path element array.
      */
     protected function define_question_plugin_structure(): array {
 
@@ -32,9 +34,9 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
         // We used get_recommended_name() so this works.
         $elements = [
-                'qtype_oumatrix' => '/oumatrix',
-                'qtype_oumatrix_column' => '/columns/column',
-                'qtype_oumatrix_row' => '/rows/row',
+            'qtype_oumatrix' => '/oumatrix',
+            'qtype_oumatrix_column' => '/columns/column',
+            'qtype_oumatrix_row' => '/rows/row',
         ];
 
         foreach ($elements as $elename => $path) {

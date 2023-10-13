@@ -1,28 +1,25 @@
-# oumatrix #
+# Matrix question type
 
-TODO Describe the plugin shortly here.
+A matrix question type for Moodle.
 
-TODO Provide more detailed description here.
+This question type helps in creating the Single Choice or Multiple Response questions 
+in multi-row multi-column matrix format. 
 
-## Installing via uploaded ZIP file ##
 
-1. Log in to your Moodle site as an admin and go to _Site administration >
-   Plugins > Install plugins_.
-2. Upload the ZIP file with the plugin code. You should only be prompted to add
-   extra details if your plugin type is not automatically detected.
-3. Check the plugin validation report and finish the installation.
+## Installation and set-up
 
-## Installing manually ##
+### Install from the plugins database
 
-The plugin can be also installed by putting the contents of this directory to
+Install from the Moodle plugins database https://moodle.org/plugins/qtype_oumatrix
+in the normal way.
 
-    {your/moodle/dirroot}/question/type/oumatrix
 
-Afterwards, log in to your Moodle site as an admin and go to _Site administration >
-Notifications_ to complete the installation.
+### Install using git
 
-Alternatively, you can run
+Or you can install using git. Type this commands in the root of your Moodle install
 
-    $ php admin/cli/upgrade.php
+    git clone https://github.com/moodleou/moodle-qtype_oumatrix.git question/type/oumatrix
+    echo /question/type/oumatrix/ >> .git/info/exclude
 
-to complete the installation from the command line.
+Then run the Moodle update process
+Site administration > Notifications

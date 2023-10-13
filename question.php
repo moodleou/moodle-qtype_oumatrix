@@ -70,6 +70,8 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     abstract public function is_same_response(array $prevresponse, array $newresponse);
 
+    abstract public function grade_response(array $response);
+
     public function start_attempt(question_attempt_step $step, $variant) {
         $this->roworder = array_keys($this->rows);
         if ($this->shuffleanswers) {
@@ -91,6 +93,10 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         if (is_null($this->roworder)) {
             $this->roworder = explode(',', $qa->get_step(0)->get_qt_var('_roworder'));
         }
+    }
+
+    public function is_gradable_response(array $response) {
+        return $this->is_complete_response($response);
     }
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
@@ -116,8 +122,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
         return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
-
-    abstract public function grade_response(array $response);
 
     public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
         $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
@@ -158,7 +162,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 }
 
     /**
-     * Class that represents a oumatrix question.
+     * Class that represents a oumatrix question for single choice.
      */
 class qtype_oumatrix_single extends qtype_oumatrix_base {
 
@@ -176,7 +180,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function is_choice_selected($response, $rowkey, $colkey) {
         $responsekey = $this->field($rowkey);
-        if ($response && array_key_exists($responsekey, $response)) {
+        if (array_key_exists($responsekey, $response)) {
             return (string) $response[$responsekey] == $colkey;
         }
         return false;
@@ -210,9 +214,9 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $response = [];
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            if ($row->correctanswers != '') {
-                $response[$this->field($key)] = $this->columns[array_key_first($row->correctanswers)]->number;
-            }
+            //if ($row->correctanswers != '') {
+            $response[$this->field($key)] = $this->columns[array_key_first($row->correctanswers)]->number;
+            //}
         }
         return $response;
     }
@@ -245,19 +249,8 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return true;
     }
 
-    public function is_gradable_response(array $response): bool {
-        return true;
-    }
-
-    public function get_validation_error(array $response): string {
-        if ($this->is_complete_response($response)) {
-            return '';
-        }
-        return get_string('pleaseananswerallparts', 'qtype_oumatrix');
-    }
-
     public function grade_response(array $response): array {
-        // Retrieve the number of right and total answers.
+        // Retrieve the number of right responses and the total number of responses.
         [$numrightparts, $total] = $this->get_num_parts_right($response);
         $fraction = $numrightparts / $total;
         return [$fraction, question_state::graded_state_for_fraction($fraction)];
@@ -267,8 +260,8 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $numright = 0;
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            if (array_key_exists($this->field($key), $response) && $row->correctanswers != '' &&
-                $response[$this->field($key)] == $this->columns[array_key_first($row->correctanswers)]->number) {
+            $columnnumber = $this->columns[array_key_first($row->correctanswers)]->number;
+            if (array_key_exists($this->field($key), $response) && $response[$this->field($key)] == $columnnumber) {
                 $numright++;
             }
         }
@@ -277,14 +270,13 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 }
 
     /**
-     * Class that represents a oumatrix question.
+     * Class that represents a oumatrix question for multiple response.
      */
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_oumatrix', 'multiple');
     }
-
 
     public function get_expected_data(): array {
         $expected = [];
@@ -300,7 +292,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function is_choice_selected($response, $rowkey, $colkey) {
         $responsekey = $this->field($rowkey, $colkey);
-        if ($response && array_key_exists($responsekey, $response)) {
+        if (array_key_exists($responsekey, $response)) {
             return (string) $response[$responsekey] == 1;
         }
         return false;
@@ -337,12 +329,10 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         $answers = [];
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            if ($row->correctanswers != '') {
-                foreach ($row->correctanswers as $colkey => $answer) {
-                    // Get the corresponding column object associated with the column key.
-                    $column = $this->columns[$colkey];
-                    $answers[$this->field($key, $column->number)] = $answer;
-                }
+            foreach ($row->correctanswers as $colkey => $answer) {
+                // Get the corresponding column object associated with the column key.
+                $column = $this->columns[$colkey];
+                $answers[$this->field($key, $column->number)] = $answer;
             }
         }
         return $answers;
@@ -372,8 +362,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function is_complete_response(array $response): bool {
         foreach ($this->rows as $row) {
             $inputresponse = false;
-            foreach ($this->columns as $col) {
-                $fieldname = $this->field($row->number, $col->number);
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($row->number, $column->number);
                 if (array_key_exists($fieldname, $response)) {
                     $inputresponse = true;
                 }
@@ -385,19 +375,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return true;
     }
 
-    public function is_gradable_response(array $response): bool {
-        return true;
-    }
-
-    public function get_validation_error(array $response): string {
-        if ($this->is_complete_response($response)) {
-            return '';
-        }
-        return get_string('pleaseananswerallparts', 'qtype_oumatrix');
-    }
-
     public function grade_response(array $response): array {
-        // Retrieve a number of right answers and total answers.
+        // Retrieve the number of right responses and the total number of responses.
         if ($this->grademethod == 'allnone') {
             [$numrightparts, $total] = $this->get_num_grade_allornone($response);
             $fraction = $numrightparts / $total;

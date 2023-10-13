@@ -39,7 +39,7 @@ require_once($CFG->libdir.'/questionlib.php');
  */
 class qtype_oumatrix extends question_type {
     public function get_question_options($question) {
-        global $DB, $OUTPUT;;
+        global $DB, $OUTPUT;
         parent::get_question_options($question);
         if (!$question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id])) {
             $question->options = $this->create_default_options($question);
@@ -91,14 +91,12 @@ class qtype_oumatrix extends question_type {
 
     public function save_question($question, $form) {
         $question = parent::save_question($question, $form);
-
         return $question;
     }
 
     public function save_question_options($question) {
         global $DB;
         $context = $question->context;
-        $result = new stdClass();
         $options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
         if (!$options) {
             $config = get_config('qtype_oumatrix');
@@ -125,40 +123,24 @@ class qtype_oumatrix extends question_type {
         $this->save_hints($question, true);
     }
 
-    public function save_columns($formdata) {
+    /**
+     *
+     * @param object $question This holds the information from the editing form.
+     * @return array The list of columns created.
+     */
+    public function save_columns($question) {
         global $DB;
-        $context = $formdata->context;
-        $result = new stdClass();
-        $oldcolumns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $formdata->id], 'id ASC');
-        $numcolumns = count($formdata->columnname);
-
-        // Check if the question has the minimum number of colunms.
-        if ($numcolumns < column::MIN_NUMBER_OF_COLUMNS) {
-            $result->error = get_string('notenoughanswercols', 'qtype_oumatrix',  column::MIN_NUMBER_OF_COLUMNS);
-            return $result;
-        }
+        $numcolumns = count($question->columnname);
         $columnslist = [];
+
         // Insert column input data.
         for ($i = 0; $i < $numcolumns; $i++) {
-            if (trim(($formdata->columnname[$i]) ?? '') === '') {
+            if (trim(($question->columnname[$i]) ?? '') === '') {
                 continue;
             }
-            // Update an existing word if possible.
-            $column = array_shift($oldcolumns);
-            if (!$column) {
-                $column = new column($formdata->id, $i, $formdata->columnname[$i]);
-                $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
-                $columnslist[] = $column;
-            }
-
-            // Remove old columns.
-            if ($oldcolumns) {
-                $ids = array_map(function($question) {
-                    return $question->id;
-                }, $oldcolumns);
-                [$idssql, $idsparams] = $DB->get_in_or_equal($ids);
-                $DB->delete_records_select('qtype_oumatrix_columns', "id $idssql", $idsparams);
-            }
+            $column = new column($question->id, $i, $question->columnname[$i]);
+            $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
+            $columnslist[] = $column;
         }
         return $columnslist;
     }
@@ -167,9 +149,6 @@ class qtype_oumatrix extends question_type {
      *
      * @param object $question This holds the information from the editing form
      * @param array $columnslist
-     * @return void
-     * @throws coding_exception
-     * @throws dml_exception
      */
     public function save_rows($question, $columnslist) {
         global $DB;
@@ -225,10 +204,6 @@ class qtype_oumatrix extends question_type {
         return new $class();
     }
 
-    protected function make_hint($hint) {
-        return qtype_oumatrix_hint::load_from_record($hint);
-    }
-
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         $question->inputtype = $questiondata->options->inputtype;
@@ -243,10 +218,6 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $DB->delete_records('qtype_oumatrix_options', ['questionid' => $questionid]);
         $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $questionid]);
-        $rowids = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $questionid], '', 'id');
-        foreach (array_keys($rowids) as $rowid) {
-            $DB->delete_records('files', ['itemid' => $rowid]);
-        }
         $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $questionid]);
         parent::delete_question($questionid, $contextid);
     }
@@ -286,22 +257,20 @@ class qtype_oumatrix extends question_type {
         if (!empty($questiondata->rows)) {
             foreach ($questiondata->rows as $index => $row) {
                 $newrow = $this->make_row($row);
-                if ($newrow->correctanswers != '') {
-                    $correctanswers = [];
-                    $todecode = implode(",", $newrow->correctanswers);
-                    $decodedanswers = json_decode($todecode, true);
-                    foreach ($questiondata->columns as $key => $column) {
-                        if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
-                            if ($questiondata->options->inputtype == 'single') {
-                                $anslabel = 'a' . ($column->number + 1);
-                                $correctanswers[$column->id] = $anslabel;
-                            } else {
-                                $correctanswers[$column->id] = $decodedanswers[$column->id];
-                            }
+                $correctanswers = [];
+                $todecode = implode(",", $newrow->correctanswers);
+                $decodedanswers = json_decode($todecode, true);
+                foreach ($questiondata->columns as $key => $column) {
+                    if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
+                        if ($questiondata->options->inputtype == 'single') {
+                            $anslabel = 'a' . ($column->number + 1);
+                            $correctanswers[$column->id] = $anslabel;
+                        } else {
+                            $correctanswers[$column->id] = $decodedanswers[$column->id];
                         }
                     }
-                    $newrow->correctanswers = $correctanswers;
                 }
+                $newrow->correctanswers = $correctanswers;
                 $question->rows[$index] = $newrow;
             }
         }
@@ -336,11 +305,11 @@ class qtype_oumatrix extends question_type {
         $question->qtype = 'oumatrix';
 
         $question->inputtype = $format->import_text(
-                $format->getpath($data, ['#', 'inputtype'], 'single'));
+            $format->getpath($data, ['#', 'inputtype'], 'single'));
         $question->grademethod = $format->import_text(
-                $format->getpath($data, ['#', 'grademethod'], 'partial'));
+            $format->getpath($data, ['#', 'grademethod'], 'partial'));
         $question->shuffleanswers = $format->trans_single(
-                $format->getpath($data, ['#', 'shuffleanswers', 0, '#'], 1));
+            $format->getpath($data, ['#', 'shuffleanswers', 0, '#'], 1));
 
         $columns = $format->getpath($data, ['#', 'columns', 0, '#', 'column'], false);
         if ($columns) {
@@ -407,7 +376,7 @@ class qtype_oumatrix extends question_type {
                 }
             }
             $question->rowname[$indexno] =
-                    $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
+                $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
             $question->feedback[$indexno] = $this->import_text_with_files($format, $row, ['#', 'feedback', 0], '', 'html');
             $indexno++;
         }
@@ -416,11 +385,11 @@ class qtype_oumatrix extends question_type {
     public function import_text_with_files(qformat_xml $format, $data, $path, $defaultvalue = '', $defaultformat = 'html') {
         $field = [];
         $field['text'] = $format->getpath($data,
-                array_merge($path, ['#', 'text', 0, '#']), $defaultvalue, true);
+            array_merge($path, ['#', 'text', 0, '#']), $defaultvalue, true);
         $field['format'] = $format->trans_format($format->getpath($data,
-                array_merge($path, ['@', 'format']), $defaultformat));
+            array_merge($path, ['@', 'format']), $defaultformat));
         $itemid = $format->import_files_as_draft($format->getpath($data,
-                array_merge($path, ['#', 'file']), [], false));
+            array_merge($path, ['#', 'file']), [], false));
         if (!empty($itemid)) {
             $field['itemid'] = $itemid;
         } else {
@@ -483,11 +452,11 @@ class qtype_oumatrix extends question_type {
         $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 
         $fs->move_area_files_to_new_context($oldcontextid,
-                $newcontextid, 'question', 'correctfeedback', $questionid);
+            $newcontextid, 'question', 'correctfeedback', $questionid);
         $fs->move_area_files_to_new_context($oldcontextid,
-                $newcontextid, 'question', 'partiallycorrectfeedback', $questionid);
+            $newcontextid, 'question', 'partiallycorrectfeedback', $questionid);
         $fs->move_area_files_to_new_context($oldcontextid,
-                $newcontextid, 'question', 'incorrectfeedback', $questionid);
+            $newcontextid, 'question', 'incorrectfeedback', $questionid);
     }
 
     /**
@@ -504,10 +473,10 @@ class qtype_oumatrix extends question_type {
         $fs = get_file_storage();
 
         $rowids = $DB->get_records_menu('qtype_oumatrix_rows',
-                ['questionid' => $questionid], 'id', 'id,1');
+            ['questionid' => $questionid], 'id', 'id,1');
         foreach ($rowids as $rowid => $notused) {
             $fs->move_area_files_to_new_context($oldcontextid,
-                    $newcontextid, 'qtype_oumatrix', 'feedback', $rowid);
+                $newcontextid, 'qtype_oumatrix', 'feedback', $rowid);
         }
     }
 
@@ -537,44 +506,5 @@ class qtype_oumatrix extends question_type {
         foreach ($rowids as $rowid => $notused) {
             $fs->delete_area_files($contextid, 'qtype_oumatrix', 'feedback', $rowid);
         }
-    }
-}
-/**
- * An extension of {@link question_hint_with_parts} for qtype_oumatrix questions
- * with an extra option for whether to show the feedback for each row.
- *
- * @copyright  2023 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class qtype_oumatrix_hint extends question_hint_with_parts {
-    /** @var boolean whether to show the feedback for each row. */
-    public $showrowfeedback;
-
-    /**
-     * Constructor.
-     * @param string $hint The hint text
-     * @param bool $shownumcorrect whether the number of right parts should be shown
-     * @param bool $clearwrong whether the wrong parts should be reset.
-     * @param bool $showrowfeedback whether to show the feedback for each row.
-     */
-    public function __construct($id, $hint, $hintformat, $shownumcorrect,
-            $clearwrong, $showrowfeedback) {
-        parent::__construct($id, $hint, $hintformat, $shownumcorrect, $clearwrong);
-        $this->showrowfeedback = $showrowfeedback;
-    }
-
-    /**
-     * Create a basic hint from a row loaded from the question_hints table in the database.
-     * @param object $row with $row->hint, ->shownumcorrect and ->clearwrong set.
-     * @return question_hint_with_parts
-     */
-    public static function load_from_record($row) {
-        return new qtype_oumatrix_hint($row->id, $row->hint, $row->hintformat,
-                $row->shownumcorrect, $row->clearwrong, !empty($row->options));
-    }
-
-    public function adjust_display_options(question_display_options $options) {
-        parent::adjust_display_options($options);
-        $options->suppressrowfeedback = !$this->showrowfeedback;
     }
 }

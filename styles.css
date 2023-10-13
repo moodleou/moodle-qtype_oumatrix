@@ -13,6 +13,12 @@
 .que.oumatrix .matrixanswer {
     position: relative;
 }
+.que.oumatrix .answerlabel {
+    display: table;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+}
 .que.oumatrix input[type="radio"],
 .que.oumatrix input[type="checkbox"] {
     box-sizing: border-box;
@@ -20,9 +26,9 @@
 .que.oumatrix .matrixanswer span .icon {
     position: absolute;
     margin-left: 0.25rem;
+    margin-top: 0.1rem;
 }
 .que.oumatrix .answer .specificfeedback {
-    /*display: inline;*/
     padding: 0 0.7em;
     background: #fff3bf;
     text-align: left;

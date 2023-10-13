@@ -68,10 +68,10 @@ class backup_qtype_oumatrix_plugin extends backup_qtype_plugin {
 
     public static function get_qtype_fileareas() {
         return [
-                'feedback' => 'question_created',
-                'correctfeedback' => 'question_created',
-                'partiallycorrectfeedback' => 'question_created',
-                'incorrectfeedback' => 'question_created',
+            'feedback' => 'question_created',
+            'correctfeedback' => 'question_created',
+            'partiallycorrectfeedback' => 'question_created',
+            'incorrectfeedback' => 'question_created',
         ];
     }
 }

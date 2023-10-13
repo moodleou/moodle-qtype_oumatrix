@@ -33,16 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback_renderer {
 
-    /**
-     * Method to generating the bits of output after question choices.
-     *
-     * @param question_attempt $qa The question attempt object.
-     * @param question_display_options $options controls what should and should not be displayed.
-     *
-     * @return string HTML output.
-     */
-    abstract protected function after_choices(question_attempt $qa, question_display_options $options);
-
     abstract protected function get_input_type();
 
     abstract protected function get_input_name(question_attempt $qa, $value, $columnnumber);
@@ -60,11 +50,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      */
     protected function is_right(question_definition $question, $rowkey, $columnkey) {
         $row = $question->rows[$rowkey];
-        if ($row->correctanswers != '') {
-            foreach ($question->columns as $column) {
-                if ($column->number == $columnkey && array_key_exists($column->id, $row->correctanswers)) {
-                    return 1;
-                }
+        foreach ($question->columns as $column) {
+            if ($column->number == $columnkey && array_key_exists($column->id, $row->correctanswers)) {
+                return 1;
             }
         }
     }
@@ -90,8 +78,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $question = $qa->get_question();
         $result = '';
 
-        $result .= html_writer::tag('div', $question->format_questiontext($qa),
-                ['class' => 'qtext']);
+        $result .= html_writer::tag('div', $question->format_questiontext($qa), ['class' => 'qtext']);
         $result .= html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow visual-scroll-x']);
 
         $result .= html_writer::start_tag('div', ['class' => 'answer']);
@@ -104,8 +91,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         if ($qa->get_state() == question_state::$invalid) {
             $result .= html_writer::nonempty_tag('div',
-                $question->get_validation_error($qa->get_last_qt_data()),
-                ['class' => 'validationerror']);
+                $question->get_validation_error($qa->get_last_qt_data()), ['class' => 'validationerror']);
         }
 
         return $result;
@@ -134,7 +120,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         // Add feedback header.
         if ($options->feedback) {
             $table .= html_writer::tag('th', html_writer::span(get_string('feedback', 'question'),
-                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'align-middle rowfeedback']);
+                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'rowfeedback align-middle']);
         }
         $table .= html_writer::end_tag('tr');
 
@@ -196,8 +182,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
-                $table .= html_writer::tag('td', html_writer::tag('div', $button . ' ' . $feedbackimg,
-                    ['class' => $class]), ['class' => 'align-middle matrixanswer']);
+                $answered = html_writer::tag('label', $button . $feedbackimg, ['class' => "answerlabel $class"]);
+
+                $table .= html_writer::tag('td', $answered, ['class' => "matrixanswer align-middle"]);
             }
             if ($options->feedback) {
                 $table .= html_writer::tag('td', $feedback);
@@ -208,11 +195,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $table .= html_writer::end_tag('table');
         return $table;
     }
-
-    protected function number_html($qnum) {
-        return $qnum . '. ';
-    }
-
 
     public function specific_feedback(question_attempt $qa) {
         return $this->combined_feedback($qa);
@@ -237,7 +219,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         }
     }
 }
-
 
 /**
  * Subclass for generating the bits of output specific to oumatrix
@@ -273,64 +254,6 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         }
         return $this->correct_choices($right);
     }
-
-    public function after_choices(question_attempt $qa, question_display_options $options) {
-        // Only load the clear choice feature if it's not read only.
-        if ($options->readonly) {
-            return '';
-        }
-
-        $question = $qa->get_question();
-        $response = $question->get_response($qa);
-        $hascheckedchoice = false;
-        foreach ($question->get_order($qa) as $value => $ansid) {
-            if ($question->is_choice_selected($response, $value)) {
-                $hascheckedchoice = true;
-                break;
-            }
-        }
-
-        $clearchoiceid = $this->get_input_id($qa, -1);
-        $clearchoicefieldname = $qa->get_qt_field_name('clearchoice');
-        $clearchoiceradioattrs = [
-                'type' => $this->get_input_type(),
-                'name' => $qa->get_qt_field_name('answer'),
-                'id' => $clearchoiceid,
-                'value' => -1,
-                'class' => 'sr-only',
-                'aria-hidden' => 'true',
-        ];
-        $clearchoicewrapperattrs = [
-                'id' => $clearchoicefieldname,
-                'class' => 'qtype_multichoice_clearchoice',
-        ];
-
-        // When no choice selected during rendering, then hide the clear choice option.
-        // We are using .sr-only and aria-hidden together so while the element is hidden
-        // from both the monitor and the screen-reader, it is still tabbable.
-        $linktabindex = 0;
-        if (!$hascheckedchoice && $response == -1) {
-            $clearchoicewrapperattrs['class'] .= ' sr-only';
-            $clearchoicewrapperattrs['aria-hidden'] = 'true';
-            $clearchoiceradioattrs['checked'] = 'checked';
-            $linktabindex = -1;
-        }
-        // Adds an hidden radio that will be checked to give the impression the choice has been cleared.
-        $clearchoiceradio = html_writer::empty_tag('input', $clearchoiceradioattrs);
-        $clearchoice = html_writer::link('#', get_string('clearchoice', 'qtype_multichoice'),
-                ['tabindex' => $linktabindex, 'role' => 'button', 'class' => 'btn btn-link ml-3 mt-n1']);
-        $clearchoiceradio .= html_writer::label($clearchoice, $clearchoiceid);
-
-        // Now wrap the radio and label inside a div.
-        $result = html_writer::tag('div', $clearchoiceradio, $clearchoicewrapperattrs);
-
-        // Load required clearchoice AMD module.
-        $this->page->requires->js_call_amd('qtype_multichoice/clearchoice', 'init',
-                [$qa->get_outer_question_div_unique_id(), $clearchoicefieldname]);
-
-        return $result;
-    }
-
 }
 
 /**
@@ -341,10 +264,6 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
-    protected function after_choices(question_attempt $qa, question_display_options $options) {
-        return '';
-    }
-
     protected function get_input_type() {
         return 'multiple';
     }
