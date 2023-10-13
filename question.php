@@ -214,9 +214,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $response = [];
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            //if ($row->correctanswers != '') {
             $response[$this->field($key)] = $this->columns[array_key_first($row->correctanswers)]->number;
-            //}
         }
         return $response;
     }
