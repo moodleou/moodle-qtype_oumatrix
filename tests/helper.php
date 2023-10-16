@@ -441,8 +441,4 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     public function get_test_question_form_data($which) {
         return (array)\test_question_maker::get_question_form_data('oumatrix', $which);
     }
-
-    public function get_test_question_form_data($witch) {
-        return (array)\test_question_maker::get_question_form_data('oumatrix', $witch);
-    }
 }
