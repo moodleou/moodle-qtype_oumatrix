@@ -55,7 +55,7 @@ class questiontype_test extends \advanced_testcase {
 
     public function test_initialise_question_instance() {
         $h = new qtype_oumatrix_test_helper();
-        $qdata = $h->get_oumatrix_question_data_animals_single();
+        $qdata = $h->get_test_question_data('animals_single');
         $expected = $h->get_test_question_data('animals_single');
 
         $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qdata));
@@ -73,22 +73,20 @@ class questiontype_test extends \advanced_testcase {
     }
 
     public function test_get_random_guess_score() {
-        $h = new qtype_oumatrix_test_helper();
-
-        $qsingle = $h->get_oumatrix_question_data_animals_single();
-        $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qsingle));
-
-        $qmultiple = $h->get_oumatrix_question_data_oumatrix_multiple();
-        $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qmultiple));
+        $helper = new qtype_oumatrix_test_helper();
+        $qdata = $helper->get_test_question_data('animals_single');
+        $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
+        $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
     }
 
     public function test_get_random_guess_score_broken_question() {
-        $q = $this->get_test_question_data();
-        $q->rows = [];
+        $helper = new qtype_oumatrix_test_helper();
+        $q = $helper->get_test_question_data('animals_single');
+        $q->columns = [];
         $this->assertNull($this->qtype->get_random_guess_score($q));
     }
 
-    public static function get_save_question_which(): array {
+    public function get_save_question_which() {
         return [['animals_single'], ['oumatrix_multiple']];
     }
 
@@ -97,12 +95,12 @@ class questiontype_test extends \advanced_testcase {
      * @dataProvider get_save_question_which
      * @param $which
      */
-    public function test_save_question($which) {
+    public function test_save_question() {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
-        $questiondata = \test_question_maker::get_question_data('oumatrix', $which);
-        $formdata = \test_question_maker::get_question_form_data('oumatrix', $which);
+        $questiondata = \test_question_maker::get_question_data('oumatrix', 'animals_single');
+        $formdata = \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
 

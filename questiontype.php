@@ -58,7 +58,7 @@ class qtype_oumatrix extends question_type {
     /**
      * Create a default options object for the provided question.
      *
-     * @param object $question The queston we are working with.
+     * @param object $question The question we are working with.
      * @return object The options object.
      */
     protected function create_default_options($question) {
@@ -87,11 +87,6 @@ class qtype_oumatrix extends question_type {
         $this->set_default_value('grademethod', $fromform->grademethod);
         $this->set_default_value('shuffleanswers', $fromform->shuffleanswers);
         $this->set_default_value('shownumcorrect', $fromform->shownumcorrect);
-    }
-
-    public function save_question($question, $form) {
-        $question = parent::save_question($question, $form);
-        return $question;
     }
 
     public function save_question_options($question) {
@@ -124,11 +119,12 @@ class qtype_oumatrix extends question_type {
     }
 
     /**
+     * Save the question columns and return a list of columns to be used in the save_rows function.
      *
      * @param object $question This holds the information from the editing form.
      * @return array The list of columns created.
      */
-    public function save_columns($question) {
+    public function save_columns(object $question): array {
         global $DB;
         $numcolumns = count($question->columnname);
         $columnslist = [];
@@ -146,14 +142,14 @@ class qtype_oumatrix extends question_type {
     }
 
     /**
+     * Save the question rows.
      *
      * @param object $question This holds the information from the editing form
      * @param array $columnslist
      */
-    public function save_rows($question, $columnslist) {
+    public function save_rows(object $question, array $columnslist) {
         global $DB;
         $context = $question->context;
-        $result = new stdClass();
         $numrows = count($question->rowname);
 
         // Insert row input data.
@@ -186,7 +182,7 @@ class qtype_oumatrix extends question_type {
 
             if ($question->feedback[$i]['text'] != '') {
                 $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
-                        $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
+                    $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
                 $questionrow->feedbackformat = $question->feedback[$i]['format'];
 
                 $DB->update_record('qtype_oumatrix_rows', $questionrow);
@@ -222,17 +218,28 @@ class qtype_oumatrix extends question_type {
         parent::delete_question($questionid, $contextid);
     }
 
-    protected function get_num_correct_choices($questiondata) {
+    public function get_num_correct_choices($questiondata) {
         $numright = 0;
         foreach ($questiondata->rows as $row) {
             $rowanwers = json_decode($row->correctanswers);
-            foreach ($rowanwers as $key => $value) {
-                if ((int) $value === 1) {
-                    $numright += 1;
-                }
-            }
+            $numright += count((array)$rowanwers);
         }
         return $numright;
+    }
+
+    /**
+     * Return total number if choices for both (single, multiple) matrix choices.
+     * @param object $questiondata
+     * @return int
+     */
+    public function get_total_number_of_choices(object $questiondata):? int {
+        // if rows or columns are not set return null;
+        if (sizeof($questiondata->columns) === 0 || sizeof($questiondata->rows) === 0)  {
+            return null;
+        }
+        // Total number of choices for each row is the number of columns,
+        // therefore the total number of choices for the question is
+        return count($questiondata->columns) * count($questiondata->rows);
     }
 
     public function get_random_guess_score($questiondata) {
@@ -242,9 +249,36 @@ class qtype_oumatrix extends question_type {
         // Amazingly, the forumla for this works out to be
         // # correct choices / total # choices in all cases.
 
-        //TODO: improve this.
-        return $this->get_num_correct_choices($questiondata) /
-                count($questiondata->rows);
+        if ($this->get_total_number_of_choices($questiondata) === null) {
+            return null;
+        }
+        return $this->get_num_correct_choices($questiondata) / $this->get_total_number_of_choices($questiondata);
+    }
+
+    public function get_possible_responses($questiondata) {
+        if ($questiondata->options->single) {
+            $responses = array();
+
+            // TODO: Sort out this funtion to work with rows and columns, etc.
+            foreach ($questiondata->options->answers as $aid => $answer) {
+                $responses[$aid] = new question_possible_response(
+                        question_utils::to_plain_text($answer->answer, $answer->answerformat),
+                        $answer->fraction);
+            }
+
+            $responses[null] = question_possible_response::no_response();
+            return array($questiondata->id => $responses);
+        } else {
+            $parts = array();
+
+            foreach ($questiondata->options->answers as $aid => $answer) {
+                $parts[$aid] = array($aid => new question_possible_response(
+                        question_utils::to_plain_text($answer->answer, $answer->answerformat),
+                        $answer->fraction));
+            }
+
+            return $parts;
+        }
     }
 
     /**
@@ -296,7 +330,7 @@ class qtype_oumatrix extends question_type {
                 explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
-    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null): object {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'oumatrix') {
             return false;
         }
@@ -337,7 +371,7 @@ class qtype_oumatrix extends question_type {
         return $question;
     }
 
-    public function import_columns(qformat_xml $format, stdClass $question, array $columns): void {
+    public function import_columns(qformat_xml $format, stdClass $question, array $columns) {
         foreach ($columns as $column) {
             static $indexno = 0;
             $question->columns[$indexno]['name'] =
@@ -350,7 +384,7 @@ class qtype_oumatrix extends question_type {
         }
     }
 
-    public function import_rows(qformat_xml $format, stdClass $question, array $rows): void {
+    public function import_rows(qformat_xml $format, stdClass $question, array $rows) {
         foreach ($rows as $row) {
             static $indexno = 0;
             $question->rows[$indexno]['id'] = $format->getpath($row, ['@', 'key'], $indexno);
@@ -448,7 +482,7 @@ class qtype_oumatrix extends question_type {
         $fs = get_file_storage();
 
         parent::move_files($questionid, $oldcontextid, $newcontextid);
-        $this->move_files_in_rowanswers($questionid, $oldcontextid, $newcontextid);
+        $this->move_files_in_row_feedback($questionid, $oldcontextid, $newcontextid);
         $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 
         $fs->move_area_files_to_new_context($oldcontextid,
@@ -460,15 +494,14 @@ class qtype_oumatrix extends question_type {
     }
 
     /**
-     * Move all the files belonging to each rows question answers when the question
-     * is moved from one context to another.
+     * Move all the feedback files belonging to each sub-question
+     * when the question is moved from one context to another.
      *
      * @param int $questionid the question being moved.
      * @param int $oldcontextid the context it is moving from.
      * @param int $newcontextid the context it is moving to.
      */
-    protected function move_files_in_rowanswers($questionid, $oldcontextid,
-            $newcontextid) {
+    protected function move_files_in_row_feedback(int $questionid, int $oldcontextid, int $newcontextid) {
         global $DB;
         $fs = get_file_storage();
 
@@ -497,7 +530,7 @@ class qtype_oumatrix extends question_type {
      * @param int $questionid the question being deleted.
      * @param int $contextid the context the question is in.
      */
-    protected function delete_files_in_row_feedback($questionid, $contextid) {
+    protected function delete_files_in_row_feedback(int $questionid, int $contextid) {
         global $DB;
         $fs = get_file_storage();
 

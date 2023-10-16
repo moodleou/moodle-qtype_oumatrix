@@ -68,7 +68,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 'multiple' => get_string('answermodemultiple', 'qtype_oumatrix'),
         ];
         $mform->addElement('select', 'inputtype', get_string('answermode', 'qtype_oumatrix'), $answermodemenu);
-        $mform->setDefault('inputtype', $this->get_default_value('single',
+        $mform->setDefault('inputtype', $this->get_default_value('inputtype',
                 get_config('qtype_oumatrix', 'inputtype')));
 
         $grademethod = [
@@ -77,14 +77,14 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         ];
         $mform->addElement('select', 'grademethod', get_string('grademethod', 'qtype_oumatrix'), $grademethod);
         $mform->addHelpButton('grademethod', 'grademethod', 'qtype_oumatrix');
-        $mform->setDefault('grademethod', $this->get_default_value(
-                'grademethod', get_config('qtype_oumatrix', 'grademethod')));
+        $mform->setDefault('grademethod', $this->get_default_value('grademethod',
+                get_config('qtype_oumatrix', 'grademethod')));
         $mform->disabledIf('grademethod', 'inputtype', 'eq', 'single');
 
         $mform->addElement('selectyesno', 'shuffleanswers', get_string('shuffleanswers', 'qtype_oumatrix'));
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_oumatrix');
-        $mform->setDefault('shuffleanswers', $this->get_default_value(
-                'shuffleanswers', get_config('qtype_oumatrix', 'shuffleanswers')));
+        $mform->setDefault('shuffleanswers', $this->get_default_value('shuffleanswers',
+                get_config('qtype_oumatrix', 'shuffleanswers')));
 
         // Add update field.
         $mform->addElement('submit', 'updateform', get_string('updateform', 'qtype_oumatrix'));
@@ -242,8 +242,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        // Validate required number of min and max columns.
-        // Ignore the blank columns.
+        // Validate minimum required number of columns.
         $filteredcolscount = count(array_filter($data['columnname']));
         if ($filteredcolscount < column::MIN_NUMBER_OF_COLUMNS) {
             $errors['columnname[' . $filteredcolscount . ']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
@@ -281,7 +280,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             }
         }
 
-        // Validate required number of min and max rows.
+        // Validate minimum required number of rows.
         $countrows = count(array_filter($data['rowname']));
         if ($countrows < row::MIN_NUMBER_OF_ROWS) {
             $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',

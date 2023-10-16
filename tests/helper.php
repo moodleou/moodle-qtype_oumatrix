@@ -96,7 +96,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Bee',
                         'feedback' => 'Fly, Bee and spider are insects.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Insects":"1"}',
+                        'correctanswers' => '{"11":"1"}',
                 ],
                 12 => (object) [
                         'id' => 12,
@@ -104,7 +104,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Salmon',
                         'feedback' => 'Cod, Salmon and Trout are fish.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Fish":"1"}',
+                        'correctanswers' => '{"12":"1"}',
                 ],
                 13 => (object) [
                         'id' => 13,
@@ -112,7 +112,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Seagull',
                         'feedback' => 'Gulls and Owls are birds.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Birds":"1"}',
+                        'correctanswers' => '{"13":"1"}',
                 ],
                 14 => (object) [
                         'id' => 14,
@@ -120,7 +120,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Dog',
                         'feedback' => 'Cow, Dog and Horse are mammals.',
                         'feedbackformat' => FORMAT_HTML,
-                        'correctanswers' => '{"Mammals":"1"}',
+                        'correctanswers' => '{"14":"1"}',
                 ],
         ];
 
@@ -301,7 +301,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'id' => 21,
                         'number' => 0,
                         'name' => 'Proteins',
-                        'correctanswers' => '{"Chicken breast":"1","Salmon fillet":"1","Steak":"1"}',
+                        'correctanswers' => '{"21":"1","23":"1","26":"1"}',
                         'feedback' => 'Chicken, fish and red meat containing proteins.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
@@ -309,7 +309,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'id' => 22,
                         'number' => 1,
                         'name' => 'Vegetables',
-                        'correctanswers' => '{"Carrot":"1","Asparagus":"1","Potato":"1"}',
+                        'correctanswers' => '{"22":"1","24":"1","27":"1"}',
                         'feedback' => 'Carrot, Asparagus, Potato are vegetables.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
@@ -317,7 +317,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'id' => 23,
                         'number' => 2,
                         'name' => 'Fats',
-                        'correctanswers' => '{"Olive oil":"1"}',
+                        'correctanswers' => '{"25":"1"}',
                         'feedback' => 'Olive oil contains fat.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
@@ -434,7 +434,15 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         return $qfdata;
     }
 
-    public function get_test_question_data($witch) {
-        return \test_question_maker::get_question_data('oumatrix', $witch);
+    public function get_test_question_data($which) {
+        return \test_question_maker::get_question_data('oumatrix', $which);
+    }
+
+    public function get_test_question_form_data($which) {
+        return (array)\test_question_maker::get_question_form_data('oumatrix', $which);
+    }
+
+    public function get_test_question_form_data($witch) {
+        return (array)\test_question_maker::get_question_form_data('oumatrix', $witch);
     }
 }
