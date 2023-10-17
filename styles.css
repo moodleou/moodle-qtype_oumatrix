@@ -47,6 +47,9 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
 body#page-question-type-oumatrix .rowanswerlistlabel {
     padding: 0 0.5rem 0 1.0rem;
 }
+body#page-question-type-oumatrix label[data-fieldtype=checkbox] {
+    margin-right: 0.75rem;
+}
 /* Row validation error display. */
 body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
     border: 0;
