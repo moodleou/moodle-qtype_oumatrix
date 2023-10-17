@@ -292,15 +292,19 @@ class qtype_oumatrix extends question_type {
             foreach ($questiondata->rows as $index => $row) {
                 $newrow = $this->make_row($row);
                 $correctanswers = [];
-                if($questiondata->options->inputtype == 'single') {
-                    foreach ($questiondata->columns as $column) {
-                        if (isset($newrow->correctanswers) && array_key_exists($column->id, $newrow->correctanswers)) {
+                $todecode = implode(",", $newrow->correctanswers);
+                $decodedanswers = json_decode($todecode, true);
+                foreach ($questiondata->columns as $key => $column) {
+                    if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
+                        if ($questiondata->options->inputtype == 'single') {
                             $anslabel = 'a' . ($column->number + 1);
                             $correctanswers[$column->id] = $anslabel;
+                        } else {
+                            $correctanswers[$column->id] = $decodedanswers[$column->id];
                         }
                     }
-                    $newrow->correctanswers = $correctanswers;
                 }
+                $newrow->correctanswers = $correctanswers;
                 $question->rows[$index] = $newrow;
             }
         }
