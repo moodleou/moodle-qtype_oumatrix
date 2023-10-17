@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 461  -->
+  <question type="oumatrix">
+    <name>
+      <text>OUMatrix single choice</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Select the correct option for each of the animals and the family they belong to.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text>This is general feedback</text>
+    </generalfeedback>
+    <defaultgrade>6</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>001</idnumber>
+    <inputtype>single</inputtype>
+    <grademethod>partial</grademethod>
+    <shuffleanswers>false</shuffleanswers>
+    <columns>
+      <column key="1127">
+        <text>Canine</text>
+      </column>
+      <column key="1128">
+        <text>Feline</text>
+      </column>
+      <column key="1129">
+        <text>Tetrapod</text>
+      </column>
+    </columns>
+    <rows>
+      <row key="999">
+        <name>
+          <text>New Guinea bockadam</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1129":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>New Guinea bockadam belongs to Tetrapod family.</p>]]></text>
+        </feedback>
+      </row>
+      <row key="1000">
+        <name>
+          <text>German Shepherd</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1127":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>German Shepherd belongs to Canine family.</p>]]></text>
+        </feedback>
+      </row>
+      <row key="1001">
+        <name>
+          <text>Bengal</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1128":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>Bengal belongs to Feline falimiy.</p>]]></text>
+        </feedback>
+      </row>
+      <row key="1002">
+        <name>
+          <text>Andaman worm</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1129":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>Andaman worm belongs to Tetrapod family.</p>]]></text>
+        </feedback>
+      </row>
+      <row key="1003">
+        <name>
+          <text>English Cocker Spaniel</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1127":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>English Cocker Spaniel belongs to Canine family.</p>]]></text>
+        </feedback>
+      </row>
+      <row key="1004">
+        <name>
+          <text>Maine coon</text>
+        </name>
+        <correctanswers>
+          <text><![CDATA[{"1128":"1"}]]></text>
+        </correctanswers>
+        <feedback format="html">
+          <text><![CDATA[<p>Maine coon belongs to Feline falimiy.</p>]]></text>
+        </feedback>
+      </row>
+    </rows>
+    <correctfeedback format="html">
+      <text><![CDATA[<p>Your answer is correct.</p>]]></text>
+    </correctfeedback>
+    <partiallycorrectfeedback format="html">
+      <text><![CDATA[<p>Your answer is partially correct.</p>]]></text>
+    </partiallycorrectfeedback>
+    <incorrectfeedback format="html">
+      <text><![CDATA[<p>Your answer is incorrect.</p>]]></text>
+    </incorrectfeedback>
+    <shownumcorrect/>
+    <hint format="html">
+      <text><![CDATA[<p>Hint 1</p>]]></text>
+    </hint>
+    <hint format="html">
+      <text><![CDATA[<p>Hint 2</p>]]></text>
+    </hint>
+  </question>
+
+</quiz>

@@ -292,9 +292,8 @@ class qtype_oumatrix extends question_type {
             foreach ($questiondata->rows as $index => $row) {
                 $newrow = $this->make_row($row);
                 $correctanswers = [];
-                $todecode = implode(",", $newrow->correctanswers);
-                $decodedanswers = json_decode($todecode, true);
-                foreach ($questiondata->columns as $key => $column) {
+                $decodedanswers = json_decode($newrow->correctanswers, true);
+                foreach ($questiondata->columns as $column) {
                     if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
                         if ($questiondata->options->inputtype == 'single') {
                             $anslabel = 'a' . ($column->number + 1);
@@ -325,12 +324,11 @@ class qtype_oumatrix extends question_type {
     }
 
     public function make_row($rowdata) {
-        // Need to explode correctanswers as it is in the string format.
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-                explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
+            $rowdata->correctanswers, $rowdata->feedback, $rowdata->feedbackformat);
     }
 
-    public function import_from_xml($data, $question, qformat_xml $format, $extra = null): object {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'oumatrix') {
             return false;
         }
@@ -443,33 +441,36 @@ class qtype_oumatrix extends question_type {
                         $question->options->shuffleanswers) . "</shuffleanswers>\n";
 
         // Export columns data.
-        $output .= "<columns>\n";
+        $output .= "    <columns>\n";
+        ksort($question->columns);
         foreach ($question->columns as $columnkey => $column) {
-            $output .= "    <column key=\"{$columnkey}\">\n";
+            $output .= "      <column key=\"{$columnkey}\">\n";
             $output .= $format->writetext($column->name, 4);
-            $output .= "    </column>\n";
+            $output .= "      </column>\n";
         }
-        $output .= "</columns>\n";
+        $output .= "    </columns>\n";
 
         // Export rows data.
         $fs = get_file_storage();
         $output .= "    <rows>\n";
+        ksort($question->rows);
+        $indent = 5;
         foreach ($question->rows as $rowkey => $row) {
-            $output .= "    <row key=\"{$rowkey}\">\n";
-            $output .= "       <name>\n";
-            $output .= $format->writetext($row->name, 3);
-            $output .= "       </name>\n";
-            $output .= "       <correctanswers>\n";
-            $output .= $format->writetext($row->correctanswers, 3);
-            $output .= "       </correctanswers>\n";
+            $output .= "      <row key=\"{$rowkey}\">\n";
+            $output .= "        <name>\n";
+            $output .= $format->writetext($row->name, $indent);
+            $output .= "        </name>\n";
+            $output .= "        <correctanswers>\n";
+            $output .= $format->writetext($row->correctanswers, $indent);
+            $output .= "        </correctanswers>\n";
             if (($row->feedback ?? '') != '') {
-                $output .= '      <feedback ' . $format->format($row->feedbackformat) . ">\n";
-                $output .= $format->writetext($row->feedback, 4);
+                $output .= '        <feedback ' . $format->format($row->feedbackformat) . ">\n";
+                $output .= $format->writetext($row->feedback, $indent);
                 $files = $fs->get_area_files($question->contextid, 'qtype_oumatrix', 'feedback', $row->id);
                 $output .= $format->write_files($files);
-                $output .= "      </feedback>\n";
+                $output .= "        </feedback>\n";
             }
-            $output .= "    </row>\n";
+            $output .= "      </row>\n";
         }
         $output .= "    </rows>\n";
         $output .= $format->write_combined_feedback($question->options,

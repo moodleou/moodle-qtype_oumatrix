@@ -46,8 +46,8 @@ class row {
     /** @var string The row name. */
     public $name;
 
-    /** @var array The list of correct answers, A json-encoded list of correct answerids for a given row. */
-    public $correctanswers = [];
+    /** @var string The string of json encoded correct answers. */
+    public $correctanswers;
 
     /** @var string The row specific feedback. */
     public $feedback;
@@ -63,7 +63,7 @@ class row {
      * @param int $numberofrows
      * @param int $numberofcolumns
      */
-    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '', array $correctanswers = [],
+    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '', string $correctanswers = '',
             string $feedback = '', int $feedbackformat = 0) {
         $this->questionid = $questionid;
         $this->number = $number;
