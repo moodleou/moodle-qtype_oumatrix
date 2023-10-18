@@ -41,7 +41,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /** @var int Number of columns. */
     private $numcolumns;
 
-    /** @var string answermode of rows. */
+    /** @var int Number of rows. */
+    private $numrows;
+
+    /** @var string inputtype of rows. */
     private $inputtype;
 
     /**
@@ -67,12 +70,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         // Set the number of columns and rows.
         $this->set_current_settings();
-
-        $answermodemenu = [
-            'single' => get_string('answermodesingle', 'qtype_oumatrix'),
-            'multiple' => get_string('answermodemultiple', 'qtype_oumatrix'),
+        $inputtypemenu = [
+                'single' => get_string('inputtypesingle', 'qtype_oumatrix'),
+                'multiple' => get_string('inputtypemultiple', 'qtype_oumatrix'),
         ];
-        $mform->addElement('select', 'inputtype', get_string('answermode', 'qtype_oumatrix'), $answermodemenu);
+        $mform->addElement('select', 'inputtype', get_string('inputtype', 'qtype_oumatrix'), $inputtypemenu);
         $mform->setDefault('inputtype', $this->get_default_value('inputtype',
                 get_config('qtype_oumatrix', 'inputtype')));
 

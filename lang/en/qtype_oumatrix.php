@@ -26,12 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 $string['a'] = 'A{$a}';
 $string['addmoreblanks'] = 'Blanks for {no} more {$a}';
-$string['answermode'] = 'One or multiple answers?';
-$string['answermodesingle'] = 'Single';
-$string['answermodemultiple'] = 'Multiple';
-$string['answermode_desc'] = 'Answer mode can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
-$string['answermodemultiple'] = 'Multiple response';
-$string['answermodesingle'] = 'Single choice';
 $string['blankcolumnsnotallowed'] = 'Empty column name is not allowed.';
 $string['column'] = 'Column {$a}';
 $string['columnshdr'] = 'Matrix columns (answers)';
@@ -48,6 +42,10 @@ $string['grademethod_help'] = 'Standard (subpoints): each correct response in th
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
 $string['gradeallornothing'] = 'All-or-nothing';
+$string['inputtype'] = 'One or multiple answers?';
+$string['inputtype_desc'] = 'One or multiple answers? can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
+$string['inputtypemultiple'] = 'Multiple response';
+$string['inputtypesingle'] = 'Single choice';
 $string['noinputanswer'] = 'Each sub-question should have at least one correct answer.';
 $string['notenoughanswercols'] = 'You must have at least {$a} answer columns.';
 $string['notenoughquestionrows'] = 'You must have at least {$a} sub-questions.';
@@ -57,6 +55,12 @@ $string['pluginname_help'] = 'Creating a matrix question requires you to specify
 $string['pluginnameadding'] = 'Adding a Matrix question';
 $string['pluginnameediting'] = 'Editing a Matrix question';
 $string['pluginnamesummary'] = 'A multi-row table that can use single choice or multiple response inputs.';
+$string['privacy:metadata'] = 'Matrix question type plugin allows question authors to set default options as user preferences.';
+$string['privacy:preference:defaultmark'] = 'The default mark set for a given question.';
+$string['privacy:preference:penalty'] = 'The penalty for each incorrect try when questions are run using the \'Interactive with multiple tries\' or \'Adaptive mode\' behaviour.';
+$string['privacy:preference:inputtype'] = 'Whether the \'One or multiple answers?\' should be \'Single choice\' or \'Multiple response\'.';
+$string['privacy:preference:grademethod'] = 'Whether the Grading type should be \'All-or-nothing\' or \'Give partial credit\' for \'Multiple response\'. This option is diabled for \'Single choice\'.';
+$string['privacy:preference:shuffleanswers'] = 'Whether the answers should be automatically shuffled.';
 $string['row'] = 'Row {$a}';
 $string['rowshdr'] = 'Matrix rows (sub-questions)';
 $string['rowanswerlist'] = 'Select answers';
