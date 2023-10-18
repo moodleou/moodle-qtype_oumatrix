@@ -18,7 +18,6 @@ namespace qtype_oumatrix;
 
 use qtype_oumatrix;
 use qtype_oumatrix_edit_form;
-use question_possible_response;
 use qtype_oumatrix_test_helper;
 
 defined('MOODLE_INTERNAL') || die();
@@ -103,11 +102,6 @@ class questiontype_test extends \advanced_testcase {
         $formdata = \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-
-        //$syscontext = \context_system::instance();
-        ///** @var core_question_generator $generator */
-        //$generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        //$category = $generator->create_question_category(['contextid' => $syscontext->id]);
 
         $cat = $generator->create_question_category([]);
 
@@ -230,5 +224,18 @@ class questiontype_test extends \advanced_testcase {
         $options = $question->options;
         $this->assertEquals($question->id, $options->questionid);
         $this->assertCount(0, $options->answers);
+    }
+
+    public function test_load_question() {
+        $this->resetAfterTest();
+
+        /** @var \core_question_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category([]);
+        $createdquestion = $generator->create_question('oumatrix', null,
+            ['category' => $category->id, 'name' => 'Test question']);
+
+        $question = \question_bank::load_question_data($createdquestion->id);
+        $this->assertEquals($createdquestion->id, $question->id);
     }
 }

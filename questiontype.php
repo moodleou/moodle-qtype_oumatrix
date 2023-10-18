@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Question type class for oumatrix is defined here.
- *
- * @package     qtype_oumatrix
- * @copyright   2023 The Open University
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use qtype_oumatrix\column;
 use qtype_oumatrix\row;
 
@@ -30,19 +22,24 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/questionlib.php');
 
 /**
- * Class that represents a oumatrix question type.
+ * Class that represents the oumatrix question type.
  *
  * The class loads, saves and deletes questions of the type oumatrix
  * to and from the database and provides methods to help with editing questions
  * of this type. It can also provide the implementation for import and export
  * in various formats.
+ *
+ * @package   qtype_oumatrix
+ * @copyright 2023 The Open University
+ * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix extends question_type {
     public function get_question_options($question) {
         global $DB, $OUTPUT;
         parent::get_question_options($question);
         if (!$question->options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id])) {
-            $question->options = $this->create_default_options($question);
+            echo $OUTPUT->notification('Error: Missing matrix question options!');
+            return false;
         }
         if (!$question->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id])) {
             echo $OUTPUT->notification('Error: Missing question columns!');
@@ -53,32 +50,6 @@ class qtype_oumatrix extends question_type {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Create a default options object for the provided question.
-     *
-     * @param object $question The question we are working with.
-     * @return object The options object.
-     */
-    protected function create_default_options($question) {
-        // Create a default question options record.
-        $config = get_config('qtype_oumatrix');
-        $options = new stdClass();
-        $options->questionid = $question->id;
-        $options->inputtype = $config->inputtype;
-        $options->grademethod = $config->grademethod;
-        $options->shuffleanswers = $config->shuffleanswers ?? 0;
-        $options->shownumcorrect = 1;
-
-        // Get the default strings and just set the format.
-        $options->correctfeedback = get_string('correctfeedbackdefault', 'question');
-        $options->correctfeedbackformat = FORMAT_HTML;
-        $options->partiallycorrectfeedback = get_string('partiallycorrectfeedbackdefault', 'question');;
-        $options->partiallycorrectfeedbackformat = FORMAT_HTML;
-        $options->incorrectfeedback = get_string('incorrectfeedbackdefault', 'question');
-        $options->incorrectfeedbackformat = FORMAT_HTML;
-        return $options;
     }
 
     public function save_defaults_for_new_questions(stdClass $fromform): void {
@@ -94,12 +65,11 @@ class qtype_oumatrix extends question_type {
         $context = $question->context;
         $options = $DB->get_record('qtype_oumatrix_options', ['questionid' => $question->id]);
         if (!$options) {
-            $config = get_config('qtype_oumatrix');
             $options = new stdClass();
             $options->questionid = $question->id;
-            $options->inputtype = $config->inputtype;
-            $options->grademethod = $config->grademethod;
-            $options->shuffleanswers = $config->shuffleanswers;
+            $options->inputtype = '';
+            $options->grademethod = '';
+            $options->shuffleanswers = 0;
             $options->correctfeedback = '';
             $options->partiallycorrectfeedback = '';
             $options->incorrectfeedback = '';
@@ -121,7 +91,7 @@ class qtype_oumatrix extends question_type {
     /**
      * Save the question columns and return a list of columns to be used in the save_rows function.
      *
-     * @param object $question This holds the information from the editing form.
+     * @param stdClass $question This holds the information from the editing form.
      * @return array The list of columns created.
      */
     public function save_columns(object $question): array {
@@ -134,7 +104,10 @@ class qtype_oumatrix extends question_type {
             if (trim(($question->columnname[$i]) ?? '') === '') {
                 continue;
             }
-            $column = new column($question->id, $i, $question->columnname[$i]);
+            $column = new stdClass();
+            $column->questionid = $question->id;
+            $column->number = $i;
+            $column->name = $question->columnname[$i];
             $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
             $columnslist[] = $column;
         }
@@ -144,7 +117,7 @@ class qtype_oumatrix extends question_type {
     /**
      * Save the question rows.
      *
-     * @param object $question This holds the information from the editing form
+     * @param stdClass $question This holds the information from the editing form
      * @param array $columnslist
      */
     public function save_rows(object $question, array $columnslist) {
@@ -202,12 +175,70 @@ class qtype_oumatrix extends question_type {
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        $question->inputtype = $questiondata->options->inputtype;
         $question->grademethod = $questiondata->options->grademethod;
         $question->shuffleanswers = $questiondata->options->shuffleanswers;
         $this->initialise_question_columns($question, $questiondata);
         $this->initialise_question_rows($question, $questiondata);
         $this->initialise_combined_feedback($question, $questiondata, true);
+    }
+
+    /**
+     * Initialise the question columns.
+     *
+     * @param question_definition $question the question_definition we are creating.
+     * @param stdClass $questiondata the question data loaded from the database.
+     */
+    protected function initialise_question_columns(question_definition $question, stdClass $questiondata): void {
+        foreach ($questiondata->columns as $index => $column) {
+            $question->columns[$index] = $this->make_column($column);
+        }
+    }
+
+    /**
+     * Make a column from raw data from the DB.
+     *
+     * @param stdClass $columndata
+     * @return column
+     */
+    protected function make_column(stdClass $columndata): column {
+        return new column($columndata->questionid, $columndata->number, $columndata->name, $columndata->id);
+    }
+
+    /**
+     * Initialise the question rows.
+     *
+     * @param question_definition $question the question_definition we are creating.
+     * @param stdClass $questiondata the question data loaded from the database.
+     */
+    protected function initialise_question_rows(question_definition $question, stdClass $questiondata): void {
+        foreach ($questiondata->rows as $index => $row) {
+            $newrow = $this->make_row($row);
+            $correctanswers = [];
+            $decodedanswers = json_decode($newrow->correctanswers, true);
+            foreach ($questiondata->columns as $column) {
+                if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
+                    if ($questiondata->options->inputtype == 'single') {
+                        $anslabel = 'a' . ($column->number + 1);
+                        $correctanswers[$column->id] = $anslabel;
+                    } else {
+                        $correctanswers[$column->id] = $decodedanswers[$column->id];
+                    }
+                }
+            }
+            $newrow->correctanswers = $correctanswers;
+            $question->rows[$index] = $newrow;
+        }
+    }
+
+    /**
+     * Make a row from raw data from the DB.
+     *
+     * @param stdClass $rowdata
+     * @return row
+     */
+    public function make_row(stdClass $rowdata): row {
+        return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
+            $rowdata->correctanswers, $rowdata->feedback, $rowdata->feedbackformat);
     }
 
     public function delete_question($questionid, $contextid) {
@@ -216,30 +247,6 @@ class qtype_oumatrix extends question_type {
         $DB->delete_records('qtype_oumatrix_columns', ['questionid' => $questionid]);
         $DB->delete_records('qtype_oumatrix_rows', ['questionid' => $questionid]);
         parent::delete_question($questionid, $contextid);
-    }
-
-    public function get_num_correct_choices($questiondata) {
-        $numright = 0;
-        foreach ($questiondata->rows as $row) {
-            $rowanwers = json_decode($row->correctanswers);
-            $numright += count((array)$rowanwers);
-        }
-        return $numright;
-    }
-
-    /**
-     * Return total number if choices for both (single, multiple) matrix choices.
-     * @param object $questiondata
-     * @return int
-     */
-    public function get_total_number_of_choices(object $questiondata):? int {
-        // if rows or columns are not set return null;
-        if (sizeof($questiondata->columns) === 0 || sizeof($questiondata->rows) === 0)  {
-            return null;
-        }
-        // Total number of choices for each row is the number of columns,
-        // therefore the total number of choices for the question is
-        return count($questiondata->columns) * count($questiondata->rows);
     }
 
     public function get_random_guess_score($questiondata) {
@@ -253,6 +260,30 @@ class qtype_oumatrix extends question_type {
             return null;
         }
         return $this->get_num_correct_choices($questiondata) / $this->get_total_number_of_choices($questiondata);
+    }
+
+    /**
+     * Return total number if choices for both (single, multiple) matrix choices.
+     * @param stdClass $questiondata
+     * @return int
+     */
+    public function get_total_number_of_choices(object $questiondata):? int {
+        // if rows or columns are not set return null;
+        if (sizeof($questiondata->columns) === 0 || sizeof($questiondata->rows) === 0)  {
+            return null;
+        }
+        // Total number of choices for each row is the number of columns,
+        // therefore the total number of choices for the question is
+        return count($questiondata->columns) * count($questiondata->rows);
+    }
+
+    public function get_num_correct_choices($questiondata) {
+        $numright = 0;
+        foreach ($questiondata->rows as $row) {
+            $rowanwers = json_decode($row->correctanswers);
+            $numright += count((array)$rowanwers);
+        }
+        return $numright;
     }
 
     public function get_possible_responses($questiondata) {
@@ -279,53 +310,6 @@ class qtype_oumatrix extends question_type {
 
             return $parts;
         }
-    }
-
-    /**
-     * Initialise the question rows.
-     *
-     * @param question_definition $question the question_definition we are creating.
-     * @param object $questiondata the question data loaded from the database.
-     */
-    protected function initialise_question_rows(question_definition $question, $questiondata) {
-        if (!empty($questiondata->rows)) {
-            foreach ($questiondata->rows as $index => $row) {
-                $newrow = $this->make_row($row);
-                $correctanswers = [];
-                $decodedanswers = json_decode($newrow->correctanswers, true);
-                foreach ($questiondata->columns as $column) {
-                    if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
-                        if ($questiondata->options->inputtype == 'single') {
-                            $anslabel = 'a' . ($column->number + 1);
-                            $correctanswers[$column->id] = $anslabel;
-                        } else {
-                            $correctanswers[$column->id] = $decodedanswers[$column->id];
-                        }
-                    }
-                }
-                $newrow->correctanswers = $correctanswers;
-                $question->rows[$index] = $newrow;
-            }
-        }
-    }
-
-    /**
-     * Initialise the question columns.
-     *
-     * @param question_definition $question the question_definition we are creating.
-     * @param object $questiondata the question data loaded from the database.
-     */
-    protected function initialise_question_columns(question_definition $question, $questiondata) {
-        $question->columns = $questiondata->columns;
-    }
-
-    protected function make_column($columndata) {
-        return new column($columndata->questionid, $columndata->number, $columndata->name, $columndata->id);
-    }
-
-    public function make_row($rowdata) {
-        return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-            $rowdata->correctanswers, $rowdata->feedback, $rowdata->feedbackformat);
     }
 
     public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
@@ -409,25 +393,9 @@ class qtype_oumatrix extends question_type {
             }
             $question->rowname[$indexno] =
                 $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
-            $question->feedback[$indexno] = $this->import_text_with_files($format, $row, ['#', 'feedback', 0], '', 'html');
+            $question->feedback[$indexno] = $format->import_text_with_files($row, ['#', 'feedback', 0], '', 'html');
             $indexno++;
         }
-    }
-
-    public function import_text_with_files(qformat_xml $format, $data, $path, $defaultvalue = '', $defaultformat = 'html') {
-        $field = [];
-        $field['text'] = $format->getpath($data,
-            array_merge($path, ['#', 'text', 0, '#']), $defaultvalue, true);
-        $field['format'] = $format->trans_format($format->getpath($data,
-            array_merge($path, ['@', 'format']), $defaultformat));
-        $itemid = $format->import_files_as_draft($format->getpath($data,
-            array_merge($path, ['#', 'file']), [], false));
-        if (!empty($itemid)) {
-            $field['itemid'] = $itemid;
-        } else {
-            $field['itemid'] = '';
-        }
-        return $field;
     }
 
     public function export_to_xml($question, qformat_xml $format, $extra = null) {

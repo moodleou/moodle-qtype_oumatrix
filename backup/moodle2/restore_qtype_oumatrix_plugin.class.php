@@ -74,14 +74,11 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
      * @param array $data
      */
     public function process_qtype_oumatrix_row(array $data): void {
-        if (!isset($data['feedbackformat'])) {
-            $data['feedbackformat'] = FORMAT_HTML;
-        }
         $data = (object)$data;
 
         // Detect if the question is created or mapped.
         $questioncreated = $this->get_mappingid('question_created',
-                $this->get_old_parentid('question')) ? true : false;
+                $this->get_old_parentid('question'));
 
         // If the question has been created by restore, we need to update the correctanswers to store new column id's.
         if ($questioncreated) {
@@ -110,7 +107,7 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
         // Detect if the question is created or mapped.
         $questioncreated = $this->get_mappingid('question_created',
-                $this->get_old_parentid('question')) ? true : false;
+                $this->get_old_parentid('question'));
 
         // If the question has been created by restore, we need to create its question_oumatrix too.
         if ($questioncreated) {

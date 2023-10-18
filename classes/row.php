@@ -14,39 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Get information about a row (answer) a given class.
- *
- * @package     qtype_oumatrix
- * @copyright   2023 The Open University
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace qtype_oumatrix;
-use stdClass;
 
 /**
- * Helper used by the testcases in this file.
+ * Represents a row (answer) of a matrix question.
  *
- * @copyright  2008 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_oumatrix
+ * @copyright 2023 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class row {
     const MIN_NUMBER_OF_ROWS = 2;
+
+    public $id;
 
     /** @var int The id of the question. */
     public $questionid;
 
     /** @var int The row id. */
-    public $id;
-
     /** @var int The row number. */
     public $number;
 
     /** @var string The row name. */
     public $name;
 
-    /** @var string The string of json encoded correct answers. */
+    /** @var array The string of json encoded correct answers. */
     public $correctanswers;
 
     /** @var string The row specific feedback. */

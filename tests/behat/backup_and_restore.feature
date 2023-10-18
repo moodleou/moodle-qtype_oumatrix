@@ -52,8 +52,3 @@ Feature: Test duplicating a quiz containing a Numerical question
       | id_feedback_3     | Cow, Dog and Horse are mammals.                                       |
       | id_hint_0         | Hint 1.                                                               |
       | id_hint_1         | Hint 2.                                                               |
-      #| id_rowanswers_0_a4 | 1                                                    |
-      #| id_rowanswers_0_a3 | 0                                                    |
-      #| id_rowanswers_1_a3 | 1                                                    |
-      #| id_rowanswers_2_a2 | 1                                                    |
-      #| id_rowanswers_3_a1 | 1                                                    |

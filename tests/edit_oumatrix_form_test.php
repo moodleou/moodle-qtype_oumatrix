@@ -17,9 +17,6 @@
 namespace qtype_oumatrix;
 
 use stdClass;
-use qtype_oumatrix;
-use qtype_oumatrix_edit_form;
-use question_possible_response;
 use qtype_oumatrix_test_helper;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,7 +34,7 @@ require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
  * @package   qtype_oumatrix
  * @copyright 2023 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers    \qtype_oumatrix
+ * @covers    \qtype_oumatrix_edit_form
  */
 
 /**

@@ -15,25 +15,27 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Question definition class for oumatrix.
+ * Class that represents different types of oumatrix question.
  *
- * @package     qtype_oumatrix
+ * @package   qtype_oumatrix
+ * @copyright 2023 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+use qtype_oumatrix\column;
+use qtype_oumatrix\row;
+
+/**
+ * Class that represents an oumatrix question.
+ *
  * @copyright   2023 The Open University
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-// For a complete list of base question classes please examine the file
-// /question/type/questionbase.php.
-//
-// Make sure to implement all the abstract methods of the base class.
-
-/**
- * Class that represents a oumatrix question.
- */
 abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $shuffleanswers;
+
+    /** @var string 'All or none' or 'partial' grading method for multiple response. */
+    public $grademethod;
 
     public $correctfeedback;
     public $correctfeedbackformat;
@@ -42,10 +44,10 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $incorrectfeedback;
     public $incorrectfeedbackformat;
 
-    /** @var array The columns (answers) object. */
+    /** @var column[] The columns (answers) object. */
     public $columns;
 
-    /** @var array The rows (subquestions) object. */
+    /** @var row[] The rows (subquestions) object. */
     public $rows;
 
     /** @var int The number of columns. */
@@ -56,15 +58,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     /** @var array The order of the rows. */
     protected $roworder = null;
-
-    /** @var array The order of the rows. */
-    protected $columnorder = null;
-
-    /** @var string Single choice or multiple response question type. */
-    public $inputtype;
-
-    /** @var string 'All or none' or 'partial' grading method for multiple response. */
-    public $grademethod;
 
     abstract public function is_choice_selected($response, $rowkey, $colkey);
 
@@ -162,7 +155,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 }
 
     /**
-     * Class that represents a oumatrix question for single choice.
+     * Class that represents an oumatrix question for single choice.
      */
 class qtype_oumatrix_single extends qtype_oumatrix_base {
 
@@ -181,13 +174,13 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     public function is_choice_selected($response, $rowkey, $colkey) {
         $responsekey = $this->field($rowkey);
         if (array_key_exists($responsekey, $response)) {
-            return (string) $response[$responsekey] == $colkey;
+            return ((string) $response[$responsekey]) == $colkey;
         }
         return false;
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse;
+        return $simulatedresponse; // TODO
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
@@ -279,10 +272,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function get_expected_data(): array {
         $expected = [];
         foreach ($this->rows as $row) {
-            if ($row->correctanswers != '') {
-                foreach ($this->columns as $column) {
-                    $expected[$this->field($row->number, $column->number)] = PARAM_INT;
-                }
+            foreach ($this->columns as $column) {
+                $expected[$this->field($row->number, $column->number)] = PARAM_INT;
             }
         }
         return $expected;
@@ -291,7 +282,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     public function is_choice_selected($response, $rowkey, $colkey) {
         $responsekey = $this->field($rowkey, $colkey);
         if (array_key_exists($responsekey, $response)) {
-            return (string) $response[$responsekey] == 1;
+            return ((string) $response[$responsekey]) == 1;
         }
         return false;
     }
@@ -308,7 +299,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse;
+        return $simulatedresponse; // TODO
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {

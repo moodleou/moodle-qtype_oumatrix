@@ -17,19 +17,17 @@
 /**
  * OU matrix question renderer classes.
  *
- * @package    qtype_oumatrix
- * @copyright  2023 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_oumatrix
+ * @copyright 2023 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Base class for generating the bits of output common to oumatrix
  * single choice and multiple response questions.
  *
- * @copyright  2023 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2023 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback_renderer {
 
@@ -43,6 +41,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
     /**
      * Whether a choice should be considered right or wrong.
+     *
      * @param question_definition $question the question
      * @param int $rowkey representing the row.
      * @param int $columnkey representing the column.
@@ -84,10 +83,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $result .= html_writer::start_tag('div', ['class' => 'answer']);
 
         // Display the matrix.
-        $result .= $this->get_matrix($qa, $options);
+        $result .= $this->matrix_table($qa, $options);
 
-        $result .= html_writer::end_tag('div'); // Answer.
-        $result .= html_writer::end_tag('fieldset'); // Ablock.
+        $result .= html_writer::end_tag('div');
+        $result .= html_writer::end_tag('fieldset');
 
         if ($qa->get_state() == question_state::$invalid) {
             $result .= html_writer::nonempty_tag('div',
@@ -97,15 +96,15 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return $result;
     }
 
-    public function get_matrix(question_attempt $qa, question_display_options $options) {
+    public function matrix_table(question_attempt $qa, question_display_options $options) {
 
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
-        $caption = $options->add_question_identifier_to_label('', true, true);
+        $caption = $options->add_question_identifier_to_label(get_string('answer'), false, true);
 
         // Create table and caption.
         $table = html_writer::start_tag('table', ['class' => 'generaltable']);
-        $table .= html_writer::tag('caption', $caption, ['class' => 'table_caption']);
+        $table .= html_writer::tag('caption', $caption, ['class' => 'sr-only']);
 
         // Creating the matrix column headers.
         $table .= html_writer::start_tag('tr');
@@ -128,11 +127,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $inputattributes['disabled'] = 'disabled';
         }
         // Set the input attribute based on the single or multiple answer mode.
-        if ( $this->get_input_type() == "single") {
-            $inputattributes['type'] = "radio";
-        } else {
-            $inputattributes['type'] = "checkbox";
-        }
+        $inputattributes['type'] = $this->get_input_type();
 
         // Adding table rows for the sub-questions.
         foreach ($question->get_order($qa) as $rowkey => $rowid) {
@@ -162,17 +157,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                         ['class' => 'specificfeedback']);
                 }
 
-                $class = 'r' . ($rowkey % 2);
+                $class = '';
                 $feedbackimg = '';
 
                 // Select the radio button or checkbox and display feedback image.
                 if ($isselected) {
                     $inputattributes['checked'] = 'checked';
                     if ($options->correctness) {
-                        // Feedback images will be rendered using Font awesome.
-                        // Font awesome icons are actually characters(text) with special glyphs,
-                        // so the icons cannot be aligned correctly even if the parent div wrapper is using align-items: flex-start.
-                        // To make the Font awesome icons follow align-items: flex-start, we need to wrap them inside a span tag.
                         $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $j)));
                         $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $j));
                     }
@@ -229,7 +220,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     protected function get_input_type() {
-        return 'single';
+        return 'radio';
     }
 
     protected function get_input_name(question_attempt $qa, $value, $columnnumber) {
@@ -265,7 +256,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
     protected function get_input_type() {
-        return 'multiple';
+        return 'checkbox';
     }
 
     protected function get_input_name(question_attempt $qa, $value, $columnnumber) {

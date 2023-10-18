@@ -14,31 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Get information about a columns for the matrix.
- *
- * @package     qtype_oumatrix
- * @copyright   2023 The Open University
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace qtype_oumatrix;
-use stdClass;
 
 /**
- * Helper used by the testcases in this file.
+ * Represents one column of a matrix question.
  *
- * @copyright  2008 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_oumatrix
+ * @copyright 2023 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class column {
     const MIN_NUMBER_OF_COLUMNS = 2;
 
-    /** @var int The id of the question. */
-    public $questionid;
-
     /** @var int The column id. */
     public $id;
+
+    /** @var int The id of the question. */
+    public $questionid;
 
     /** @var int The column number. */
     public $number;
@@ -49,10 +41,10 @@ class column {
     /**
      * Construct the column object.
      *
-     * @param int $id
      * @param int $questionid
      * @param int $number
      * @param string $name
+     * @param int $id
      */
     public function __construct(int $questionid, int $number = 0, string $name = '', int $id = 0) {
         $this->questionid = $questionid;
