@@ -55,7 +55,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     protected function set_current_settings(): void {
         $inputtype = optional_param('inputtype', '', PARAM_ALPHA);
         if ($inputtype == '') {
-            $inputtype = $this->question->options->inputtype ?? get_config('qtype_oumatrix', 'inputtype');
+            $inputtype = $this->question->options->inputtype ?? $this->get_default_value('inputtype',
+                get_config('qtype_oumatrix', 'inputtype'));
         }
         $this->inputtype = $inputtype;
 
@@ -64,6 +65,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         } else {
             $this->numcolumns = self::COL_NUM_START;
         }
+        $columns = optional_param_array('columnname', '', PARAM_TEXT);
+        $this->numcolumns = $columns ? count($columns) : $this->numcolumns;
     }
 
     protected function definition_inner($mform) {
@@ -232,11 +235,14 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             return $question;
         }
         $question->columnname = [];
+        /**
+         * @var column $column
+         */
         foreach ($question->columns as $column) {
             if (trim($column->name ?? '') === '') {
                 continue;
             }
-            $question->columnname[] = $column->name;
+            $question->columnname[$column->number - 1] = $column->name;
         }
         $this->numcolumns = count($question->columnname);
         return $question;
@@ -260,16 +266,16 @@ class qtype_oumatrix_edit_form extends question_edit_form {
          * @var row $row
          */
         foreach ($question->rows as $index => $row) {
-            $question->rowname[$row->number] = $row->name;
+            $question->rowname[$row->number - 1] = $row->name;
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->columns as $key => $column) {
                 if (array_key_exists($column->id, $decodedanswers)) {
-                    $columnvalue = 'a' . ($column->number + 1);
+                    $columnvalue = 'a' . ($column->number);
                     if ($question->options->inputtype == 'single') {
-                        $question->rowanswers[$row->number] = $columnvalue;
+                        $question->rowanswers[$row->number - 1] = $columnvalue;
                     } else {
                         $rowanswerslabel = "rowanswers" . $columnvalue;
-                        $question->{$rowanswerslabel}[$row->number] = $decodedanswers[$column->id];
+                        $question->{$rowanswerslabel}[$row->number - 1] = $decodedanswers[$column->id];
                     }
                 }
             }
@@ -291,7 +297,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
             $question->rows[$index]->feedbackformat = $feedback[$key]['format'];
             $question->rows[$index]->feedback = $feedback[$key]['text'];
-            $question->feedback[$row->number] = $feedback[$key];
+            $question->feedback[$row->number - 1] = $feedback[$key];
             $key++;
         }
         return $question;

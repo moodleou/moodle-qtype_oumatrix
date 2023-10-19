@@ -41,11 +41,11 @@ class qtype_oumatrix extends question_type {
             echo $OUTPUT->notification('Error: Missing matrix question options!');
             return false;
         }
-        if (!$question->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id])) {
+        if (!$question->columns = $DB->get_records('qtype_oumatrix_columns', ['questionid' => $question->id], 'id')) {
             echo $OUTPUT->notification('Error: Missing question columns!');
             return false;
         }
-        if (!$question->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id])) {
+        if (!$question->rows = $DB->get_records('qtype_oumatrix_rows', ['questionid' => $question->id], 'id')) {
             echo $OUTPUT->notification('Error: Missing question rows!');
             return false;
         }
@@ -94,22 +94,24 @@ class qtype_oumatrix extends question_type {
      * @param stdClass $question This holds the information from the editing form.
      * @return array The list of columns created.
      */
-    public function save_columns(object $question): array {
+    public function save_columns(stdClass $question): array {
         global $DB;
         $numcolumns = count($question->columnname);
         $columnslist = [];
 
         // Insert column input data.
+        $columnnumber = 1;
         for ($i = 0; $i < $numcolumns; $i++) {
             if (trim(($question->columnname[$i]) ?? '') === '') {
                 continue;
             }
             $column = new stdClass();
             $column->questionid = $question->id;
-            $column->number = $i;
+            $column->number = $columnnumber;
             $column->name = $question->columnname[$i];
             $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
             $columnslist[] = $column;
+            $columnnumber++;
         }
         return $columnslist;
     }
@@ -120,12 +122,13 @@ class qtype_oumatrix extends question_type {
      * @param stdClass $question This holds the information from the editing form
      * @param array $columnslist
      */
-    public function save_rows(object $question, array $columnslist) {
+    public function save_rows(stdClass $question, array $columnslist) {
         global $DB;
         $context = $question->context;
         $numrows = count($question->rowname);
 
         // Insert row input data.
+        $rownumber = 1;
         for ($i = 0; $i < $numrows; $i++) {
             $answerslist = [];
             if (trim($question->rowname[$i] ?? '') === '') {
@@ -133,7 +136,7 @@ class qtype_oumatrix extends question_type {
             }
             $questionrow = new stdClass();
             $questionrow->questionid = $question->id;
-            $questionrow->number = $i;
+            $questionrow->number = $rownumber;
             $questionrow->name = $question->rowname[$i];
             // Prepare correct answers.
             for ($c = 0; $c < count($columnslist); $c++) {
@@ -160,6 +163,7 @@ class qtype_oumatrix extends question_type {
 
                 $DB->update_record('qtype_oumatrix_rows', $questionrow);
             }
+            $rownumber++;
         }
     }
 
@@ -189,8 +193,8 @@ class qtype_oumatrix extends question_type {
      * @param stdClass $questiondata the question data loaded from the database.
      */
     protected function initialise_question_columns(question_definition $question, stdClass $questiondata): void {
-        foreach ($questiondata->columns as $index => $column) {
-            $question->columns[$index] = $this->make_column($column);
+        foreach ($questiondata->columns as $column) {
+            $question->columns[$column->number] = $this->make_column($column);
         }
     }
 
@@ -211,14 +215,14 @@ class qtype_oumatrix extends question_type {
      * @param stdClass $questiondata the question data loaded from the database.
      */
     protected function initialise_question_rows(question_definition $question, stdClass $questiondata): void {
-        foreach ($questiondata->rows as $index => $row) {
+        foreach ($questiondata->rows as $row) {
             $newrow = $this->make_row($row);
             $correctanswers = [];
             $decodedanswers = json_decode($newrow->correctanswers, true);
             foreach ($questiondata->columns as $column) {
                 if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
                     if ($questiondata->options->inputtype == 'single') {
-                        $anslabel = 'a' . ($column->number + 1);
+                        $anslabel = 'a' . $column->number;
                         $correctanswers[$column->id] = $anslabel;
                     } else {
                         $correctanswers[$column->id] = $decodedanswers[$column->id];
@@ -226,7 +230,7 @@ class qtype_oumatrix extends question_type {
                 }
             }
             $newrow->correctanswers = $correctanswers;
-            $question->rows[$index] = $newrow;
+            $question->rows[$row->number] = $newrow;
         }
     }
 
