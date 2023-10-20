@@ -24,6 +24,8 @@
 
 use qtype_oumatrix\column;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Base class for generating the bits of output common to oumatrix
  * single choice and multiple response questions.

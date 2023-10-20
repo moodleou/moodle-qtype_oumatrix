@@ -25,6 +25,8 @@
 use qtype_oumatrix\column;
 use qtype_oumatrix\row;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Class that represents an oumatrix question.
  *
@@ -180,7 +182,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO
+        return $simulatedresponse; // TODO.
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
@@ -305,7 +307,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO
+        return $simulatedresponse; // TODO.
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {

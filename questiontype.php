@@ -272,12 +272,12 @@ class qtype_oumatrix extends question_type {
      * @return int
      */
     public function get_total_number_of_choices(object $questiondata):? int {
-        // if rows or columns are not set return null;
-        if (sizeof($questiondata->columns) === 0 || sizeof($questiondata->rows) === 0)  {
+        // If rows or columns are not set return null.
+        if (count($questiondata->columns) === 0 || count($questiondata->rows) === 0) {
             return null;
         }
         // Total number of choices for each row is the number of columns,
-        // therefore the total number of choices for the question is
+        // therefore the total number of choices for the question is.
         return count($questiondata->columns) * count($questiondata->rows);
     }
 
@@ -292,7 +292,7 @@ class qtype_oumatrix extends question_type {
 
     public function get_possible_responses($questiondata) {
         if ($questiondata->options->single) {
-            $responses = array();
+            $responses = [];
 
             // TODO: Sort out this funtion to work with rows and columns, etc.
             foreach ($questiondata->options->answers as $aid => $answer) {
@@ -302,14 +302,15 @@ class qtype_oumatrix extends question_type {
             }
 
             $responses[null] = question_possible_response::no_response();
-            return array($questiondata->id => $responses);
+            return [$questiondata->id => $responses];
         } else {
-            $parts = array();
+            $parts = [];
 
             foreach ($questiondata->options->answers as $aid => $answer) {
-                $parts[$aid] = array($aid => new question_possible_response(
-                        question_utils::to_plain_text($answer->answer, $answer->answerformat),
-                        $answer->fraction));
+                $parts[$aid] = [
+                    $aid => new question_possible_response(question_utils::to_plain_text(
+                            $answer->answer, $answer->answerformat), $answer->fraction),
+                ];
             }
 
             return $parts;

@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
  * @package   qtype_oumatrix
  * @copyright 2023 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers    \qtype_oumatrix_edit_form
  */
 
 /**
@@ -43,6 +42,7 @@ require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
  * @package    qtype_oumatrix
  * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers     \qtype_oumatrix_edit_form
  */
 class edit_oumatrix_form_test extends \advanced_testcase {
 
@@ -59,7 +59,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $this->setAdminUser();
         $this->resetAfterTest();
         $syscontext = \context_system::instance();
-        $category = question_make_default_categories(array($syscontext));
+        $category = question_make_default_categories([$syscontext]);
         $fakequestion = new stdClass();
         $fakequestion->qtype = 'oumatrix';
         $fakequestion->contextid = $syscontext->id;
@@ -67,7 +67,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $fakequestion->category = $category->id;
         $fakequestion->questiontext = 'Animal classification. Please answer the sub questions in all 4 rows.';
         $fakequestion->options = new stdClass();
-        $fakequestion->options->answers = array();
+        $fakequestion->options->answers = [];
         $fakequestion->formoptions = new stdClass();
         $fakequestion->formoptions->movecontext = null;
         $fakequestion->formoptions->repeatelements = true;

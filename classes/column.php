@@ -59,9 +59,9 @@ class column {
      * @param array $columns
      * @return array
      */
-    static public function get_column_ids(array $columns): array {
+    public static function get_column_ids(array $columns): array {
         $columnids = [];
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $columnids[$column->id] = $column;
         }
         return $columnids;
