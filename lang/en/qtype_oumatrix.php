@@ -24,15 +24,17 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$string['a'] = 'A{$a}';
+$string['answerlabel'] = 'Column {$a}';
+$string['answerlabelshort'] = 'A{$a}';
 $string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['blankcolumnsnotallowed'] = 'Empty column name is not allowed.';
-$string['column'] = 'Column {$a}';
 $string['columnshdr'] = 'Matrix columns (answers)';
 $string['correctanswer'] = 'Correct answer';
+$string['correctanswererror'] = '\'{$a->answerlabel}\' is empty so \'{$a->answerlabelshort}\' cannot be chosen as the correct answer.';
 $string['correctansweris'] = 'The correct answer is: {$a}';
 $string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswers'] = 'Correct answers';
+$string['correctanswerserror'] = '\'{$a->answerlabel}\' is empty so \'{$a->answerlabelshort}\' cannot be chosen as a correct answer.';
 $string['duplicates'] = 'Duplicate answer ({$a}) is not allowed.';
 $string['grademethod'] = 'Grading type';
 $string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.

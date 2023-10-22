@@ -55,7 +55,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     protected function set_current_settings(): void {
         $inputtype = optional_param('inputtype', '', PARAM_ALPHA);
         if ($inputtype == '') {
-            $inputtype = $this->question->options->inputtype ?? get_config('qtype_oumatrix', 'inputtype');
+            $inputtype = $this->question->options->inputtype ?? $this->get_default_value('inputtype',
+                            get_config('qtype_oumatrix', 'inputtype'));
         }
         $this->inputtype = $inputtype;
 
@@ -64,6 +65,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         } else {
             $this->numcolumns = self::COL_NUM_START;
         }
+        $columns = optional_param_array('columnname', '', PARAM_TEXT);
+        $this->numcolumns = $columns ? count($columns) : $this->numcolumns;
     }
 
     protected function definition_inner($mform) {
@@ -97,7 +100,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $mform->addElement('submit', 'updateform', get_string('updateform', 'qtype_oumatrix'));
         $mform->registerNoSubmitButton('updateform');
 
-        $this->add_per_column_fields($mform, get_string('column', 'qtype_oumatrix', '{no}'));
+        $this->add_per_column_fields($mform, get_string('answerlabel', 'qtype_oumatrix', '{no}'));
         $this->add_per_row_fields($mform, get_string('row', 'qtype_oumatrix', '{no}'));
 
         $this->add_combined_feedback_fields(true);
@@ -179,7 +182,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
-            $anslabel = get_string('a', 'qtype_oumatrix', $i + 1);
+            $anslabel = get_string('answerlabelshort', 'qtype_oumatrix', $i + 1);
             $columnvalue = 'a' . ($i + 1);
             if ($this->inputtype === 'single') {
                 $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', $anslabel, $columnvalue);
@@ -378,6 +381,33 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 }
                 if (!$answerfound) {
                     $errors['rowoptions[' . $rowkey . ']'] = get_string('noinputanswer', 'qtype_oumatrix');
+                }
+            }
+        }
+
+        // Validate the chosen correct answers on empty columns.
+        $nonemptyrows = array_filter($data['rowname']);
+        foreach ($data['columnname'] as $colkey => $column) {
+            if ($column !== '') {
+                continue;
+            }
+            $a = new stdClass();
+            $a->answerlabel = get_string('answerlabel', 'qtype_oumatrix', $colkey + 1);
+            $a->answerlabelshort = get_string('answerlabelshort', 'qtype_oumatrix', $colkey + 1);
+            if ($data['inputtype'] == 'single') {
+                foreach ($nonemptyrows as $key => $rowname) {
+                    if (('a' . $colkey + 1) === $data['rowanswers'][$key]) {
+                        $errors['rowoptions[' . $key . ']'] =
+                                get_string('correctanswererror', 'qtype_oumatrix', $a);
+                    }
+                }
+            } else {
+                foreach ($nonemptyrows as $rowkey => $rowname) {
+                    $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
+                    if (isset($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
+                        $errors['rowoptions[' . $rowkey . ']'] =
+                                get_string('correctanswerserror', 'qtype_oumatrix', $a);
+                    }
                 }
             }
         }

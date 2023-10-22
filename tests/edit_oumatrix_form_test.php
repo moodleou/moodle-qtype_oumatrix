@@ -182,4 +182,42 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $this->assertEquals($expectedanswer1, $errors['rowoptions[1]']);
         $this->assertEquals($expectedanswer2, $errors['rowoptions[2]']);
     }
+
+    /**
+     * Test the form correctly validates if correct answers have been input.
+     */
+    public function test_validation_rowanswers_on_empty_columns() {
+        [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
+        $helper = new qtype_oumatrix_test_helper();
+
+        // Single choice test.
+        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata['category'] = $category->id;
+
+        // Rows with chosen answer on empty columns are not valid(single choice).
+        $testdata = $formdata;
+        $colkey = 1;
+        $testdata['columnname'][$colkey] = '';
+        $testdata['rowanswers'][$colkey] = '3';
+        $errors = $form->validation($testdata, []);
+        $a = new stdClass();
+        $a->answerlabel = get_string('answerlabel', 'qtype_oumatrix',  $colkey + 1);
+        $a->answerlabelshort = get_string('answerlabelshort', 'qtype_oumatrix', $colkey + 1);
+        $expectedanswer = $errors['rowoptions[1]'] = get_string('correctanswererror', 'qtype_oumatrix', $a);
+        $this->assertEquals($expectedanswer, $errors['rowoptions[1]']);
+
+        // Multiple response test.
+        $formdata = $helper->get_test_question_form_data('food_multiple');
+        $formdata['category'] = $category->id;
+
+        // Rows with chosen answers on empty columns are not valid(multi response).
+        $testdata = $formdata;
+        $colkey = 6;
+        $testdata['columnname'][$colkey] = '';
+        $testdata['rowanswers'][$colkey] = '3';
+        $errors = $form->validation($testdata, []);
+        $expectedanswer = $errors['rowoptions[1]'] = get_string('correctanswerserror', 'qtype_oumatrix', $a);
+        $this->assertEquals($expectedanswer, $errors['rowoptions[1]']);
+
+    }
 }
