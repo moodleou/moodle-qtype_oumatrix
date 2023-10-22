@@ -235,11 +235,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             return $question;
         }
         $question->columnname = [];
-        foreach ($question->columns as $column) {
+        foreach ($question->columns as $column) { // Class column $column.
             if (trim($column->name ?? '') === '') {
                 continue;
             }
-            $question->columnname[] = $column->name;
+            $question->columnname[$column->number - 1] = $column->name;
         }
         $this->numcolumns = count($question->columnname);
         return $question;
@@ -258,21 +258,17 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         }
         $key = 0;
         $question->rowname = [];
-        /**
-         * @var int $index
-         * @var row $row
-         */
-        foreach ($question->rows as $index => $row) {
-            $question->rowname[$row->number] = $row->name;
+        foreach ($question->rows as $index => $row) { // Key int $index, class row $row.
+            $question->rowname[$row->number - 1] = $row->name;
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->columns as $key => $column) {
                 if (array_key_exists($column->id, $decodedanswers)) {
-                    $columnvalue = 'a' . ($column->number + 1);
+                    $columnvalue = 'a' . ($column->number);
                     if ($question->options->inputtype == 'single') {
-                        $question->rowanswers[$row->number] = $columnvalue;
+                        $question->rowanswers[$row->number - 1] = $columnvalue;
                     } else {
                         $rowanswerslabel = "rowanswers" . $columnvalue;
-                        $question->{$rowanswerslabel}[$row->number] = $decodedanswers[$column->id];
+                        $question->{$rowanswerslabel}[$row->number - 1] = $decodedanswers[$column->id];
                     }
                 }
             }
@@ -294,7 +290,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
             $question->rows[$index]->feedbackformat = $feedback[$key]['format'];
             $question->rows[$index]->feedback = $feedback[$key]['text'];
-            $question->feedback[$row->number] = $feedback[$key];
+            $question->feedback[$row->number - 1] = $feedback[$key];
             $key++;
         }
         return $question;

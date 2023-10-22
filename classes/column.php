@@ -52,4 +52,18 @@ class column {
         $this->name = $name;
         $this->id = $id;
     }
+
+    /**
+     * Returns the array of columns by id's.
+     *
+     * @param array $columns
+     * @return array
+     */
+    public static function get_column_ids(array $columns): array {
+        $columnids = [];
+        foreach ($columns as $column) {
+            $columnids[$column->id] = $column;
+        }
+        return $columnids;
+    }
 }

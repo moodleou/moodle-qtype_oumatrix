@@ -25,6 +25,8 @@
 use qtype_oumatrix\column;
 use qtype_oumatrix\row;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Class that represents an oumatrix question.
  *
@@ -166,7 +168,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     public function get_expected_data(): array {
         $expected = [];
         foreach ($this->rows as $row) {
-            $expected[$this->field($row->number)] = PARAM_INT;
+            $expected[$this->field($row->number - 1)] = PARAM_INT;
         }
         return $expected;
     }
@@ -180,7 +182,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO
+        return $simulatedresponse; // TODO.
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
@@ -205,9 +207,13 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_correct_response(): ?array {
         $response = [];
+        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            $response[$this->field($key)] = $this->columns[array_key_first($row->correctanswers)]->number;
+            foreach ($row->correctanswers as $colkey => $answer) {
+                // Get the corresponding column number associated with the column key.
+                $response[$this->field($key)] = $columnids[$colkey]->number;
+            }
         }
         return $response;
     }
@@ -231,8 +237,8 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
-        foreach ($this->rows as $row) {
-            $fieldname = $this->field($row->number);
+        foreach ($this->roworder as $key => $rownumber) {
+            $fieldname = $this->field($key);
             if (!array_key_exists($fieldname, $response)) {
                 return false;
             }
@@ -249,10 +255,12 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_num_parts_right(array $response): array {
         $numright = 0;
+        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            $columnnumber = $this->columns[array_key_first($row->correctanswers)]->number;
-            if (array_key_exists($this->field($key), $response) && $response[$this->field($key)] == $columnnumber) {
+            $column = $columnids[array_key_first($row->correctanswers)];
+            if (array_key_exists($this->field($key), $response) &&
+                    $response[$this->field($key)] == $column->number) {
                 $numright++;
             }
         }
@@ -273,7 +281,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         $expected = [];
         foreach ($this->rows as $row) {
             foreach ($this->columns as $column) {
-                $expected[$this->field($row->number, $column->number)] = PARAM_INT;
+                $expected[$this->field($row->number - 1, $column->number)] = PARAM_INT;
             }
         }
         return $expected;
@@ -299,7 +307,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO
+        return $simulatedresponse; // TODO.
     }
 
     public function is_same_response(array $prevresponse, array $newresponse): bool {
@@ -315,16 +323,16 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function get_correct_response(): ?array {
-        $answers = [];
+        $response = [];
+        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
             foreach ($row->correctanswers as $colkey => $answer) {
-                // Get the corresponding column object associated with the column key.
-                $column = $this->columns[$colkey];
-                $answers[$this->field($key, $column->number)] = $answer;
+                // Get the corresponding column number associated with the column key.
+                $response[$this->field($key, $columnids[$colkey]->number)] = $answer;
             }
         }
-        return $answers;
+        return $response;
     }
 
     public function summarise_response(array $response): ?string {
@@ -349,10 +357,10 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     public function is_complete_response(array $response): bool {
-        foreach ($this->rows as $row) {
+        foreach ($this->roworder as $key => $rownumber) {
             $inputresponse = false;
             foreach ($this->columns as $column) {
-                $fieldname = $this->field($row->number, $column->number);
+                $fieldname = $this->field($key, $column->number);
                 if (array_key_exists($fieldname, $response)) {
                     $inputresponse = true;
                 }

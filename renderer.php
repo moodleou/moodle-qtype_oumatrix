@@ -22,6 +22,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use qtype_oumatrix\column;
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Base class for generating the bits of output common to oumatrix
  * single choice and multiple response questions.
@@ -140,13 +144,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             $table .= html_writer::tag('th', html_writer::span($rowname, '', ['id' => $rownewid]),
                 ['class' => 'align-middle', 'scope' => 'row']);
 
-            for ($j = 0; $j < count($colname); $j++) {
-                $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $j);
-                $inputattributes['value'] = $this->get_input_value($j);
-                $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $j);
-                $inputattributes['aria-labelledby'] = 'col' . $j . ' ' . $rownewid;
+            for ($c = 1; $c <= count($colname); $c++) {
+                $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $c);
+                $inputattributes['value'] = $this->get_input_value($c);
+                $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $c);
+                $inputattributes['aria-labelledby'] = 'col' . ($c - 1). ' ' . $rownewid;
 
-                $isselected = $question->is_choice_selected($response, $rowkey, $j);
+                $isselected = $question->is_choice_selected($response, $rowkey, $c);
 
                 // Get the row per feedback.
                 if ($options->feedback && $feedback == '' &&
@@ -164,8 +168,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 if ($isselected) {
                     $inputattributes['checked'] = 'checked';
                     if ($options->correctness) {
-                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $j)));
-                        $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $j));
+                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question, $rowid, $c)));
+                        $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $c));
                     }
                 } else {
                     unset($inputattributes['checked']);
@@ -238,10 +242,9 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
         $right = [];
+        $columnids = column::get_column_ids($question->columns);
         foreach ($question->rows as $row) {
-            if ($row->correctanswers != '') {
-                $right[] = $row->name . ' → ' . $question->columns[array_key_first($row->correctanswers)]->name;
-            }
+            $right[] = $row->name . ' → ' . $columnids[array_key_first($row->correctanswers)]->name;
         }
         return $this->correct_choices($right);
     }
@@ -273,13 +276,14 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
+        $columnids = column::get_column_ids($question->columns);
         foreach ($question->rows as $row) {
             // Get the correct row.
             $rowanswer = $row->name . ' → ';
             $answers = [];
             if ($row->correctanswers != '') {
                 foreach ($row->correctanswers as $columnkey => $notused) {
-                    $answers[] = $question->columns[$columnkey]->name;
+                    $answers[] = $columnids[$columnkey]->name;
                 }
                 $rowanswer .= implode(', ', $answers);
                 $rightanswers[] = $rowanswer;
