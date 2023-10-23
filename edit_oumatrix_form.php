@@ -41,9 +41,6 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /** @var int Number of columns. */
     private $numcolumns;
 
-    /** @var int Number of rows. */
-    private $numrows;
-
     /** @var string inputtype of rows. */
     private $inputtype;
 
@@ -235,7 +232,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             return $question;
         }
         $question->columnname = [];
-        foreach ($question->columns as $column) { // Class column $column.
+        /** @var column $column */
+        foreach ($question->columns as $column) {
             if (trim($column->name ?? '') === '') {
                 continue;
             }
@@ -258,7 +256,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         }
         $key = 0;
         $question->rowname = [];
-        foreach ($question->rows as $index => $row) { // Key int $index, class row $row.
+        foreach ($question->rows as $index => $row) {
             $question->rowname[$row->number - 1] = $row->name;
             $decodedanswers = json_decode($row->correctanswers, true);
             foreach ($question->columns as $key => $column) {
