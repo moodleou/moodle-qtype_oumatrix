@@ -224,7 +224,7 @@ class qtype_oumatrix extends question_type {
                         $anslabel = 'a' . $column->number;
                         $correctanswers[$column->id] = $anslabel;
                     } else {
-                        $correctanswers[$column->id] =  $newrow->correctanswers[$column->id];
+                        $correctanswers[$column->id] = $newrow->correctanswers[$column->id];
                     }
                 }
             }
