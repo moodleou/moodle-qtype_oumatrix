@@ -24,21 +24,22 @@ namespace qtype_oumatrix;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class row {
+    /** @var int Minimum number of rows. */
     const MIN_NUMBER_OF_ROWS = 2;
 
+    /** @var int The id of the row */
     public $id;
 
     /** @var int The id of the question. */
     public $questionid;
 
-    /** @var int The row id. */
     /** @var int The row number. */
     public $number;
 
     /** @var string The row name. */
     public $name;
 
-    /** @var array The string of json encoded correct answers. */
+    /** @var array The array of correct answers. */
     public $correctanswers;
 
     /** @var string The row specific feedback. */
@@ -48,15 +49,18 @@ class row {
     public $feedbackformat;
 
     /**
-     * Construct the matrix object to be used by rows and colums objects.
+     * Construct the matrix object to be used by rows.
      *
-     * @param int $id
-     * @param int $questionid
-     * @param int $numberofrows
-     * @param int $numberofcolumns
+     * @param int $id the row id
+     * @param int $questionid the questionid
+     * @param int $number the row number
+     * @param string $name the row name
+     * @param array $correctanswers the list of correct answers
+     * @param string $feedback the row feedback
+     * @param string $feedbackformat the row feedback format
      */
-    public function __construct(int $id = 0, int $questionid = 0, int $number = 0, string $name = '', string $correctanswers = '',
-            string $feedback = '', int $feedbackformat = 0) {
+    public function __construct(int $id, int $questionid, int $number, string $name, array $correctanswers,
+            string $feedback = '', string $feedbackformat = FORMAT_HTML) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;

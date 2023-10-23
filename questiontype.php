@@ -218,14 +218,13 @@ class qtype_oumatrix extends question_type {
         foreach ($questiondata->rows as $row) {
             $newrow = $this->make_row($row);
             $correctanswers = [];
-            $decodedanswers = json_decode($newrow->correctanswers, true);
             foreach ($questiondata->columns as $column) {
-                if ($decodedanswers != null && array_key_exists($column->id, $decodedanswers)) {
+                if (array_key_exists($column->id,  $newrow->correctanswers)) {
                     if ($questiondata->options->inputtype == 'single') {
                         $anslabel = 'a' . $column->number;
                         $correctanswers[$column->id] = $anslabel;
                     } else {
-                        $correctanswers[$column->id] = $decodedanswers[$column->id];
+                        $correctanswers[$column->id] =  $newrow->correctanswers[$column->id];
                     }
                 }
             }
@@ -242,7 +241,7 @@ class qtype_oumatrix extends question_type {
      */
     public function make_row(stdClass $rowdata): row {
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-            $rowdata->correctanswers, $rowdata->feedback, $rowdata->feedbackformat);
+            json_decode($rowdata->correctanswers, true), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
     public function delete_question($questionid, $contextid) {
@@ -284,8 +283,8 @@ class qtype_oumatrix extends question_type {
     public function get_num_correct_choices($questiondata) {
         $numright = 0;
         foreach ($questiondata->rows as $row) {
-            $rowanwers = json_decode($row->correctanswers);
-            $numright += count((array)$rowanwers);
+            $rowanwers = json_decode($row->correctanswers, true);
+            $numright += count($rowanwers);
         }
         return $numright;
     }

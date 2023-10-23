@@ -73,7 +73,12 @@ class questiontype_test extends \advanced_testcase {
 
     public function test_get_random_guess_score(): void {
         $helper = new qtype_oumatrix_test_helper();
+
         $qdata = $helper->get_test_question_data('animals_single');
+        $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
+        $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
+
+        $qdata = $helper->get_test_question_data('food_multiple');
         $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
         $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
     }

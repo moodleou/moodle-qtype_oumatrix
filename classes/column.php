@@ -46,7 +46,7 @@ class column {
      * @param string $name
      * @param int $id
      */
-    public function __construct(int $questionid, int $number = 0, string $name = '', int $id = 0) {
+    public function __construct(int $questionid, int $number, string $name, int $id = 0) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
