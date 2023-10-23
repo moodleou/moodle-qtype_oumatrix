@@ -48,7 +48,7 @@ class questiontype_test extends \advanced_testcase {
         $this->qtype = null;
     }
 
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals($this->qtype->name(), 'oumatrix');
     }
 
@@ -71,14 +71,14 @@ class questiontype_test extends \advanced_testcase {
         $this->assertEquals($expected, $q);
     }
 
-    public function test_get_random_guess_score() {
+    public function test_get_random_guess_score(): void {
         $helper = new qtype_oumatrix_test_helper();
         $qdata = $helper->get_test_question_data('animals_single');
         $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
         $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
     }
 
-    public function test_get_random_guess_score_broken_question() {
+    public function test_get_random_guess_score_broken_question(): void {
         $helper = new qtype_oumatrix_test_helper();
         $q = $helper->get_test_question_data('animals_single');
         $q->columns = [];
@@ -226,7 +226,7 @@ class questiontype_test extends \advanced_testcase {
         $this->assertCount(0, $options->answers);
     }
 
-    public function test_load_question() {
+    public function test_load_question(): void {
         $this->resetAfterTest();
 
         /** @var \core_question_generator $generator */

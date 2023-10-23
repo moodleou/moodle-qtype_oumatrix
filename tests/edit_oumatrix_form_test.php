@@ -82,7 +82,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     /**
      * Test the form correctly validates minimum requirements of rows and columns.
      */
-    public function test_validation_cols_rows_minimum() {
+    public function test_validation_cols_rows_minimum(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
         $helper = new qtype_oumatrix_test_helper();
         $formdata = $helper->get_test_question_form_data('animals_single');
@@ -114,7 +114,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     /**
      * Test the form correctly validates duplicates of rows and columns.
      */
-    public function test_validation_cols_rows_duplicates() {
+    public function test_validation_cols_rows_duplicates(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
         $helper = new qtype_oumatrix_test_helper();
         $formdata = $helper->get_test_question_form_data('animals_single');
@@ -142,7 +142,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     /**
      * Test the form correctly validates if there are empty columns in between.
      */
-    public function test_validation_column_names_empty() {
+    public function test_validation_column_names_empty(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
         $helper = new qtype_oumatrix_test_helper();
         $formdata = $helper->get_test_question_form_data('animals_single');
@@ -166,7 +166,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     /**
      * Test the form correctly validates if correct answers have been input.
      */
-    public function test_validation_rowanswers() {
+    public function test_validation_rowanswers(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
         $helper = new qtype_oumatrix_test_helper();
         $formdata = $helper->get_test_question_form_data('animals_single');
@@ -186,7 +186,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     /**
      * Test the form correctly validates if correct answers have been input.
      */
-    public function test_validation_rowanswers_on_empty_columns() {
+    public function test_validation_rowanswers_on_empty_columns(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
         $helper = new qtype_oumatrix_test_helper();
 
