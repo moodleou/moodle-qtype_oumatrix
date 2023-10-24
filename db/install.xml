@@ -42,7 +42,7 @@
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="number" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="numbered sequentially 1, 2, 3 in a given question"/>
         <FIELD NAME="name" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="The text presenting the question in a row."/>
-        <FIELD NAME="correctanswers" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded list of correct answers for a given row."/>
+        <FIELD NAME="correctanswers" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="A comma-separated list of the column number(s) which form the correct answer."/>
         <FIELD NAME="feedback" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="Feedback shown for the row."/>
         <FIELD NAME="feedbackformat" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>

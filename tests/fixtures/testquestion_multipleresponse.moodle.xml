@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <quiz>
-<!-- question: 460  -->
+  <!-- question: 513  -->
   <question type="oumatrix">
     <name>
       <text>OUMatrix multiple choice</text>
@@ -9,7 +9,7 @@
       <text><![CDATA[<p>Select the true statements for each of the materials by ticking the boxes in the table.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
-      <text>This is general feedback</text>
+      <text><![CDATA[<p>This is general feedback</p>]]></text>
     </generalfeedback>
     <defaultgrade>10</defaultgrade>
     <penalty>0.3333333</penalty>
@@ -19,111 +19,111 @@
     <grademethod>allnone</grademethod>
     <shuffleanswers>false</shuffleanswers>
     <columns>
-      <column key="1124">
+      <column number="1">
         <text>is a good conductor of electricity</text>
       </column>
-      <column key="1125">
+      <column number="2">
         <text>is an insulator</text>
       </column>
-      <column key="1126">
+      <column number="3">
         <text>can be magnetised</text>
       </column>
     </columns>
     <rows>
-      <row key="990">
+      <row number="1">
         <name>
           <text>copper</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1124":"1"}]]></text>
+          <text>1</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Copper is a good conductor of electricity.</p>]]></text>
         </feedback>
       </row>
-      <row key="991">
+      <row number="2">
         <name>
           <text>glass</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1125":"1"}]]></text>
+          <text>2</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Glass is an insulator.</p>]]></text>
         </feedback>
       </row>
-      <row key="992">
+      <row number="3">
         <name>
           <text>iron</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1124":"1","1126":"1"}]]></text>
+          <text>1,3</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Iron is a good conductor of electricity and can be magnetised.</p>]]></text>
         </feedback>
       </row>
-      <row key="993">
+      <row number="4">
         <name>
           <text>gold</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1124":"1"}]]></text>
+          <text>1</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Gold is a good conductor of electricity.</p>]]></text>
         </feedback>
       </row>
-      <row key="994">
+      <row number="5">
         <name>
           <text>carbon</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1124":"1"}]]></text>
+          <text>1</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Carbon is a good conductor of electricity.</p>]]></text>
         </feedback>
       </row>
-      <row key="995">
+      <row number="6">
         <name>
           <text>rubber</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1125":"1"}]]></text>
+          <text>2</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Rubber is an insulator.</p>]]></text>
         </feedback>
       </row>
-      <row key="996">
+      <row number="7">
         <name>
           <text>silver</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1124":"1"}]]></text>
+          <text>1</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Silver is a good conductor of electricity.</p>]]></text>
         </feedback>
       </row>
-      <row key="997">
+      <row number="8">
         <name>
           <text>nitrogen</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1125":"1"}]]></text>
+          <text>2</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Nitrogen is an insulator.</p>]]></text>
         </feedback>
       </row>
-      <row key="998">
+      <row number="9">
         <name>
           <text>wood</text>
         </name>
         <correctanswers>
-          <text><![CDATA[{"1125":"1"}]]></text>
+          <text>2</text>
         </correctanswers>
         <feedback format="html">
           <text><![CDATA[<p>Wood is an insulator.</p>]]></text>

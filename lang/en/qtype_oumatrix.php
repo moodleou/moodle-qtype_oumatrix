@@ -77,4 +77,4 @@ $string['updateform'] = 'Update the response matrix';
 $string['yougot1right'] = 'You have correctly selected one option.';
 $string['yougotnright'] = 'You have correctly selected {$a->num} options';
 $string['yougot1rightsubquestion'] = 'You have correctly answered one sub-question.';
-$string['yougotnrightsubquestion'] = 'You have correctly answered {$a->num} sub-question.';
+$string['yougotnrightsubquestion'] = 'You have correctly answered {$a->num} sub-questions.';

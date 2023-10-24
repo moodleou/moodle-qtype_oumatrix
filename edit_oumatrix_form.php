@@ -258,15 +258,15 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $question->rowname = [];
         foreach ($question->rows as $index => $row) {
             $question->rowname[$row->number - 1] = $row->name;
-            $decodedanswers = json_decode($row->correctanswers, true);
+            $answerslist = explode(',', $row->correctanswers);
             foreach ($question->columns as $key => $column) {
-                if (array_key_exists($column->id, $decodedanswers)) {
+                if (in_array($column->number, $answerslist)) {
                     $columnvalue = 'a' . ($column->number);
                     if ($question->options->inputtype == 'single') {
                         $question->rowanswers[$row->number - 1] = $columnvalue;
                     } else {
                         $rowanswerslabel = "rowanswers" . $columnvalue;
-                        $question->{$rowanswerslabel}[$row->number - 1] = $decodedanswers[$column->id];
+                        $question->{$rowanswerslabel}[$row->number - 1] = '1';
                     }
                 }
             }

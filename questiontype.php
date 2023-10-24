@@ -110,7 +110,7 @@ class qtype_oumatrix extends question_type {
             $column->number = $columnnumber;
             $column->name = $question->columnname[$i];
             $column->id = $DB->insert_record('qtype_oumatrix_columns', $column);
-            $columnslist[] = $column;
+            $columnslist[$column->number] = $column;
             $columnnumber++;
         }
         return $columnslist;
@@ -141,17 +141,18 @@ class qtype_oumatrix extends question_type {
             // Prepare correct answers.
             for ($c = 0; $c < count($columnslist); $c++) {
                 if ($question->inputtype == 'single') {
-                    $columnindex = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
-                    $answerslist[$columnslist[$columnindex - 1]->id] = "1";
+                    $columnnumber = preg_replace("/[^0-9]/", "", $question->rowanswers[$i]);
+                    $answerslist[] = $columnnumber;
+                    break;
                 } else {
                     $rowanswerslabel = "rowanswers" . 'a' . ($c + 1);
                     if (!isset($question->$rowanswerslabel) || !array_key_exists($i, $question->$rowanswerslabel)) {
                         continue;
                     }
-                    $answerslist[$columnslist[$c]->id] = $question->{$rowanswerslabel}[$i];
+                    $answerslist[] = $c + 1;
                 }
             }
-            $questionrow->correctanswers = json_encode($answerslist);
+            $questionrow->correctanswers = implode(',', $answerslist);
             $questionrow->feedback = $question->feedback[$i]['text'];
             $questionrow->feedbackformat = FORMAT_HTML;
             $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
@@ -219,12 +220,12 @@ class qtype_oumatrix extends question_type {
             $newrow = $this->make_row($row);
             $correctanswers = [];
             foreach ($questiondata->columns as $column) {
-                if (array_key_exists($column->id,  $newrow->correctanswers)) {
+                if (in_array($column->number,  $newrow->correctanswers)) {
                     if ($questiondata->options->inputtype == 'single') {
                         $anslabel = 'a' . $column->number;
-                        $correctanswers[$column->id] = $anslabel;
+                        $correctanswers[$column->number] = $anslabel;
                     } else {
-                        $correctanswers[$column->id] = $newrow->correctanswers[$column->id];
+                        $correctanswers[$column->number] = '1';
                     }
                 }
             }
@@ -241,7 +242,11 @@ class qtype_oumatrix extends question_type {
      */
     public function make_row(stdClass $rowdata): row {
         return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-            json_decode($rowdata->correctanswers, true), $rowdata->feedback, $rowdata->feedbackformat);
+                explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
+    }
+
+    protected function make_hint($hint) {
+        return question_hint_with_parts::load_from_record($hint);
     }
 
     public function delete_question($questionid, $contextid) {
@@ -283,8 +288,7 @@ class qtype_oumatrix extends question_type {
     public function get_num_correct_choices($questiondata) {
         $numright = 0;
         foreach ($questiondata->rows as $row) {
-            $rowanwers = json_decode($row->correctanswers, true);
-            $numright += count($rowanwers);
+            $numright += count((array)$row->correctanswers);
         }
         return $numright;
     }
@@ -362,7 +366,7 @@ class qtype_oumatrix extends question_type {
             static $indexno = 0;
             $question->columns[$indexno]['name'] =
                     $format->import_text($format->getpath($column, ['#', 'text'], ''));
-            $question->columns[$indexno]['id'] = $format->getpath($column, ['@', 'key'], $indexno);
+            $question->columns[$indexno]['number'] = $format->getpath($column, ['@', 'number'], $indexno);
 
             $question->columnname[$indexno] =
                     $format->import_text($format->getpath($column, ['#', 'text'], ''));
@@ -373,23 +377,22 @@ class qtype_oumatrix extends question_type {
     public function import_rows(qformat_xml $format, stdClass $question, array $rows) {
         foreach ($rows as $row) {
             static $indexno = 0;
-            $question->rows[$indexno]['id'] = $format->getpath($row, ['@', 'key'], $indexno);
+            $question->rows[$indexno]['number'] = $format->getpath($row, ['@', 'number'], $indexno);
             $question->rows[$indexno]['name'] =
                     $format->import_text($format->getpath($row, ['#', 'name', 0, '#', 'text'], ''));
 
             $correctanswer = $format->getpath($row, ['#', 'correctanswers', 0, '#', 'text', 0, '#'], '');
-            $decodedanswers = json_decode($correctanswer, true);
-            foreach ($question->columns as $colindex => $col) {
-                if (array_key_exists($col['id'], $decodedanswers)) {
+            $answerslist = explode(',', $correctanswer);
+            foreach ($question->columns as $col) {
+                if (in_array($col['number'], $answerslist)) {
                     // Import correct answers for single choice.
                     if ($question->inputtype == 'single') {
-                        // Assigning $colindex + 1 as answers are stored as 1,2 and so on.
-                        $question->rowanswers[$indexno] = ($colindex + 1);
+                        $question->rowanswers[$indexno] = $col['number'];
                         break;
                     } else {
                         // Import correct answers for multiple choice.
-                        $rowanswerslabel = "rowanswers" . 'a' . ($colindex + 1);
-                        if (array_key_exists($col['id'], $decodedanswers)) {
+                        $rowanswerslabel = "rowanswers" . 'a' . $col['number'];
+                        if (in_array($col['number'], $answerslist)) {
                             $question->{$rowanswerslabel}[$indexno] = "1";
                         }
                     }
@@ -416,7 +419,7 @@ class qtype_oumatrix extends question_type {
         $output .= "    <columns>\n";
         ksort($question->columns);
         foreach ($question->columns as $columnkey => $column) {
-            $output .= "      <column key=\"{$columnkey}\">\n";
+            $output .= "      <column number=\"{$column->number}\">\n";
             $output .= $format->writetext($column->name, 4);
             $output .= "      </column>\n";
         }
@@ -428,7 +431,7 @@ class qtype_oumatrix extends question_type {
         ksort($question->rows);
         $indent = 5;
         foreach ($question->rows as $rowkey => $row) {
-            $output .= "      <row key=\"{$rowkey}\">\n";
+            $output .= "      <row number=\"{$row->number}\">\n";
             $output .= "        <name>\n";
             $output .= $format->writetext($row->name, $indent);
             $output .= "        </name>\n";

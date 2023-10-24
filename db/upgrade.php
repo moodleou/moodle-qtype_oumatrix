@@ -22,10 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__.'/upgradelib.php');
-
 /**
  * Execute qtype_oumatrix upgrade from the given old version.
  *

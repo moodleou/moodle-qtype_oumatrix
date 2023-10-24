@@ -207,12 +207,11 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_correct_response(): ?array {
         $response = [];
-        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            foreach ($row->correctanswers as $colkey => $answer) {
+            foreach ($row->correctanswers as $colnum => $answer) {
                 // Get the corresponding column number associated with the column key.
-                $response[$this->field($key)] = $columnids[$colkey]->number;
+                $response[$this->field($key)] = $colnum;
             }
         }
         return $response;
@@ -255,12 +254,10 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_num_parts_right(array $response): array {
         $numright = 0;
-        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            $column = $columnids[array_key_first($row->correctanswers)];
             if (array_key_exists($this->field($key), $response) &&
-                    $response[$this->field($key)] == $column->number) {
+                    array_key_exists($response[$this->field($key)], $row->correctanswers)) {
                 $numright++;
             }
         }
@@ -324,12 +321,11 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
     public function get_correct_response(): ?array {
         $response = [];
-        $columnids = column::get_column_ids($this->columns);
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            foreach ($row->correctanswers as $colkey => $answer) {
+            foreach ($row->correctanswers as $colnum => $answer) {
                 // Get the corresponding column number associated with the column key.
-                $response[$this->field($key, $columnids[$colkey]->number)] = $answer;
+                $response[$this->field($key, $colnum)] = $answer;
             }
         }
         return $response;
@@ -401,7 +397,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                 foreach ($this->columns as $column) {
                     $reponsekey = $this->field($rowkey, $column->number);
                     if (array_key_exists($reponsekey, $response)) {
-                        if (array_key_exists($column->id, $row->correctanswers)) {
+                        if (array_key_exists($column->number, $row->correctanswers)) {
                             // Add to the count of correct responses.
                             $rowrightresponse++;
                         } else {
@@ -435,7 +431,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             if ($row->correctanswers != '' ) {
                 foreach ($this->columns as $column) {
                     $reponsekey = $this->field($rowkey, $column->number);
-                    if (array_key_exists($reponsekey, $response) && array_key_exists($column->id, $row->correctanswers)) {
+                    if (array_key_exists($reponsekey, $response) && array_key_exists($column->number, $row->correctanswers)) {
                         $rightresponse++;
                     }
                 }

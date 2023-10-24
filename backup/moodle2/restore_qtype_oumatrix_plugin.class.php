@@ -74,24 +74,7 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
      * @param array $data
      */
     public function process_qtype_oumatrix_row(array $data): void {
-        $data = (object)$data;
-
-        // Detect if the question is created or mapped.
-        $questioncreated = $this->get_mappingid('question_created',
-                $this->get_old_parentid('question'));
-
-        // If the question has been created by restore, we need to update the correctanswers to store new column id's.
-        if ($questioncreated) {
-            // Adjust correct answers.
-            $decodedanswers = json_decode($data->correctanswers, true);
-            foreach ($decodedanswers as $columnid => $value) {
-                $newcolumnid = $this->get_mappingid('qtype_oumatrix_columns', $columnid);
-                $decodedanswers[$newcolumnid] = $value;
-                unset($decodedanswers[$columnid]);
-            }
-            $data->correctanswers = json_encode($decodedanswers);
-        }
-        self::process_qtype_oumatrix_data_with_table_name((array)$data, 'qtype_oumatrix_rows');
+        self::process_qtype_oumatrix_data_with_table_name($data, 'qtype_oumatrix_rows');
     }
 
     /**

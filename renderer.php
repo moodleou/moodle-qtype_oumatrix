@@ -54,7 +54,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     protected function is_right(question_definition $question, $rowkey, $columnkey) {
         $row = $question->rows[$rowkey];
         foreach ($question->columns as $column) {
-            if ($column->number == $columnkey && array_key_exists($column->id, $row->correctanswers)) {
+            if ($column->number == $columnkey && array_key_exists($column->number, $row->correctanswers)) {
                 return 1;
             }
         }
@@ -242,9 +242,8 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
         $right = [];
-        $columnids = column::get_column_ids($question->columns);
         foreach ($question->rows as $row) {
-            $right[] = $row->name . ' → ' . $columnids[array_key_first($row->correctanswers)]->name;
+            $right[] = $row->name . ' → ' . $question->columns[array_key_first($row->correctanswers)]->name;
         }
         return $this->correct_choices($right);
     }
@@ -276,14 +275,13 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
-        $columnids = column::get_column_ids($question->columns);
         foreach ($question->rows as $row) {
             // Get the correct row.
             $rowanswer = $row->name . ' → ';
             $answers = [];
             if ($row->correctanswers != '') {
-                foreach ($row->correctanswers as $columnkey => $notused) {
-                    $answers[] = $columnids[$columnkey]->name;
+                foreach ($row->correctanswers as $columnnumber => $notused) {
+                    $answers[] = $question->columns[$columnnumber]->name;
                 }
                 $rowanswer .= implode(', ', $answers);
                 $rightanswers[] = $rowanswer;
@@ -300,7 +298,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
         $a = new stdClass();
         if ($qa->get_question()->grademethod == 'allnone') {
-            list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right($qa->get_last_qt_data());
+            list($a->num, $a->outof) = $qa->get_question()->get_num_grade_allornone($qa->get_last_qt_data());
             if (is_null($a->outof)) {
                 return '';
             }
