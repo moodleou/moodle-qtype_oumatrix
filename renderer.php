@@ -157,7 +157,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                         $isselected && trim($row->feedback)) {
                     $feedback = html_writer::tag('div',
                         $question->make_html_inline($question->format_text($row->feedback, $row->feedbackformat,
-                            $qa, 'qtype_oumatrix', 'feedback', $rowid)),
+                            $qa, 'qtype_oumatrix', 'feedback', $row->id)),
                         ['class' => 'specificfeedback']);
                 }
 
