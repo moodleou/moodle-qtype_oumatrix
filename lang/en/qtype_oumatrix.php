@@ -37,9 +37,9 @@ $string['correctanswers'] = 'Correct answers';
 $string['correctanswerserror'] = '\'{$a->answerlabel}\' is empty so \'{$a->answerlabelshort}\' cannot be chosen as a correct answer.';
 $string['duplicates'] = 'Duplicate answer ({$a}) is not allowed.';
 $string['grademethod'] = 'Grading type';
-$string['grademethod_desc'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
+$string['grademethod_desc'] = 'Give partial credit (default): each correct response in the body cells are worth one point, so students score a percentage of the total correct responses.
 All or nothing: students must get every response correct, otherwise they score zero.';
-$string['grademethod_help'] = 'Standard (subpoints): each correct response in the body cells is worth one point, so students score a percentage of the total correct responses.
+$string['grademethod_help'] = 'Give partial credit (default): each correct response in the body cells are worth one point, so students score a percentage of the total correct responses.
 
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
