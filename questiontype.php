@@ -338,15 +338,13 @@ class qtype_oumatrix extends question_type {
         $columns = $format->getpath($data, ['#', 'columns', 0, '#', 'column'], false);
         if ($columns) {
             $this->import_columns($format, $question, $columns);
-        } else {
-            $question->columns = [];
         }
+
         $rows = $format->getpath($data, ['#', 'rows', 0, '#', 'row'], false);
         if ($rows) {
             $this->import_rows($format, $question, $rows);
-        } else {
-            $question->rows = [];
         }
+
         $format->import_combined_feedback($question, $data, true);
         $format->import_hints($question, $data, true, true,
                 $format->get_format($question->questiontextformat));
