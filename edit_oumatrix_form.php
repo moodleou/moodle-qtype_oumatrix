@@ -390,7 +390,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $a->answerlabelshort = get_string('answerlabelshort', 'qtype_oumatrix', $colkey + 1);
             if ($data['inputtype'] == 'single') {
                 foreach ($nonemptyrows as $key => $rowname) {
-                    if ('a' . ($colkey + 1) === $data['rowanswers'][$key]) {
+                    // If the correct answers are not selected for a row, then we already have that error.
+                    $errorexists = array_key_exists('rowoptions[' . $key . ']', $errors);
+                    if (!$errorexists && 'a' . ($colkey + 1) === $data['rowanswers'][$key]) {
                         $errors['rowoptions[' . $key . ']'] =
                                 get_string('correctanswererror', 'qtype_oumatrix', $a);
                     }
