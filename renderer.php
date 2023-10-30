@@ -73,7 +73,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     protected function feedback_image($fraction, $selected = true) {
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
 
-        return $this->output->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
+        // We have to add position-absolute to the class attribute to keep checkboxes/radio buttons aligned
+        // when the feedback icon is displayed.
+        return $this->output->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'), '',
+            ['class' => 'position-absolute ml-1 mt-1']);
     }
 
     public function formulation_and_controls(question_attempt $qa,
@@ -107,7 +110,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $caption = $options->add_question_identifier_to_label(get_string('answer'), false, true);
 
         // Create table and caption.
-        $table = html_writer::start_tag('table', ['class' => 'generaltable']);
+        $table = html_writer::start_tag('table', ['class' => 'generaltable w-75']);
         $table .= html_writer::tag('caption', $caption, ['class' => 'sr-only']);
 
         // Creating the matrix column headers.
@@ -117,7 +120,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         foreach ($question->columns as $value) {
             $colname[$index] = $value->name;
             $table .= html_writer::tag('th', html_writer::span($colname[$index], 'answer_col', ['id' => 'col' . $index]),
-                ['scope' => 'col', 'class' => 'align-middle']);
+                ['scope' => 'col', 'class' => 'align-middle text-center']);
             $index += 1;
         }
         // Add feedback header.
@@ -149,7 +152,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 $inputattributes['value'] = $this->get_input_value($c);
                 $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $c);
                 $inputattributes['aria-labelledby'] = 'col' . ($c - 1). ' ' . $rownewid;
-
+                $inputattributes['class'] = 'align-middle';
                 $isselected = $question->is_choice_selected($response, $rowkey, $c);
 
                 // Get the row per feedback.
@@ -158,7 +161,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                     $feedback = html_writer::tag('div',
                         $question->make_html_inline($question->format_text($row->feedback, $row->feedbackformat,
                             $qa, 'qtype_oumatrix', 'feedback', $row->id)),
-                        ['class' => 'specificfeedback']);
+                        ['class' => 'specificfeedback text-left px-2 m-0']);
                 }
 
                 $class = '';
@@ -177,9 +180,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
-                $answered = html_writer::tag('label', $button . $feedbackimg, ['class' => "answerlabel $class"]);
+                $answered = html_writer::tag('label', $button . $feedbackimg, ['class' => "$class d-inline-block w-100 m-0"]);
 
-                $table .= html_writer::tag('td', $answered, ['class' => "matrixanswer align-middle"]);
+                $table .= html_writer::tag('td', $answered, ['class' => "matrixanswer align-middle text-center"]);
             }
             if ($options->feedback) {
                 $table .= html_writer::tag('td', $feedback);

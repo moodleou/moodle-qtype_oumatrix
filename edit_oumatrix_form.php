@@ -175,7 +175,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             get_string('correctanswer', 'qtype_oumatrix') :
             get_string('correctanswers', 'qtype_oumatrix');
         $rowoptions[] = $mform->createElement('html',
-            html_writer::tag('span', $rowanswerlistlabel, ['class' => 'rowanswerlistlabel']));
+            html_writer::tag('span', $rowanswerlistlabel, ['class' => 'pl-3 pr-2']));
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {

@@ -1,37 +1,8 @@
 /* Styles for OUMatrix. */
 
 /* Styles for preview. */
-.que.oumatrix .answer .generaltable {
-    text-align: left;
-    width: 75%;
-}
-/* Styles for column headers and radio/checkboxes. */
-.que.oumatrix .answer .generaltable td,
-.que.oumatrix .answer .generaltable th:not(:first-child, .rowfeedback) {
-    text-align: center;
-}
-.que.oumatrix .matrixanswer {
-    position: relative;
-}
-.que.oumatrix .answerlabel {
-    display: table;
-    box-sizing: border-box;
-    width: 100%;
-    margin: 0;
-}
-.que.oumatrix input[type="radio"],
-.que.oumatrix input[type="checkbox"] {
-    box-sizing: border-box;
-}
-.que.oumatrix .matrixanswer span .icon {
-    position: absolute;
-    margin-left: 0.25rem;
-    margin-top: 0.1rem;
-}
 .que.oumatrix .answer .specificfeedback {
-    padding: 0 0.7em;
     background: #fff3bf;
-    text-align: left;
 }
 
 /* Editing form. */
@@ -44,11 +15,8 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
     border: 1px solid #bbb;
     border-bottom: 0;
 }
-body#page-question-type-oumatrix .rowanswerlistlabel {
-    padding: 0 0.5rem 0 1.0rem;
-}
 body#page-question-type-oumatrix label[data-fieldtype=checkbox] {
-    margin-right: 0.75rem;
+    margin-right: 0.75rem !important; /* stylelint-disable-line declaration-no-important */
 }
 /* Row validation error display. */
 body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
