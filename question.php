@@ -117,43 +117,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
         return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
-
-    public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
-        $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
-        if ($basemessage) {
-            return $basemessage;
-        }
-        // TODO: this and other two folloing function are taken from multianswer. To be sorted.
-
-        if (count($this->subquestions) != count($otherversion->subquestions)) {
-            return get_string('regradeissuenumsubquestionschanged', 'qtype_multianswer');
-        }
-
-        foreach ($this->subquestions as $i => $subq) {
-            $subqmessage = $subq->validate_can_regrade_with_other_version($otherversion->subquestions[$i]);
-            if ($subqmessage) {
-                return $subqmessage;
-            }
-        }
-        return null;
-    }
-
-    public function update_attempt_state_data_for_new_version(
-            question_attempt_step $oldstep, question_definition $oldquestion) {
-        parent::update_attempt_state_data_for_new_version($oldstep, $oldquestion);
-
-        $result = [];
-        foreach ($this->subquestions as $i => $subq) {
-            $substep = $this->get_substep($oldstep, $i);
-            $statedata = $subq->update_attempt_state_data_for_new_version(
-                    $substep, $oldquestion->subquestions[$i]);
-            foreach ($statedata as $name => $value) {
-                $result[$substep->add_prefix($name)] = $value;
-            }
-        }
-
-        return $result;
-    }
 }
 
     /**
@@ -181,10 +144,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return false;
     }
 
-    public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO.
-    }
-
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         foreach ($this->roworder as $key => $notused) {
             $fieldname = $this->field($key);
@@ -205,11 +164,11 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return 'rowanswers' . $rowkey;
     }
 
-    public function get_correct_response(): ?array {
+    public function get_correct_response(): array {
         $response = [];
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            foreach ($row->correctanswers as $colnum => $answer) {
+            foreach ($row->correctanswers as $colnum => $notused) {
                 // Get the corresponding column number associated with the column key.
                 $response[$this->field($key)] = $colnum;
             }
