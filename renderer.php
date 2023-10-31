@@ -85,15 +85,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $result = '';
 
         $result .= html_writer::tag('div', $question->format_questiontext($qa), ['class' => 'qtext']);
-        $result .= html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow visual-scroll-x']);
-
-        $result .= html_writer::start_tag('div', ['class' => 'answer']);
 
         // Display the matrix.
         $result .= $this->matrix_table($qa, $options);
-
-        $result .= html_writer::end_tag('div');
-        $result .= html_writer::end_tag('fieldset');
 
         if ($qa->get_state() == question_state::$invalid) {
             $result .= html_writer::nonempty_tag('div',
@@ -109,8 +103,12 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $response = $qa->get_last_qt_data();
         $caption = $options->add_question_identifier_to_label(get_string('answer'), false, true);
 
+        $table = html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow visual-scroll-x']);
+        $table .= html_writer::tag('legend', $caption, ['class' => 'sr-only']);
+        $table .= html_writer::start_tag('div', ['class' => 'answer']);
+
         // Create table and caption.
-        $table = html_writer::start_tag('table', ['class' => 'generaltable w-75']);
+        $table .= html_writer::start_tag('table', ['class' => 'generaltable w-75']);
         $table .= html_writer::tag('caption', $caption, ['class' => 'sr-only']);
 
         // Creating the matrix column headers.
@@ -191,6 +189,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         }
 
         $table .= html_writer::end_tag('table');
+        $table .= html_writer::end_tag('div');
+        $table .= html_writer::end_tag('fieldset');
+
         return $table;
     }
 
