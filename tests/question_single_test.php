@@ -36,16 +36,20 @@ require_once($CFG->dirroot . '/question/type/oumatrix/questiontype.php');
  */
 class question_single_test extends \advanced_testcase {
 
-    public function test_get_expected_data() {
+    public function test_get_expected_data(): void {
         $question = \test_question_maker::make_question('oumatrix');
         $question->start_attempt(new question_attempt_step(), 1);
 
-        $expected = ['rowanswers0' => PARAM_INT, 'rowanswers1' => PARAM_INT,
-                'rowanswers2' => PARAM_INT, 'rowanswers3' => PARAM_INT];
-        $this->assertEquals($expected , $question->get_expected_data());
+        $expected = [
+            'rowanswers0' => PARAM_INT,
+            'rowanswers1' => PARAM_INT,
+            'rowanswers2' => PARAM_INT,
+            'rowanswers3' => PARAM_INT,
+        ];
+        $this->assertEquals($expected, $question->get_expected_data());
     }
 
-    public function test_is_gradable_response() {
+    public function test_is_gradable_response(): void {
         $question = \test_question_maker::make_question('oumatrix');
         $question->start_attempt(new question_attempt_step(), 1);
 
@@ -56,7 +60,7 @@ class question_single_test extends \advanced_testcase {
         $this->assertEquals($question->is_gradable_response($response), $question->is_complete_response($response));
     }
 
-    public function test_is_same_response() {
+    public function test_is_same_response(): void {
         $question = \test_question_maker::make_question('oumatrix');
         $question->start_attempt(new question_attempt_step(), 1);
 
@@ -83,14 +87,14 @@ class question_single_test extends \advanced_testcase {
                 ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '4']));
     }
 
-    public function test_get_correct_response() {
+    public function test_get_correct_response(): void {
         $question = \test_question_maker::make_question('oumatrix', 'animals_single');
         $question->start_attempt(new question_attempt_step(), 1);
         $correct = ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '4'];
         $this->assertEquals($correct, $question->get_correct_response());
     }
 
-    public function test_summarise_response() {
+    public function test_summarise_response(): void {
         $question = \test_question_maker::make_question('oumatrix', 'animals_single');
         $question->start_attempt(new question_attempt_step(), 1);
 
@@ -115,15 +119,15 @@ class question_single_test extends \advanced_testcase {
         $this->assertMatchesRegularExpression($expected, $actual);
     }
 
-    public function test_is_complete_response() {
+    public function test_is_complete_response(): void {
         $question = \test_question_maker::make_question('oumatrix');
         $question->start_attempt(new question_attempt_step(), 1);
 
-        // Not complete responses
+        // Not complete responses.
         $this->assertFalse($question->is_complete_response([]));
         $this->assertFalse($question->is_complete_response(['rowanswers0' => '1']));
         $this->assertFalse($question->is_complete_response(['rowanswers0' => '1', 'rowanswers1' => '2']));
-        $this->assertFalse($question->is_complete_response(['rowanswers0' => '1', 'rowanswers1' => '2',  'rowanswers1' => '3']));
+        $this->assertFalse($question->is_complete_response(['rowanswers0' => '1', 'rowanswers1' => '2',  'rowanswers2' => '3']));
 
         // Complete responses.
         $this->assertTrue($question->is_complete_response(
@@ -134,7 +138,7 @@ class question_single_test extends \advanced_testcase {
                 ['rowanswers0' => '4', 'rowanswers1' => '3', 'rowanswers2' => '2', 'rowanswers3' => '1'])); // Incorrect.
     }
 
-    public function test_grade_response() {
+    public function test_grade_response(): void {
         $question = \test_question_maker::make_question('oumatrix', 'animals_single');
         $question->start_attempt(new question_attempt_step(), 1);
 
@@ -148,10 +152,10 @@ class question_single_test extends \advanced_testcase {
         $this->assertEquals([0.75, question_state::$gradedpartial], $question->grade_response($partialresponse));
 
         $wrongresponse = ['rowanswers0' => '4', 'rowanswers1' => '3', 'rowanswers2' => '2', 'rowanswers3' => '1'];
-        $this->assertEquals(array(0, question_state::$gradedwrong), $question->grade_response($wrongresponse));
+        $this->assertEquals([0, question_state::$gradedwrong], $question->grade_response($wrongresponse));
     }
 
-    public function test_get_num_parts_right() {
+    public function test_get_num_parts_right(): void {
         $question = \test_question_maker::make_question('oumatrix');
 
         $question->start_attempt(new question_attempt_step(), 1);

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for ou matrix question type.
+ * Unit tests helper for the OU matrix question type.
  *
  * @package     qtype_oumatrix
  * @copyright   2023 The Open University
@@ -23,11 +23,6 @@
  */
 class qtype_oumatrix_test_helper extends question_test_helper {
 
-    /**
-     * Returns the test questions.
-     *
-     * @return string[]
-     */
     public function get_test_questions(): array {
         return [
                 'animals_single',
@@ -38,9 +33,9 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     /**
      * Get the question data, as it would be loaded by get_question_options.
      *
-     * @return object
+     * @return stdClass
      */
-    public function get_oumatrix_question_data_animals_single(): object {
+    public function get_oumatrix_question_data_animals_single(): stdClass {
         global $USER;
 
         $qdata = new stdClass();
@@ -151,9 +146,9 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     /**
      * Get the question data, as it would be loaded by get_question_options.
      *
-     * @return object
+     * @return stdClass
      */
-    public static function get_oumatrix_question_form_data_animals_single(): object {
+    public static function get_oumatrix_question_form_data_animals_single(): stdClass {
         $qfdata = new stdClass();
 
         $qfdata->name = 'oumatrix_animals_single01';
@@ -232,9 +227,9 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     /**
      * Get the question data, as it would be loaded by get_question_options.
      *
-     * @return object
+     * @return stdClass
      */
-    public function get_oumatrix_question_data_food_multiple(): object {
+    public function get_oumatrix_question_data_food_multiple(): stdClass {
         global $USER;
 
         $qdata = new stdClass();
@@ -352,9 +347,9 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     /**
      * Get the question data, as it would be loaded by get_question_options.
      *
-     * @return object
+     * @return stdClass
      */
-    public static function get_oumatrix_question_form_data_food_multiple(): object {
+    public static function get_oumatrix_question_form_data_food_multiple(): stdClass {
         $qfdata = new stdClass();
 
         $qfdata->name = 'oumatrix_food_multiple01';
