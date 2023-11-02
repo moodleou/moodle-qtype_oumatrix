@@ -24,6 +24,7 @@ namespace qtype_oumatrix;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class column {
+    /** @var int Minimum number of columns. */
     const MIN_NUMBER_OF_COLUMNS = 2;
 
     /** @var int The column id. */

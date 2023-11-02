@@ -61,7 +61,15 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /** @var array The order of the rows. */
     protected $roworder = null;
 
-    abstract public function is_choice_selected($response, $rowkey, $colkey);
+    /**
+     * Returns true if the response has been selected for that row and column.
+     *
+     * @param array $response the response data.
+     * @param int $rowkey The row key.
+     * @param int $colnumber The column key.
+     * @return bool
+     */
+    abstract public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool;
 
     abstract public function is_same_response(array $prevresponse, array $newresponse);
 
@@ -79,11 +87,21 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         $this->roworder = explode(',', $step->get_qt_var('_roworder'));
     }
 
-    public function get_order(question_attempt $qa) {
+    /**
+     * Returns the roworder of the question being displayed.
+     * @param question_attempt $qa
+     * @return array|null
+     */
+    public function get_order(question_attempt $qa): ?array {
         $this->init_roworder($qa);
         return $this->roworder;
     }
 
+    /**
+     * Sets the roworder from the question_attempt.
+     *
+     * @param question_attempt $qa
+     */
     protected function init_roworder(question_attempt $qa) {
         if (is_null($this->roworder)) {
             $this->roworder = explode(',', $qa->get_step(0)->get_qt_var('_roworder'));
@@ -136,10 +154,10 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $expected;
     }
 
-    public function is_choice_selected($response, $rowkey, $colkey) {
+    public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool {
         $responsekey = $this->field($rowkey);
         if (array_key_exists($responsekey, $response)) {
-            return ((string) $response[$responsekey]) == $colkey;
+            return ((string) $response[$responsekey]) == $colnumber;
         }
         return false;
     }
@@ -157,7 +175,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     /**
      * Answer field name.
      *
-     * @param int $rowkey The row key number.
+     * @param int $rowkey The row key.
      * @return string The answer key name.
      */
     protected function field(int $rowkey): string {
@@ -243,8 +261,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return $expected;
     }
 
-    public function is_choice_selected($response, $rowkey, $colkey) {
-        $responsekey = $this->field($rowkey, $colkey);
+    public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool {
+        $responsekey = $this->field($rowkey, $colnumber);
         if (array_key_exists($responsekey, $response)) {
             return ((string) $response[$responsekey]) == 1;
         }
@@ -254,12 +272,12 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     /**
      * Answer field name.
      *
-     * @param int $rowkey The row key number.
-     * @param int $columnkey The column key number.
+     * @param int $rowkey The row key.
+     * @param int $columnnumber The column number.
      * @return string The answer key name.
      */
-    protected function field(int $rowkey, int $columnkey): string {
-        return 'rowanswers' . $rowkey . '_' . $columnkey;
+    protected function field(int $rowkey, int $columnnumber): string {
+        return 'rowanswers' . $rowkey . '_' . $columnnumber;
     }
 
     public function prepare_simulated_post_data($simulatedresponse) {
@@ -405,7 +423,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
      *      {@link question_attempt_step::get_qt_data()}.
      * @return int the number of choices that were selected in this response.
      */
-    public function get_num_selected_choices(array $response) {
+    public function get_num_selected_choices(array $response): int {
         $numselected = 0;
         foreach ($response as $key => $value) {
             // Response keys starting with _ are internal values like _order, so ignore them.
@@ -417,9 +435,11 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     /**
+     * Returns the count of correct answers for the question.
+     *
      * @return int the number of choices that are correct.
      */
-    public function get_num_correct_choices() {
+    public function get_num_correct_choices(): int {
         $numcorrect = 0;
         foreach ($this->rows as $row) {
             if ($row->correctanswers != '') {

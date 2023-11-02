@@ -273,9 +273,9 @@ class qtype_oumatrix extends question_type {
     /**
      * Return total number if choices for both (single, multiple) matrix choices.
      * @param stdClass $questiondata
-     * @return int
+     * @return int|null
      */
-    public function get_total_number_of_choices(object $questiondata):? int {
+    public function get_total_number_of_choices(object $questiondata): ?int {
         // If rows or columns are not set return null.
         if (count($questiondata->columns) === 0 || count($questiondata->rows) === 0) {
             return null;
@@ -285,7 +285,13 @@ class qtype_oumatrix extends question_type {
         return count($questiondata->columns) * count($questiondata->rows);
     }
 
-    public function get_num_correct_choices($questiondata) {
+    /**
+     * Returns the count of correct answers for the question.
+     *
+     * @param stdClass The question data
+     * @return int the number of choices that are correct.
+     */
+    public function get_num_correct_choices(stdClass $questiondata): int {
         $numright = 0;
         foreach ($questiondata->rows as $row) {
             $numright += count((array)$row->correctanswers);
@@ -359,6 +365,13 @@ class qtype_oumatrix extends question_type {
         return $question;
     }
 
+     /**
+      * Import question columns from the Moodle XML format.
+      *
+      * @param qformat_xml $format
+      * @param stdClass $question
+      * @param array $columns
+      */
     public function import_columns(qformat_xml $format, stdClass $question, array $columns) {
         foreach ($columns as $column) {
             static $indexno = 0;
@@ -372,6 +385,13 @@ class qtype_oumatrix extends question_type {
         }
     }
 
+    /**
+     * Import question rows from the Moodle XML format
+     *
+     * @param qformat_xml $format
+     * @param stdClass $question
+     * @param array $rows
+     */
     public function import_rows(qformat_xml $format, stdClass $question, array $rows) {
         foreach ($rows as $row) {
             static $indexno = 0;

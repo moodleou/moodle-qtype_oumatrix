@@ -27,49 +27,69 @@ use qtype_oumatrix\column;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Base class for generating the bits of output common to oumatrix
- * single choice and multiple response questions.
+ * Base class for generating the bits of output common to oumatrix single choice and multiple response questions.
  *
  * @copyright 2023 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback_renderer {
 
-    abstract protected function get_input_type();
+    /**
+     * Returns the value as radio/checkbox based on the single choice or multiple response question.
+     * @return string
+     */
+    abstract protected function get_input_type(): string;
 
-    abstract protected function get_input_name(question_attempt $qa, $value, $columnnumber);
+    /**
+     * Returns the name for the row.
+     *
+     * @param question_attempt The question attempt
+     * @param int The row key
+     * @param int The column number
+     * @return string
+     */
+    abstract protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string;
 
-    abstract protected function get_input_value($value);
+    /**
+     * Returns the value for the radio/checkbox.
+     *
+     * @param int The column number
+     * @return string
+     */
+    abstract protected function get_input_value(int $value): string;
 
-    abstract protected function get_input_id(question_attempt $qa, $value, $columnnumber);
+    /**
+     * Returns the id's attribute for the radio/checkbox.
+     *
+     * @param question_attempt The question attempt
+     * @param int The row key
+     * @param int The column number
+     * @return string
+     */
+    abstract protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string;
 
     /**
      * Whether a choice should be considered right or wrong.
      *
      * @param question_definition $question the question
      * @param int $rowkey representing the row.
-     * @param int $columnkey representing the column.
-     * @return float 1.0, 0.0 or something in between, respectively.
+     * @param int $columnnumber representing the column.
+     * @return int returns 1 or 0.
      */
-    protected function is_right(question_definition $question, $rowkey, $columnkey) {
+    protected function is_right(question_definition $question, int $rowkey, int $columnnumber): int {
         $row = $question->rows[$rowkey];
         foreach ($question->columns as $column) {
-            if ($column->number == $columnkey && array_key_exists($column->number, $row->correctanswers)) {
+            if ($column->number == $columnnumber && array_key_exists($column->number, $row->correctanswers)) {
                 return 1;
             }
         }
+        return 0;
     }
 
     protected function feedback_class($fraction) {
         return question_state::graded_state_for_fraction($fraction)->get_feedback_class();
     }
 
-    /**
-     * Return an appropriate icon (green tick, red cross, etc.) for a grade.
-     * @param float $fraction grade on a scale 0..1.
-     * @param bool $selected whether to show a big or small icon. (Deprecated)
-     * @return string html fragment.
-     */
     protected function feedback_image($fraction, $selected = true) {
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
 
@@ -97,7 +117,14 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return $result;
     }
 
-    public function matrix_table(question_attempt $qa, question_display_options $options) {
+    /**
+     * Returns the matrix question for displaying in the table format.
+     *
+     * @param question_attempt $qa
+     * @param question_display_options $options
+     * @return string
+     */
+    public function matrix_table(question_attempt $qa, question_display_options $options): string {
 
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
@@ -178,7 +205,8 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
-                $answered = html_writer::tag('label', $button . $feedbackimg, ['class' => "$class d-inline-block w-100 m-0"]);
+                $answered = html_writer::tag('label', $button . $feedbackimg,
+                    ['class' => "$class position-relative d-inline-block w-100 m-0"]);
 
                 $table .= html_writer::tag('td', $answered, ['class' => "matrixanswer align-middle text-center"]);
             }
@@ -204,7 +232,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      * @param array $right An Array of correct responses to the current question
      * @return string based on number of correct responses
      */
-    protected function correct_choices(array $right) {
+    protected function correct_choices(array $right): string {
         // Return appropriate string for single/multiple correct answer(s).
         $right = array_merge(["<br>"], $right);
         if (count($right) == 1) {
@@ -220,27 +248,26 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 }
 
 /**
- * Subclass for generating the bits of output specific to oumatrix
- * single choice questions.
+ * Subclass for generating the bits of output specific to oumatrix single choice questions.
  *
  * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
-    protected function get_input_type() {
+    protected function get_input_type(): string {
         return 'radio';
     }
 
-    protected function get_input_name(question_attempt $qa, $value, $columnnumber) {
-        return $qa->get_qt_field_name('rowanswers' . $value);
+    protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string {
+        return $qa->get_qt_field_name('rowanswers' . $rowkey);
     }
 
-    protected function get_input_value($value) {
+    protected function get_input_value(int $value): string {
         return $value;
     }
 
-    protected function get_input_id(question_attempt $qa, $value, $columnnumber) {
-        return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
+    protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string {
+        return $qa->get_qt_field_name('rowanswers' . $rowkey . '_' . $columnnumber);
     }
 
     public function correct_response(question_attempt $qa) {
@@ -254,27 +281,26 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
 }
 
 /**
- * Subclass for generating the bits of output specific to oumatrix
- * multiple choice questions.
+ * Subclass for generating the bits of output specific to oumatrix multiple choice questions.
  *
  * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
-    protected function get_input_type() {
+    protected function get_input_type(): string {
         return 'checkbox';
     }
 
-    protected function get_input_name(question_attempt $qa, $value, $columnnumber) {
-        return $qa->get_qt_field_name('rowanswers' . $value . '_' . $columnnumber);
+    protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string {
+        return $qa->get_qt_field_name('rowanswers' . $rowkey . '_' . $columnnumber);
     }
 
-    protected function get_input_value($value) {
-        return 1;
+    protected function get_input_value(int $value): string {
+        return "1";
     }
 
-    protected function get_input_id(question_attempt $qa, $value, $columnnumber) {
-        return $this->get_input_name($qa, $value, $columnnumber);
+    protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string {
+        return $this->get_input_name($qa, $rowkey, $columnnumber);
     }
 
     public function correct_response(question_attempt $qa) {

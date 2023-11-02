@@ -32,7 +32,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /** The number of columns (answers) that get added at a time. */
     private const COL_NUM_ADD = 2;
 
-    /**The default starting number of rows (question row). */
+    /** The default starting number of rows (question row). */
     private const ROW_NUM_START = 4;
 
     /** The number of rows (question row) that get added at a time.*/
@@ -108,12 +108,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /**
      * Add a set of form fields, obtained from get_per_column_fields.
      *
-     * @param stdClass $mform the form being built.
+     * @param MoodleQuickForm $mform the form being built.
      * @param string $label the label to use for each column.
-     * @param int $minoptions the minimum number of column blanks to display. Default COL_NUM_START.
-     * @param int $addoptions the number of column blanks to add. Default COL_NUM_ADD.
      */
-    protected function add_per_column_fields(object $mform, string $label) {
+    protected function add_per_column_fields(MoodleQuickForm $mform, string $label) {
         $mform->addElement('header', 'columnshdr', get_string('columnshdr', 'qtype_oumatrix'));
         $mform->setExpanded('columnshdr', 1);
         $repeatedoptions = [];
@@ -124,7 +122,15 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             get_string('addmoreblanks', 'qtype_oumatrix', 'columns'), true);
     }
 
-    protected function get_per_column_fields($mform, $label, $repeatedoptions) {
+    /**
+     * Get the list of form elements to repeat, one for each column.
+     *
+     * @param MoodleQuickForm $mform the form being built.
+     * @param string $label the label to use for each column.
+     * @param array $repeatedoptions reference to array of repeated options to fill
+     * @return array of form fields.
+     */
+    protected function get_per_column_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions): array {
         $repeated = [];
         $repeated[] = $mform->createElement('text', 'columnname', $label, ['size' => 40]);
         $mform->setType('columnname', PARAM_RAW);
@@ -135,12 +141,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /**
      * Add a set of form fields, obtained from get_per_row_fields.
      *
-     * @param stdClass $mform the form being built.
+     * @param MoodleQuickForm $mform the form being built.
      * @param string $label the label to use for each row.
-     * @param int $minoptions the minimum number of row blanks to display. Default COL_NUM_START.
-     * @param int $addoptions the number of row blanks to add. Default COL_NUM_ADD.
      */
-    protected function add_per_row_fields(object $mform, string $label) {
+    protected function add_per_row_fields(MoodleQuickForm $mform, string $label) {
         $mform->addElement('header', 'rowshdr', get_string('rowshdr', 'qtype_oumatrix'));
         $mform->setExpanded('rowshdr', 1);
         $repeatedoptions = [];
@@ -160,12 +164,12 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /**
      * Returns a row object with relevant input fields.
      *
-     * @param stdClass $mform
+     * @param MoodleQuickForm $mform
      * @param string $label
      * @param array $repeatedoptions
      * @return array
      */
-    protected function get_per_row_fields(object $mform, string $label, array &$repeatedoptions): array {
+    protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions): array {
         $repeated = [];
         $rowoptions = [];
         $rowoptions[] = $mform->createElement('text', 'rowname', '', ['size' => 40]);
@@ -210,7 +214,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @param stdClass $question the data being passed to the form.
      * @return object $question the modified data.
      */
-    protected function data_preprocessing_options($question) {
+    protected function data_preprocessing_options(stdClass $question): object {
         if (empty($question->options)) {
             return $question;
         }
@@ -227,7 +231,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @param stdClass $question The data being passed to the form.
      * @return object The modified data.
      */
-    private function data_preprocessing_columns($question) {
+    private function data_preprocessing_columns(stdClass $question): object {
         if (empty($question->columns)) {
             return $question;
         }
@@ -249,7 +253,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      * @param stdClass $question The data being passed to the form.
      * @return object The modified data.
      */
-    private function data_preprocessing_rows($question) {
+    private function data_preprocessing_rows(stdClass $question): object {
         // Preprocess rows.
         if (empty($question->rows)) {
             return $question;
@@ -415,7 +419,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
      *
      * @return string The question type name.
      */
-    public function qtype() {
+    public function qtype(): string {
         return 'oumatrix';
     }
 }
