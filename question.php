@@ -280,10 +280,6 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return 'rowanswers' . $rowkey . '_' . $columnnumber;
     }
 
-    public function prepare_simulated_post_data($simulatedresponse) {
-        return $simulatedresponse; // TODO.
-    }
-
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         foreach ($this->roworder as $key => $notused) {
             foreach ($this->columns as $column) {
@@ -432,20 +428,5 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return $numselected;
-    }
-
-    /**
-     * Returns the count of correct answers for the question.
-     *
-     * @return int the number of choices that are correct.
-     */
-    public function get_num_correct_choices(): int {
-        $numcorrect = 0;
-        foreach ($this->rows as $row) {
-            if ($row->correctanswers != '') {
-                $numcorrect += count($row->correctanswers);
-            }
-        }
-        return $numcorrect;
     }
 }

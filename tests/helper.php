@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests helper for the OU matrix question type.
+ * Test helper for the OU matrix question type.
+ * The class has code to generate question data structures for sample OU matrix questions.
  *
  * @package     qtype_oumatrix
  * @copyright   2023 The Open University
@@ -269,7 +270,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 ],
                 22 => (object) [
                         'id' => 22,
-                        'number' => 1,
+                        'number' => 2,
                         'name' => 'Carrot',
                 ],
                 23 => (object) [
@@ -538,5 +539,126 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                 ],
         ];
         return $question;
+    }
+
+    /**
+     * Returns a qtype_oumatrix_single question.
+     *
+     * @return qtype_oumatrix_multiple
+     */
+    public function make_oumatrix_question_food_multiple(): qtype_oumatrix_multiple {
+        global $USER;
+
+        question_bank::load_question_definition_classes('oumatrix');
+        $question = new qtype_oumatrix_multiple();
+        $question->createdby = $USER->id;
+        $question->modifiedby = $USER->id;
+        $question->qtype = 'oumatrix';
+        $question->name = 'oumatrix_food_multiple01';
+        $question->questiontext = 'Please classify the list of food item as Proteins, Vegetables, Fats.';
+        $question->questiontextformat = FORMAT_HTML;
+        $question->generalfeedback = 'A delicious and healthy meal is a balanced one.';
+        $question->generalfeedbackformat = FORMAT_HTML;
+        $question->defaultmark = 1;
+        $question->length = 1;
+        $question->penalty = 0.3333333;
+        $question->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $question->versionid = 0;
+        $question->version = 1;
+        $question->questionbankentryid = 0;
+        $question->options = new stdClass();
+        $question->options->inputtype = 'multiple';
+        $question->options->grademethod = 'partial';
+        $question->options->shuffleanswers = 0;
+        $question->options->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
+        $question->options->correctfeedbackformat = FORMAT_HTML;
+        $question->options->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
+        $question->options->partiallycorrectfeedbackformat = FORMAT_HTML;
+        $question->options->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
+        $question->options->incorrectfeedbackformat = FORMAT_HTML;
+        $question->options->shownumcorrect = 1;
+
+        $question->columns = [
+                21 => (object) [
+                        'id' => 21,
+                        'number' => 1,
+                        'name' => 'Chicken breast',
+                ],
+                22 => (object) [
+                        'id' => 22,
+                        'number' => 2,
+                        'name' => 'Carrot',
+                ],
+                23 => (object) [
+                        'id' => 23,
+                        'number' => 3,
+                        'name' => 'Salmon fillet',
+                ],
+                24 => (object) [
+                        'id' => 24,
+                        'number' => 4,
+                        'name' => 'Asparagus',
+                ],
+                25 => (object) [
+                        'id' => 25,
+                        'number' => 5,
+                        'name' => 'Olive oil',
+                ],
+                26 => (object) [
+                        'id' => 26,
+                        'number' => 6,
+                        'name' => 'Steak',
+                ],
+                27 => (object) [
+                        'id' => 27,
+                        'number' => 7,
+                        'name' => 'Potato',
+                ],
+        ];
+        $question->rows = [
+                21 => (object) [
+                        'id' => 21,
+                        'number' => 1,
+                        'name' => 'Proteins',
+                        'correctanswers' => [1 => '1', 3 => '1', 6 => '1'],
+                        'feedback' => 'Chicken, fish and red meat containing proteins.',
+                        'feedbackformat' => FORMAT_HTML,
+                ],
+                22 => (object) [
+                        'id' => 22,
+                        'number' => 2,
+                        'name' => 'Vegetables',
+                        'correctanswers' => [2 => '1', 4 => '1', 7 => '1'],
+                        'feedback' => 'Carrot, Asparagus, Potato are vegetables.',
+                        'feedbackformat' => FORMAT_HTML,
+                ],
+                23 => (object) [
+                        'id' => 23,
+                        'number' => 3,
+                        'name' => 'Fats',
+                        'correctanswers' => [5 => '1'],
+                        'feedback' => 'Olive oil contains fat.',
+                        'feedbackformat' => FORMAT_HTML,
+                ],
+        ];
+
+        $question->hints = [
+                1 => (object) [
+                        'hint' => 'Hint 1.',
+                        'hintformat' => FORMAT_HTML,
+                        'shownumcorrect' => 1,
+                        'clearwrong' => 0,
+                        'options' => 0,
+                ],
+                2 => (object) [
+                        'hint' => 'Hint 2.',
+                        'hintformat' => FORMAT_HTML,
+                        'shownumcorrect' => 1,
+                        'clearwrong' => 1,
+                        'options' => 1,
+                ],
+        ];
+
+        return  $question;
     }
 }
