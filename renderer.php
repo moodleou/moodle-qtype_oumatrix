@@ -139,8 +139,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $table .= html_writer::tag('caption', $caption, ['class' => 'sr-only']);
 
         // Creating the matrix column headers.
+        $table .= html_writer::start_tag('thead');
         $table .= html_writer::start_tag('tr');
-        $table .= html_writer::tag('th', '', ['scope' => 'col']);
+        $table .= html_writer::tag('th', '', ['scope' => 'col', 'class' => 'subquestion']);
         $index = 0;
         foreach ($question->columns as $value) {
             $colname[$index] = $value->name;
@@ -154,6 +155,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'rowfeedback align-middle']);
         }
         $table .= html_writer::end_tag('tr');
+        $table .= html_writer::end_tag('thead');
 
         if ($options->readonly) {
             $inputattributes['disabled'] = 'disabled';
@@ -170,7 +172,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
             $table .= html_writer::start_tag('tr');
             $table .= html_writer::tag('th', html_writer::span($rowname, '', ['id' => $rownewid]),
-                ['class' => 'align-middle', 'scope' => 'row']);
+                ['class' => 'subquestion align-middle', 'scope' => 'row']);
 
             for ($c = 1; $c <= count($colname); $c++) {
                 $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $c);
@@ -206,9 +208,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
                 $answered = html_writer::tag('label', $button . $feedbackimg,
-                    ['class' => "$class position-relative d-inline-block w-100 m-0"]);
+                    ['class' => "position-relative d-inline-block w-100 m-0"]);
 
-                $table .= html_writer::tag('td', $answered, ['class' => "matrixanswer align-middle text-center"]);
+                $table .= html_writer::tag('td', $answered, ['class' => "$class matrixanswer align-middle text-center"]);
             }
             if ($options->feedback) {
                 $table .= html_writer::tag('td', $feedback);

@@ -4,6 +4,15 @@
 .que.oumatrix .answer .specificfeedback {
     background: #fff3bf;
 }
+.que.oumatrix .answer .generaltable thead tr {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+.que.oumatrix .answer .generaltable tbody tr:nth-of-type(even) {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+.que.oumatrix .answer .generaltable tbody tr:nth-of-type(odd) {
+    background-color: #FFFFFF;
+}
 
 /* Editing form. */
 body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
@@ -16,7 +25,7 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
     border-bottom: 0;
 }
 body#page-question-type-oumatrix label[data-fieldtype=checkbox] {
-    margin-right: 0.75rem !important; /* stylelint-disable-line declaration-no-important */
+    margin-right: 0.75rem;
 }
 /* Row validation error display. */
 body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
