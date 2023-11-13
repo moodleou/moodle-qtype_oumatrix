@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use qtype_oumatrix\column;
+use qtype_oumatrix\row;
+
 /**
  * Test helper for the OU matrix question type.
  * The class has code to generate question data structures for sample OU matrix questions.
@@ -446,10 +449,6 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         return (array)\test_question_maker::get_question_form_data('oumatrix', $which);
     }
 
-    public function make_question(string $which) {
-        return \test_question_maker::make_question('oumatrix', $which);
-    }
-
     /**
      * Returns a qtype_oumatrix_single question.
      *
@@ -458,6 +457,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
     public function make_oumatrix_question_animals_single(): qtype_oumatrix_single {
         question_bank::load_question_definition_classes('oumatrix');
         $question = new qtype_oumatrix_single();
+        $question->id = 123;
         $question->name = 'oumatrix_animals_single01';
         $question->questiontext = 'Animal classification. Please answer the sub questions in all 4 rows.';
         $question->generalfeedback = 'We are recognising different type of animals';
@@ -470,74 +470,34 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $question->versionid = 0;
         $question->version = 1;
         $question->questionbankentryid = 0;
-        $question->options = new stdClass();
-        $question->options->inputtype = 'single';
-        $question->options->grademethod = 'partial';
-        $question->options->shuffleanswers = 1;
-        $question->options->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
-        $question->options->correctfeedbackformat = FORMAT_HTML;
-        $question->options->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
-        $question->options->partiallycorrectfeedbackformat = FORMAT_HTML;
-        $question->options->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
-        $question->options->incorrectfeedbackformat = FORMAT_HTML;
-        $question->options->shownumcorrect = 1;
+        $question->grademethod = 'partial';
+        $question->shuffleanswers = 0;
+        $question->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
+        $question->correctfeedbackformat = FORMAT_HTML;
+        $question->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
+        $question->partiallycorrectfeedbackformat = FORMAT_HTML;
+        $question->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
+        $question->incorrectfeedbackformat = FORMAT_HTML;
+        $question->shownumcorrect = 1;
 
         $question->columns = [
-                11 => (object) [
-                        'id' => 11,
-                        'number' => 1,
-                        'name' => 'Insects',
-                ],
-                12 => (object) [
-                        'id' => 12,
-                        'number' => 2,
-                        'name' => 'Fish',
-                ],
-                13 => (object) [
-                        'id' => 13,
-                        'number' => 3,
-                        'name' => 'Birds',
-                ],
-                14 => (object) [
-                        'id' => 13,
-                        'number' => 4,
-                        'name' => 'Mammals',
-                ],
+            11 => new column($question->id, 1, 'Insects', 11),
+            12 => new column($question->id, 2, 'Fish', 12),
+            13 => new column($question->id, 3, 'Birds', 13),
+            14 => new column($question->id, 4, 'Mammals', 14),
         ];
+
         $question->rows = [
-                11 => (object) [
-                        'id' => 11,
-                        'number' => 1,
-                        'name' => 'Bee',
-                        'correctanswers' => ['1' => 'a1'],
-                        'feedback' => 'Fly, Bee and spider are insects.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
-                12 => (object) [
-                        'id' => 12,
-                        'number' => 2,
-                        'name' => 'Salmon',
-                        'correctanswers' => ['2' => 'a2'],
-                        'feedback' => 'Cod, Salmon and Trout are fish.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
-                13 => (object) [
-                        'id' => 13,
-                        'number' => 3,
-                        'name' => 'Seagull',
-                        'correctanswers' => ['3' => 'a3'],
-                        'feedback' => 'Gulls and Owls are birds.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
-                14 => (object) [
-                        'id' => 14,
-                        'number' => 4,
-                        'name' => 'Dog',
-                        'correctanswers' => ['4' => 'a4'],
-                        'feedback' => 'Cow, Dog and Horse are mammals.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
+            11 => new row(11, $question->id, 1, 'Bee', [1 => '1'],
+                    'Fly, Bee and spider are insects.', FORMAT_HTML),
+            12 => new row(12, $question->id, 2, 'Salmon', [2 => '1'],
+                    'Cod, Salmon and Trout are fish.', FORMAT_HTML),
+            13 => new row(13, $question->id, 3, 'Seagull', [3 => '1'],
+                    'Gulls and Owls are birds.', FORMAT_HTML),
+            14 => new row(14, $question->id, 4, 'Dog', [4 => '1'],
+                    'Cow, Dog and Horse are mammals.', FORMAT_HTML),
         ];
+
         return $question;
     }
 
@@ -551,6 +511,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
 
         question_bank::load_question_definition_classes('oumatrix');
         $question = new qtype_oumatrix_multiple();
+        $question->id = 123;
         $question->createdby = $USER->id;
         $question->modifiedby = $USER->id;
         $question->qtype = 'oumatrix';
@@ -566,97 +527,38 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         $question->versionid = 0;
         $question->version = 1;
         $question->questionbankentryid = 0;
-        $question->options = new stdClass();
-        $question->options->inputtype = 'multiple';
-        $question->options->grademethod = 'partial';
-        $question->options->shuffleanswers = 0;
-        $question->options->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
-        $question->options->correctfeedbackformat = FORMAT_HTML;
-        $question->options->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
-        $question->options->partiallycorrectfeedbackformat = FORMAT_HTML;
-        $question->options->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
-        $question->options->incorrectfeedbackformat = FORMAT_HTML;
-        $question->options->shownumcorrect = 1;
+        $question->grademethod = 'partial';
+        $question->shuffleanswers = 0;
+        $question->correctfeedback = test_question_maker::STANDARD_OVERALL_CORRECT_FEEDBACK;
+        $question->correctfeedbackformat = FORMAT_HTML;
+        $question->partiallycorrectfeedback = test_question_maker::STANDARD_OVERALL_PARTIALLYCORRECT_FEEDBACK;
+        $question->partiallycorrectfeedbackformat = FORMAT_HTML;
+        $question->incorrectfeedback = test_question_maker::STANDARD_OVERALL_INCORRECT_FEEDBACK;
+        $question->incorrectfeedbackformat = FORMAT_HTML;
+        $question->shownumcorrect = 1;
 
         $question->columns = [
-                21 => (object) [
-                        'id' => 21,
-                        'number' => 1,
-                        'name' => 'Chicken breast',
-                ],
-                22 => (object) [
-                        'id' => 22,
-                        'number' => 2,
-                        'name' => 'Carrot',
-                ],
-                23 => (object) [
-                        'id' => 23,
-                        'number' => 3,
-                        'name' => 'Salmon fillet',
-                ],
-                24 => (object) [
-                        'id' => 24,
-                        'number' => 4,
-                        'name' => 'Asparagus',
-                ],
-                25 => (object) [
-                        'id' => 25,
-                        'number' => 5,
-                        'name' => 'Olive oil',
-                ],
-                26 => (object) [
-                        'id' => 26,
-                        'number' => 6,
-                        'name' => 'Steak',
-                ],
-                27 => (object) [
-                        'id' => 27,
-                        'number' => 7,
-                        'name' => 'Potato',
-                ],
+            21 => new column($question->id, 1, 'Chicken breast', 21),
+            22 => new column($question->id, 2, 'Carrot', 22),
+            23 => new column($question->id, 3, 'Salmon fillet', 23),
+            24 => new column($question->id, 4, 'Asparagus', 24),
+            25 => new column($question->id, 5, 'Olive oil', 25),
+            26 => new column($question->id, 6, 'Steak', 26),
+            27 => new column($question->id, 7, 'Potato', 27),
         ];
+
         $question->rows = [
-                21 => (object) [
-                        'id' => 21,
-                        'number' => 1,
-                        'name' => 'Proteins',
-                        'correctanswers' => [1 => '1', 3 => '1', 6 => '1'],
-                        'feedback' => 'Chicken, fish and red meat containing proteins.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
-                22 => (object) [
-                        'id' => 22,
-                        'number' => 2,
-                        'name' => 'Vegetables',
-                        'correctanswers' => [2 => '1', 4 => '1', 7 => '1'],
-                        'feedback' => 'Carrot, Asparagus, Potato are vegetables.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
-                23 => (object) [
-                        'id' => 23,
-                        'number' => 3,
-                        'name' => 'Fats',
-                        'correctanswers' => [5 => '1'],
-                        'feedback' => 'Olive oil contains fat.',
-                        'feedbackformat' => FORMAT_HTML,
-                ],
+            21 => new row(21, $question->id, 1, 'Proteins', [1 => '1', 3 => '1', 6 => '1'],
+                    'Chicken, fish and red meat containing proteins.', FORMAT_HTML),
+            22 => new row(22, $question->id, 2, 'Vegetables', [2 => '1', 4 => '1', 7 => '1'],
+                    'Carrot, Asparagus, Potato are vegetables.', FORMAT_HTML),
+            23 => new row(23, $question->id, 3, 'Fats', [5 => '1'],
+                    'Olive oil contains fat.', FORMAT_HTML),
         ];
 
         $question->hints = [
-                1 => (object) [
-                        'hint' => 'Hint 1.',
-                        'hintformat' => FORMAT_HTML,
-                        'shownumcorrect' => 1,
-                        'clearwrong' => 0,
-                        'options' => 0,
-                ],
-                2 => (object) [
-                        'hint' => 'Hint 2.',
-                        'hintformat' => FORMAT_HTML,
-                        'shownumcorrect' => 1,
-                        'clearwrong' => 1,
-                        'options' => 1,
-                ],
+                1 => new question_hint_with_parts(1, 'Hint 1.', FORMAT_HTML, 1, 0),
+                2 => new question_hint_with_parts(2, 'Hint 2.', FORMAT_HTML, 1, 1),
         ];
 
         return  $question;
