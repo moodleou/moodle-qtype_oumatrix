@@ -135,11 +135,44 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
         return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
+
+    public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
+        $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
+        if ($basemessage) {
+            return $basemessage;
+        }
+
+        if (count($this->columns) != count($otherversion->columns)) {
+            return get_string('regradeissuenumcolumnschanged', 'qtype_oumatrix');
+        }
+
+        if (count($this->rows) != count($otherversion->rows)) {
+            return get_string('regradeissuenumrowschanged', 'qtype_oumatrix');
+        }
+
+        return null;
+    }
+
+    public function update_attempt_state_data_for_new_version(
+            question_attempt_step $oldstep, question_definition $otherversion) {
+        $startdata = parent::update_attempt_state_data_for_new_version($oldstep, $otherversion);
+
+        $mapping = array_combine(array_keys($otherversion->rows), array_keys($this->rows));
+
+        $oldorder = explode(',', $oldstep->get_qt_var('_roworder'));
+        $neworder = [];
+        foreach ($oldorder as $oldid) {
+            $neworder[] = $mapping[$oldid] ?? $oldid;
+        }
+        $startdata['_roworder'] = implode(',', $neworder);
+
+        return $startdata;
+    }
 }
 
-    /**
-     * Class that represents an oumatrix question for single choice.
-     */
+/**
+ * Class that represents an oumatrix question for single choice.
+ */
 class qtype_oumatrix_single extends qtype_oumatrix_base {
 
     public function get_renderer(moodle_page $page) {

@@ -176,4 +176,108 @@ class question_single_test extends \advanced_testcase {
                 ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '4']);
         $this->assertEquals([4, 4], $actual);
     }
+
+    public function test_validate_can_regrade_with_other_version_bad_num_rows(): void {
+        $q = \test_question_maker::make_question('oumatrix');
+
+        $newq = clone($q);
+        $newq->id = 456;
+        $newq->rows = [
+            21 => new row(21, $newq->id, 1, 'Bee', [1 => '1'],
+                    'Fly, Bee and spider are insects.', FORMAT_HTML),
+            22 => new row(22, $newq->id, 2, 'Salmon', [2 => '1'],
+                    'Cod, Salmon and Trout are fish.', FORMAT_HTML),
+        ];
+
+        $this->assertEquals(get_string('regradeissuenumrowschanged', 'qtype_oumatrix'),
+                $newq->validate_can_regrade_with_other_version($q));
+    }
+
+    public function test_validate_can_regrade_with_other_version_bad_num_columns(): void {
+        $q = \test_question_maker::make_question('oumatrix', 'animals_single');
+
+        $newq = clone($q);
+        $newq->id = 456;
+        $newq->columns = [
+            21 => new column($newq->id, 1, 'Insects', 21),
+            22 => new column($newq->id, 2, 'Fish', 22),
+            23 => new column($newq->id, 3, 'Birds', 23),
+        ];
+
+        $this->assertEquals(get_string('regradeissuenumcolumnschanged', 'qtype_oumatrix'),
+                $newq->validate_can_regrade_with_other_version($q));
+    }
+
+    public function test_validate_can_regrade_with_other_version_ok(): void {
+        /** @var \qtype_oumatrix_single $q */
+        $q = \test_question_maker::make_question('oumatrix', 'animals_single');
+
+        $newq = clone($q);
+        $newq->id = 456;
+        $newq->columns = [
+            21 => new column($newq->id, 1, 'Insects', 21),
+            22 => new column($newq->id, 2, 'Fish', 22),
+            23 => new column($newq->id, 3, 'Birds', 23),
+            24 => new column($newq->id, 4, 'Mammals', 24),
+        ];
+
+        $newq->rows = [
+            21 => new row(21, $newq->id, 1, 'Bee', [1 => '1'],
+                    'Fly, Bee and spider are insects.', FORMAT_HTML),
+            22 => new row(22, $newq->id, 2, 'Salmon', [2 => '1'],
+                    'Cod, Salmon and Trout are fish.', FORMAT_HTML),
+            23 => new row(23, $newq->id, 3, 'Seagull', [3 => '1'],
+                    'Gulls and Owls are birds.', FORMAT_HTML),
+            24 => new row(24, $newq->id, 4, 'Dog', [4 => '1'],
+                    'Cow, Dog and Horse are mammals.', FORMAT_HTML),
+        ];
+
+        $this->assertNull($newq->validate_can_regrade_with_other_version($q));
+    }
+
+    public function test_update_attempt_state_date_from_old_version_bad(): void {
+        $q = \test_question_maker::make_question('oumatrix', 'animals_single');
+
+        $newq = clone($q);
+        $newq->id = 456;
+        $newq->columns = [
+            21 => new column($newq->id, 1, 'Insects', 21),
+            22 => new column($newq->id, 2, 'Fish', 22),
+            23 => new column($newq->id, 3, 'Birds', 23),
+        ];
+
+        $oldstep = new question_attempt_step();
+        $oldstep->set_qt_var('_roworder', '12,23,11,14');
+        $this->expectExceptionMessage(get_string('regradeissuenumcolumnschanged', 'qtype_oumatrix'));
+        $newq->update_attempt_state_data_for_new_version($oldstep, $q);
+    }
+
+    public function test_update_attempt_state_date_from_old_version_ok(): void {
+        $q = \test_question_maker::make_question('oumatrix', 'animals_single');
+
+        $newq = clone($q);
+        $newq->id = 456;
+        $newq->columns = [
+            21 => new column($newq->id, 1, 'Insects', 21),
+            22 => new column($newq->id, 2, 'Fish', 22),
+            23 => new column($newq->id, 3, 'Birds', 23),
+            24 => new column($newq->id, 4, 'Mammals', 24),
+        ];
+
+        $newq->rows = [
+            21 => new row(21, $newq->id, 1, 'Bee', [1 => '1'],
+                    'Fly, Bee and spider are insects.', FORMAT_HTML),
+            22 => new row(22, $newq->id, 2, 'Salmon', [2 => '1'],
+                    'Cod, Salmon and Trout are fish.', FORMAT_HTML),
+            23 => new row(23, $newq->id, 3, 'Seagull', [3 => '1'],
+                    'Gulls and Owls are birds.', FORMAT_HTML),
+            24 => new row(24, $newq->id, 4, 'Dog', [4 => '1'],
+                    'Cow, Dog and Horse are mammals.', FORMAT_HTML),
+        ];
+
+        $oldstep = new question_attempt_step();
+        $oldstep->set_qt_var('_roworder', '12,23,11,14');
+        $this->assertEquals(['_roworder' => '22,23,21,24'],
+                $newq->update_attempt_state_data_for_new_version($oldstep, $q));
+    }
 }
