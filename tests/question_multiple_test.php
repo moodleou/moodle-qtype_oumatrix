@@ -354,4 +354,11 @@ class question_multiple_test extends \advanced_testcase {
         // Two responsess are given and both are correct (Second and third row have not been answered).
         $this->assertEquals([2, 7], $question->get_num_parts_grade_partial(['rowanswers0_1' => '1', 'rowanswers0_3' => '1']));
     }
+
+    public function test_get_num_correct_choices(): void {
+        $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
+
+        // Correct number of choices are expected.
+        $this->assertEquals(7, $question->get_num_correct_choices());
+    }
 }
