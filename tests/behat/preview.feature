@@ -34,10 +34,10 @@ Feature: Preview a Numerical question
 
     # Sub-question(row) specific feedback.
     Then I should see "Feedback"
-    And I should see "Fly, Bee and Spider are insects."
+    And I should see "Flies and Bees are insects."
     And I should see "Cod, Salmon and Trout are fish."
-    And I should see "Gull and Owl are birds."
-    And I should see "Cow, Dog and Horse are mammals."
+    And I should see "Gulls and Owls are birds."
+    And I should see "Cows, Dogs and Horses are mammals."
 
     # General feedback.
     And I should see "Well done!"

@@ -99,7 +99,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'number' => 1,
                         'name' => 'Bee',
                         'correctanswers' => ['1' => 'a1'],
-                        'feedback' => 'Fly, Bee and spider are insects.',
+                        'feedback' => 'Flies and Bees are insects.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
                 12 => (object) [
@@ -123,7 +123,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'number' => 4,
                         'name' => 'Dog',
                         'correctanswers' => ['4' => 'a4'],
-                        'feedback' => 'Cow, Dog and Horse are mammals.',
+                        'feedback' => 'Cows, Dogs and Horses are mammals.',
                         'feedbackformat' => FORMAT_HTML,
                 ],
         ];
@@ -204,7 +204,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
         $qfdata->feedback = [
                 0 => [
-                        'text' => 'Fly, Bee and Spider are insects.',
+                        'text' => 'Flies and Bees are insects.',
                         'format' => FORMAT_HTML,
                 ],
                 1 => [
@@ -212,11 +212,11 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'format' => FORMAT_HTML,
                 ],
                 2 => [
-                        'text' => 'Gull and Owl are birds.',
+                        'text' => 'Gulls and Owls are birds.',
                         'format' => FORMAT_HTML,
                 ],
                 3 => [
-                        'text' => 'Cow, Dog and Horse are mammals.',
+                        'text' => 'Cows, Dogs and Horses are mammals.',
                         'format' => FORMAT_HTML,
                 ],
         ];
@@ -489,13 +489,13 @@ class qtype_oumatrix_test_helper extends question_test_helper {
 
         $question->rows = [
             11 => new row(11, $question->id, 1, 'Bee', [1 => '1'],
-                    'Fly, Bee and spider are insects.', FORMAT_HTML),
+                    'Flies and Bees are insects.', FORMAT_HTML),
             12 => new row(12, $question->id, 2, 'Salmon', [2 => '1'],
                     'Cod, Salmon and Trout are fish.', FORMAT_HTML),
             13 => new row(13, $question->id, 3, 'Seagull', [3 => '1'],
                     'Gulls and Owls are birds.', FORMAT_HTML),
             14 => new row(14, $question->id, 4, 'Dog', [4 => '1'],
-                    'Cow, Dog and Horse are mammals.', FORMAT_HTML),
+                    'Cows, Dogs and Horses are mammals.', FORMAT_HTML),
         ];
 
         return $question;
