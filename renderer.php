@@ -135,7 +135,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $table .= html_writer::start_tag('div', ['class' => 'answer']);
 
         // Create table and caption.
-        $table .= html_writer::start_tag('table', ['class' => 'generaltable w-75']);
+        $table .= html_writer::start_tag('table', ['class' => 'generaltable']);
         $table .= html_writer::tag('caption', $caption, ['class' => 'sr-only']);
 
         // Creating the matrix column headers.
