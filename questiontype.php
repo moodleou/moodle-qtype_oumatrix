@@ -258,16 +258,32 @@ class qtype_oumatrix extends question_type {
     }
 
     public function get_random_guess_score($questiondata) {
-        // We compute the randome guess score here on the assumption we are using
+        // We compute the random guess score here on the assumption we are using
         // the deferred feedback behaviour, and the question text tells the
         // student how many of the responses are correct.
         // Amazingly, the forumla for this works out to be
         // # correct choices / total # choices in all cases.
 
-        if ($this->get_total_number_of_choices($questiondata) === null) {
+        $numberofcolumns = count($questiondata->columns);
+        if (!$numberofcolumns) {
             return null;
         }
-        return $this->get_num_correct_choices($questiondata) / $this->get_total_number_of_choices($questiondata);
+
+        if ($questiondata->options->inputtype === 'single') {
+            return 1 / $numberofcolumns;
+        } else {
+            // TODO: We agreed to return null for 'multiple' until we worked it
+            // out all combinations with regards to grading methods.
+            return null;
+
+            // The follwoing code within 'else' is not excuted(It should not get to here.).
+            if (!$this->get_num_correct_choices($questiondata) ||
+                    !$this->get_total_number_of_choices($questiondata)) {
+                return null;
+            }
+            return $this->get_num_correct_choices($questiondata) / $this->get_total_number_of_choices($questiondata);
+        }
+        return null;
     }
 
     /**

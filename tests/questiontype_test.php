@@ -52,35 +52,15 @@ class questiontype_test extends \advanced_testcase {
         $this->assertEquals($this->qtype->name(), 'oumatrix');
     }
 
-    public function todo_test_initialise_question_instance() {
-        $h = new qtype_oumatrix_test_helper();
-        $qdata = $h->get_test_question_data('animals_single');
-        $expected = $h->get_test_question_data('animals_single');
-
-        $this->assertEquals(0.5, $this->qtype->get_random_guess_score($qdata));
-
-        $qdata = $h->get_oumatrix_question_data_oumatrix_multiple();
-        $expected = $h->get_test_question_data('oumatrix_multiple');
-
-        $expected = \test_question_maker::make_question('oumatrix', );
-        $expected->stamp = $qdata->stamp;
-        $expected->idnumber = null;
-
-        $q = $this->qtype->make_question($qdata);
-
-        $this->assertEquals($expected, $q);
-    }
 
     public function test_get_random_guess_score(): void {
         $helper = new qtype_oumatrix_test_helper();
 
         $qdata = $helper->get_test_question_data('animals_single');
-        $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
-        $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
+        $this->assertEquals(0.25, $this->qtype->get_random_guess_score($qdata));
 
         $qdata = $helper->get_test_question_data('food_multiple');
-        $expected = $this->qtype->get_num_correct_choices($qdata) / $this->qtype->get_total_number_of_choices($qdata);
-        $this->assertEquals($expected, $this->qtype->get_random_guess_score($qdata));
+        $this->assertEquals(null, $this->qtype->get_random_guess_score($qdata));
     }
 
     public function test_get_random_guess_score_broken_question(): void {
@@ -92,143 +72,6 @@ class questiontype_test extends \advanced_testcase {
 
     public function get_save_question_which() {
         return [['animals_single'], ['oumatrix_multiple']];
-    }
-
-    /**
-     * Test
-     * @dataProvider get_save_question_which
-     * @param $which
-     */
-    public function todo_test_save_question() {
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-
-        $questiondata = \test_question_maker::get_question_data('oumatrix', 'animals_single');
-        $formdata = \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
-
-        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-
-        $cat = $generator->create_question_category([]);
-
-        $formdata->category = "{$cat->id},{$cat->contextid}";
-        qtype_oumatrix_edit_form::mock_submit((array)$formdata);
-
-        $form = \qtype_oumatrix_test_helper::get_question_editing_form($cat, $questiondata);
-
-        $this->assertTrue($form->is_validated());
-
-        $fromform = $form->get_data();
-
-        $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
-        $actualquestionsdata = question_load_questions([$returnedfromsave->id], 'qbe.idnumber');
-        $actualquestiondata = end($actualquestionsdata);
-
-        foreach ($questiondata as $property => $value) {
-            if (!in_array($property, ['id', 'timemodified', 'timecreated', 'options', 'hints', 'stamp',
-                'versionid', 'questionbankentryid',
-            ])) {
-                $this->assertEquals($value, $actualquestiondata->$property);
-            }
-        }
-
-        foreach ($questiondata->options as $optionname => $value) {
-            if ($optionname === 'columns' || $optionname === 'rows') {
-                continue;
-            }
-            $this->assertEquals($value, $actualquestiondata->options->$optionname);
-        }
-
-        foreach ($questiondata->columns as $id => $column) {
-            $actualcolumn = array_shift($actualquestiondata->columns);
-            // TODO: finsih this.
-        }
-
-        foreach ($questiondata->rows as $id => $row) {
-            $actualrow = array_shift($actualquestiondata->rows);
-            // TODO: finsih this.
-        }
-
-        foreach ($questiondata->hints as $hint) {
-            $actualhint = array_shift($actualquestiondata->hints);
-            foreach ($hint as $property => $value) {
-                if (!in_array($property, ['id', 'questionid', 'options'])) {
-                    $this->assertEquals($value, $actualhint->$property);
-                }
-            }
-        }
-    }
-
-    /**
-     * Test to make sure that loading of question options works, including in an error case.
-     */
-    public function todo_test_get_question_options() {
-        global $DB;
-
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-
-        // Create a complete, in DB question to use.
-        $questiondata = \test_question_maker::get_question_data('oumatrix', 'animals_single');
-        $formdata = \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
-
-        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $generator->create_question_category([]);
-
-        $formdata->category = "{$cat->id},{$cat->contextid}";
-        qtype_oumatrix_edit_form::mock_submit((array)$formdata);
-
-        $form = \qtype_oumatrix_test_helper::get_question_editing_form($cat, $questiondata);
-
-        $this->assertTrue($form->is_validated());
-
-        $fromform = $form->get_data();
-
-        $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
-
-        // Now get just the raw DB record.
-        $question = $DB->get_record('question', ['id' => $returnedfromsave->id], '*', MUST_EXIST);
-
-        // Load it.
-        $this->qtype->get_question_options($question);
-        $this->assertDebuggingNotCalled();
-        $this->assertInstanceOf(\stdClass::class, $question->options);
-
-        $options = $question->options;
-        $this->assertEquals($question->id, $options->questionid);
-        $this->assertEquals(0, $options->single);
-
-        $this->assertCount(4, $options->answers);
-
-        // Now we are going to delete the options record.
-        $DB->delete_records('qtype_oumatrix_options', ['questionid' => $question->id]);
-
-        // Now see what happens.
-        $question = $DB->get_record('question', ['id' => $returnedfromsave->id], '*', MUST_EXIST);
-        $this->qtype->get_question_options($question);
-
-        $this->assertDebuggingCalled('Question ID '.$question->id.' was missing an options record. Using default.');
-        $this->assertInstanceOf(\stdClass::class, $question->options);
-        $options = $question->options;
-        $this->assertEquals($question->id, $options->questionid);
-        $this->assertCount(4, $options->answers);
-
-        $this->assertEquals(get_string('correctfeedbackdefault', 'question'), $options->correctfeedback);
-        $this->assertEquals(FORMAT_HTML, $options->correctfeedbackformat);
-
-        // We no longer know how many answers, so it just has to guess with the default value.
-        $this->assertEquals(get_config('qtype_oumatrix', 'answerhowmany'), $options->single);
-
-        // And finally we try again with no answer either.
-        $DB->delete_records('question_answers', ['question' => $question->id]);
-
-        $question = $DB->get_record('question', ['id' => $returnedfromsave->id], '*', MUST_EXIST);
-        $this->qtype->get_question_options($question);
-
-        $this->assertDebuggingCalled('Question ID '.$question->id.' was missing an options record. Using default.');
-        $this->assertInstanceOf(\stdClass::class, $question->options);
-        $options = $question->options;
-        $this->assertEquals($question->id, $options->questionid);
-        $this->assertCount(0, $options->answers);
     }
 
     public function test_load_question(): void {
