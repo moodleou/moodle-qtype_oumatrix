@@ -172,14 +172,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     protected function get_per_row_fields(MoodleQuickForm $mform, string $label, array &$repeatedoptions): array {
         $repeated = [];
         $rowoptions = [];
-        $rowoptions[] = $mform->createElement('text', 'rowname', '', ['size' => 40]);
+        $repeated[] = $mform->createElement('text', 'rowname', $label, ['size' => 40]);
         $mform->setType('rowname', PARAM_RAW);
-
-        $rowanswerlistlabel = ($this->inputtype === 'single') ?
-            get_string('correctanswer', 'qtype_oumatrix') :
-            get_string('correctanswers', 'qtype_oumatrix');
-        $rowoptions[] = $mform->createElement('html',
-            html_writer::tag('span', $rowanswerlistlabel, ['class' => 'pl-3 pr-2']));
 
         // Get the list answer input type (radio buttons or checkboxes).
         for ($i = 0; $i < $this->numcolumns; $i++) {
@@ -191,7 +185,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 $rowoptions[] = $mform->createElement('checkbox', "rowanswers$columnvalue", '', $anslabel);
             }
         }
-        $repeated[] = $mform->createElement('group', 'rowoptions', $label, $rowoptions, null, false);
+        $rowanswerlistlabel = ($this->inputtype === 'single') ?
+                get_string('correctanswer', 'qtype_oumatrix') :
+                get_string('correctanswers', 'qtype_oumatrix');
+        $repeated[] = $mform->createElement('group', 'rowoptions', $rowanswerlistlabel, $rowoptions, null, false);
         $repeated[] = $mform->createElement('editor', 'feedback',
                 get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeatedoptions['rowname']['type'] = PARAM_RAW;

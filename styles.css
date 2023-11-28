@@ -15,14 +15,14 @@
 }
 
 /* Editing form. */
-body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_] {
+body#page-question-type-oumatrix div[id^=fitem_id_][id*=rowname_],
+body#page-question-type-oumatrix div[id^=fgroup_id_][id*=rowoptions_],
+body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
     background: #eee;
     margin-top: 0;
     margin-bottom: 0;
     padding-bottom: 5px;
     padding-top: 5px;
-    border: 1px solid #bbb;
-    border-bottom: 0;
 }
 body#page-question-type-oumatrix label[data-fieldtype=checkbox] {
     margin-right: 0.75rem;
@@ -32,11 +32,5 @@ body#page-question-type-oumatrix div[id^=fgroup_id_][id*=error_rowoptions_] {
     border: 0;
 }
 body#page-question-type-oumatrix div[id^=fitem_id_][id*=feedback_] {
-    background: #eee;
     margin-bottom: 2em;
-    margin-top: 0;
-    padding-bottom: 5px;
-    padding-top: 5px;
-    border: 1px solid #bbb;
-    border-top: 0;
 }
