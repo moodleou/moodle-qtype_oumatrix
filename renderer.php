@@ -236,13 +236,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      */
     protected function correct_choices(array $right): string {
         // Return appropriate string for single/multiple correct answer(s).
-        $right = array_merge(["<br>"], $right);
+        $correctanswers = "<br>" . implode("<br>", $right);
         if (count($right) == 1) {
-            return get_string('correctansweris', 'qtype_oumatrix',
-                    implode("<br>", $right));
-        } else if (count($right) > 1) {
-            return get_string('correctanswersare', 'qtype_oumatrix',
-                    implode("<br>", $right));
+            return get_string('correctansweris', 'qtype_oumatrix', $correctanswers);
+        } else if (count($right) > 2) {
+            return get_string('correctanswersare', 'qtype_oumatrix', $correctanswers);
         } else {
             return "";
         }
@@ -279,6 +277,21 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
             $right[] = $row->name . ' → ' . $question->columns[array_key_first($row->correctanswers)]->name;
         }
         return $this->correct_choices($right);
+    }
+
+    protected function num_parts_correct(question_attempt $qa): string {
+        $a = new stdClass();
+        list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right(
+                $qa->get_last_qt_data());
+        if (is_null($a->outof)) {
+            return '';
+        } else if ($a->num == 1) {
+            return html_writer::tag('p', get_string('yougot1rightsubquestion', 'qtype_oumatrix'));
+        } else {
+            $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
+            $a->num = $f->format($a->num);
+            return html_writer::tag('p', get_string('yougotnrightsubquestion', 'qtype_oumatrix', $a));
+        }
     }
 }
 
@@ -325,7 +338,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
     protected function num_parts_correct(question_attempt $qa): string {
         if ($qa->get_question()->get_num_selected_choices($qa->get_last_qt_data()) >
                 $qa->get_question()->get_num_correct_choices()) {
-            return get_string('toomanyselected', 'qtype_oumatrix');
+            return html_writer::tag('p', get_string('toomanyselected', 'qtype_oumatrix'));
         }
 
         $a = new stdClass();
@@ -335,22 +348,22 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
                 return '';
             }
             if ($a->num == 1) {
-                return get_string('yougot1rightsubquestion', 'qtype_oumatrix');
+                return html_writer::tag('p', get_string('yougot1rightsubquestion', 'qtype_oumatrix'));
             }
             $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
             $a->num = $f->format($a->num);
-            return get_string('yougotnrightsubquestion', 'qtype_oumatrix', $a);
+            return html_writer::tag('p', get_string('yougotnrightsubquestion', 'qtype_oumatrix', $a));
         } else {
             list($a->num, $a->outof) = $qa->get_question()->get_num_parts_grade_partial($qa->get_last_qt_data());
             if (is_null($a->outof)) {
                 return '';
             }
             if ($a->num == 1) {
-                return get_string('yougot1right', 'qtype_oumatrix');
+                return html_writer::tag('p', get_string('yougot1right', 'qtype_oumatrix'));
             }
             $f = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
             $a->num = $f->format($a->num);
-            return get_string('yougotnright', 'qtype_oumatrix', $a);
+            return html_writer::tag('p', get_string('yougotnright', 'qtype_oumatrix', $a));
         }
     }
 }
