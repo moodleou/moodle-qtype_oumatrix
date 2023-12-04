@@ -87,3 +87,18 @@ Feature: Test editing an ouMatrix question
       | Question name | Edited Multiple matrix name |
     And I press "id_submitbutton"
     And I should see "Edited Multiple matrix name"
+
+  @javascript
+  Scenario: Edit a Matrix question with multiple response containing HTML tags.
+    Given I am on the "Multiple matrix for editing" "core_question > edit" page logged in as teacher
+    When I set the following fields to these values:
+      | id_columnname_0 | <div>Chicken breast</div> |
+      | id_rowname_0    | <blink>Proteins</blink>   |
+    And I press "id_submitbutton"
+    Then I should see "<div> is not allowed. (Only <sub>, <sup>, <i>, <em>, <span> are permitted.)"
+    And I should see "<blink> is not allowed. (Only <sub>, <sup>, <i>, <em>, <span> are permitted.)"
+    And I set the following fields to these values:
+      | id_columnname_0 | <em>Chicken breast<em> |
+      | id_rowname_0    | <i>Proteins</i>        |
+    And I press "id_submitbutton"
+    And I should not see "is not allowed. (Only <sub>, <sup>, <i>, <em>, <span> are permitted.)"
