@@ -55,7 +55,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      *      question_edit_form great a question form instance that can be tested.
      *      stdClass the question category.
      */
-    protected function get_form($classname) {
+    protected function get_form(string $classname): array {
         $this->setAdminUser();
         $this->resetAfterTest();
         $syscontext = \context_system::instance();
@@ -108,7 +108,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $testdata['rowname'][3] = '';
         $errors = $form->validation($testdata, []);
         $expected = get_string('notenoughquestionrows', 'qtype_oumatrix', row::MIN_NUMBER_OF_ROWS);
-        $this->assertEquals($expected, $errors['rowoptions[1]']);
+        $this->assertEquals($expected, $errors['rowname[1]']);
     }
 
     /**
@@ -136,7 +136,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $testdata['rowname'][1] = 'Bee';
         $errors = $form->validation($testdata, []);
         $expected = get_string('duplicates', 'qtype_oumatrix', 'Bee');
-        $this->assertEquals($expected, $errors['rowoptions[1]']);
+        $this->assertEquals($expected, $errors['rowname[1]']);
     }
 
     /**
@@ -218,6 +218,87 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $errors = $form->validation($testdata, []);
         $expectedanswer = $errors['rowoptions[1]'] = get_string('correctanswerserror', 'qtype_oumatrix', $a);
         $this->assertEquals($expectedanswer, $errors['rowoptions[1]']);
+    }
 
+    /**
+     * Test the form correctly validates if illegal html tags are added to the column and or row names.
+     */
+    public function test_get_illegal_tag_error(): void {
+        [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
+        $helper = new qtype_oumatrix_test_helper();
+
+        // Single choice test.
+        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata['category'] = $category->id;
+        $testdata = $formdata;
+
+        // Set the allowed tags.
+        $a = new \stdClass();
+        $a->allowed = '&lt;sub&gt;, &lt;sup&gt;, &lt;i&gt;, &lt;em&gt;, &lt;span&gt;';
+
+        // Add html tags to the column names.
+        // Illegal html tag.
+        $testdata['columnname'][0] = '<div>Insects</div>';
+        $errors = $form->validation($testdata, []);
+        $this->assertTrue(array_key_exists('columnname[0]', $errors));
+        $this->assertEquals(1, count($errors));
+        $a->tag = '&lt;div&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertEquals($expected, $errors['columnname[0]']);
+        $this->assertEquals($expected, $form->get_illegal_tag_error('<div>'));
+
+        // Illegal html tag.
+        $testdata['columnname'][1] = '<blink><i>Fish</i></blink>';
+        $errors = $form->validation($testdata, []);
+        $this->assertTrue(array_key_exists('columnname[1]', $errors));
+        $this->assertEquals(2, count($errors));
+        $a->tag = '&lt;blink&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertEquals($expected, $errors['columnname[1]']);
+        $this->assertEquals($expected, $form->get_illegal_tag_error('<blink>'));
+
+        // Allowed html tag.
+        $testdata['columnname'][2] = '<em>Birds</em>';
+        $this->assertFalse(array_key_exists('columnname[2]', $errors));
+        $errors = $form->validation($testdata, ['columnname[2]']);
+        $this->assertEquals(2, count($errors));
+        $a->tag = '&lt;em&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertNotEquals($expected, $form->get_illegal_tag_error('<em>'));
+
+        // Remove illegal tags from column names to remove errors.
+        $testdata['columnname'][0] = 'Insect';
+        $testdata['columnname'][1] = '<i>Fish</i>';
+        $testdata['columnname'][2] = '<em>Birds</em>';
+
+        // Add html tags to the rowname
+        // Illegal html tag.
+        $testdata['rowname'][0] = '<div>Bee</div>';
+        $errors = $form->validation($testdata, []);
+        $this->assertTrue(array_key_exists('rowname[0]', $errors));
+        $this->assertEquals(1, count($errors));
+        $a->tag = '&lt;div&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertEquals($expected, $errors['rowname[0]']);
+        $this->assertEquals($expected, $form->get_illegal_tag_error('<div>'));
+
+        // Illegal html tag.
+        $testdata['rowname'][1] = '<em><blink>Salmon</blink></em>';
+        $errors = $form->validation($testdata, []);
+        $this->assertTrue(array_key_exists('rowname[1]', $errors));
+        $this->assertEquals(2, count($errors));
+        $a->tag = '&lt;blink&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertEquals($expected, $errors['rowname[1]']);
+        $this->assertEquals($expected, $form->get_illegal_tag_error('<blink>'));
+
+        // Allowed html tag.
+        $testdata['rowname'][2] = '<em>Seagull</em>';
+        $this->assertFalse(array_key_exists('rowname[2]', $errors));
+        $errors = $form->validation($testdata, ['rowname[2]']);
+        $this->assertEquals(2, count($errors));
+        $a->tag = '&lt;em&gt;';
+        $expected = get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        $this->assertNotEquals($expected, $form->get_illegal_tag_error('<em>'));
     }
 }

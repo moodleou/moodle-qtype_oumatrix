@@ -44,6 +44,21 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     /** @var string inputtype of rows. */
     private $inputtype;
 
+    /** @var array of HTML tags allowed in column and row names. */
+    protected $allowedhtmltags = [
+            'sub',
+            'sup',
+            'i',
+            'em',
+            'span',
+    ];
+
+    /** @var string regex to match HTML open tags. */
+    private $htmltstarttagsandattributes = '~<\s*\w+\b[^>]*>~';
+
+    /** @var string regex to match HTML close tags or br. */
+    private $htmltclosetags = '~<\s*/\s*\w+\b[^>]*>~';
+
     /**
      * Set the inputtype and number of rows and columns method.
      *
@@ -339,7 +354,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         // Validate minimum required number of rows.
         $countrows = count(array_filter($data['rowname']));
         if ($countrows < row::MIN_NUMBER_OF_ROWS) {
-            $errors['rowoptions[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
+            $errors['rowname[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
                     row::MIN_NUMBER_OF_ROWS);
         }
 
@@ -349,7 +364,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         if ($uniquerowscount < count($data['rowname'])) {
             foreach ($data['rowname'] as $key => $name) {
                 if ($name != '' && in_array($name, $duplicate)) {
-                    $errors['rowoptions[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
+                    $errors['rowname[' . $key . ']'] = get_string('duplicates', 'qtype_oumatrix', $name);
                 }
                 $duplicate[] = $name;
             }
@@ -408,8 +423,89 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 }
             }
         }
+
+        // Validate HTML tags used in column names.
+        $nonemptycolumns = array_filter($data['columnname']);
+        if ($nonemptycolumns) {
+            foreach ($nonemptycolumns as $key => $colname) {
+                $tagerror = $this->get_illegal_tag_error($colname);
+                if ($tagerror) {
+                    $errors['columnname[' . $key . ']'] = $tagerror;
+                }
+            }
+        }
+
+        // Validate HTML tags used in row names.
+        if ($nonemptycolumns && $nonemptyrows) {
+            foreach ($nonemptyrows as $key => $rowname) {
+                $tagerror = $this->get_illegal_tag_error($rowname);
+                if ($tagerror) {
+                    $errors['rowname[' . $key . ']'] = $tagerror;
+                }
+            }
+        }
         return $errors;
     }
+
+    /**
+     * Vaidate some input to make sure it does not contain any tags other than
+     * $this->allowedhtmltags.
+     * @param string $text the input to validate.
+     * @return string any validation errors.
+     */
+    public function get_illegal_tag_error(string $text): string {
+        // Remove legal tags.
+        $strippedtext = $text;
+        foreach ($this->allowedhtmltags as $htmltag) {
+            $tagpair = "~<\s*/?\s*$htmltag\b\s*[^>]*>~";
+            $strippedtext = preg_replace($tagpair, '', $strippedtext);
+        }
+
+        $textarray = [];
+        preg_match_all($this->htmltstarttagsandattributes, $strippedtext, $textarray);
+        if ($textarray[0]) {
+            return $this->allowed_tags_message($textarray[0][0]);
+        }
+
+        preg_match_all($this->htmltclosetags, $strippedtext, $textarray);
+        if ($textarray[0]) {
+            return $this->allowed_tags_message($textarray[0][0]);
+        }
+
+        return '';
+    }
+
+    /**
+     * Returns a message indicating what tags are allowed.
+     *
+     * @param string $badtag The disallowed tag that was supplied
+     * @return string Message indicating what tags are allowed
+     */
+    private function allowed_tags_message(string $badtag): string {
+        $a = new stdClass();
+        $a->tag = htmlspecialchars($badtag, ENT_COMPAT);
+        $a->allowed = $this->get_list_of_printable_allowed_tags($this->allowedhtmltags);
+        if ($a->allowed) {
+            return get_string('tagsnotallowed', 'qtype_oumatrix', $a);
+        } else {
+            return get_string('tagsnotallowedatall', 'qtype_oumatrix', $a);
+        }
+    }
+
+    /**
+     * Returns a prinatble list of allowed HTML tags.
+     *
+     * @param array $allowedhtmltags An array for tag strings that are allowed
+     * @return string A printable list of tags
+     */
+    private function get_list_of_printable_allowed_tags(array $allowedhtmltags): string {
+        $allowedtaglist = [];
+        foreach ($allowedhtmltags as $htmltag) {
+            $allowedtaglist[] = htmlspecialchars('<' . $htmltag . '>', ENT_COMPAT);
+        }
+        return implode(', ', $allowedtaglist);
+    }
+
 
     /**
      * Returns the question type name.
