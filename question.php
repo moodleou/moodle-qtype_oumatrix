@@ -89,6 +89,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     /**
      * Returns the roworder of the question being displayed.
+     *
      * @param question_attempt $qa
      * @return array|null
      */
@@ -182,6 +183,36 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
         return false;
     }
+
+    /**
+     * Return a colun object.
+     *
+     * @param int $number
+     * @return object column|null
+     */
+    protected function get_column_by_number(int $number): ?qtype_oumatrix\column {
+        foreach ($this->columns as $column) {
+            if ($column->number == $number) {
+                return $column;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return a row object.
+     *
+     * @param int $rowid
+     * @return row|null
+     */
+    protected function get_row_by_id(int $rowid): ?qtype_oumatrix\row {
+        foreach ($this->rows as $row) {
+            if ($row->id == $rowid) {
+                return $row;
+            }
+        }
+        return null;
+    }
 }
 
 /**
@@ -267,6 +298,56 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
             }
         }
         return true;
+    }
+
+    public function classify_response(array $response): array {
+        $selectedchoices = [];
+        foreach ($this->roworder as $key => $rowid) {
+            $fieldname = $this->field($key);
+            if (array_key_exists($fieldname, $response) && $response[$fieldname]) {
+                $selectedchoices[$rowid] = $response[$fieldname];
+            } else {
+                $selectedchoices[$rowid] = 0;
+            }
+        }
+
+        $choices = [];
+        foreach ($selectedchoices as $rowid => $colnumber) {
+            if ($selectedchoices[$rowid] === 0) {
+                $choices[$rowid] = question_classified_response::no_response();
+                continue;
+            }
+            $column = $this->get_column_by_number($colnumber);
+            if (in_array($colnumber, array_keys($this->rows[$rowid]->correctanswers))) {
+                $fraction = 1;
+            } else {
+                $fraction = 0;
+            }
+            $choices[$rowid] = new question_classified_response($column->id, $column->name, $fraction);
+        }
+        return $choices;
+    }
+
+    public function prepare_simulated_post_data($simulatedresponse): array {
+        $postdata = [];
+        $subquestions = array_keys($simulatedresponse);
+        $answers = array_values($simulatedresponse);
+
+        foreach ($this->roworder as $key => $rowid) {
+            $row = $this->rows[$rowid];
+            if ($row->name !== $subquestions[$key]) {
+                continue;
+            }
+            if ($key === ($row->number - 1) && $row->name === $subquestions[$key]) {
+                foreach ($this->columns as $colid => $column) {
+                    if ($column->name !== $answers[$key]) {
+                        continue;
+                    }
+                    $postdata[$this->field($key)] = $column->number;
+                }
+            }
+        }
+        return $postdata;
     }
 
     public function grade_response(array $response): array {
@@ -386,6 +467,51 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return true;
+    }
+
+    public function classify_response(array $response) {
+        $selectedchoices = [];
+        foreach ($response as $responsekey => $responsevalue) {
+            preg_match('/([\d+])_([\d+])/', $responsekey, $matches);
+            $rowid = $this->roworder[$matches[1]];
+            $colnumber = $matches[2];
+            $column = $this->get_column_by_number($colnumber);
+            $row = $this->get_row_by_id($rowid);
+            $rowcorrectanswers = $this->rows[$rowid]->correctanswers;
+            if ($responsevalue && in_array($colnumber, array_keys($rowcorrectanswers))) {
+                $fraction = 1 / count($rowcorrectanswers);
+            } else {
+                $fraction = 0;
+            }
+            $colid = $column->id;
+            $selectedchoices["$rowid-$colid"] = new question_classified_response(
+                    $column->id, $row->name . ': ' . $column->name, $fraction);
+        }
+        return $selectedchoices;
+    }
+
+    public function prepare_simulated_post_data($simulatedresponse): array {
+        $postdata = [];
+        $subquestions = array_keys($simulatedresponse);
+        $answers = array_values($simulatedresponse);
+        foreach ($this->roworder as $key => $rowid) {
+            $row = $this->rows[$rowid];
+            $rowanswers = $answers[$key];
+            if ($key === ($row->number - 1) && $row->name === $subquestions[$key]) {
+                foreach ($this->columns as $colid => $column) {
+                    // Set the field to '0' initially.
+                    $postdata[$this->field($key, $column->number)] = '0';
+                    foreach ($rowanswers as $colnumber => $colname) {
+                        if ($row->name === $subquestions[$key] &&
+                                $column->number === $colnumber && $column->name === $colname) {
+                            // Set the field to '1' if it has been ticked..
+                            $postdata[$this->field($key, $column->number)] = '1';
+                        }
+                    }
+                }
+            }
+        }
+        return $postdata;
     }
 
     public function grade_response(array $response): array {
