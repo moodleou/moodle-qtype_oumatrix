@@ -88,7 +88,7 @@ class qtype_oumatrix_test_helper extends question_test_helper {
                         'name' => 'Birds',
                 ],
                 14 => (object) [
-                        'id' => 13,
+                        'id' => 14,
                         'number' => 4,
                         'name' => 'Mammals',
                 ],
