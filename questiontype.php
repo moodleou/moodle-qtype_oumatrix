@@ -316,30 +316,22 @@ class qtype_oumatrix extends question_type {
     }
 
     public function get_possible_responses($questiondata) {
-        if ($questiondata->options->single) {
-            $responses = [];
-
-            // TODO: Sort out this funtion to work with rows and columns, etc.
-            foreach ($questiondata->options->answers as $aid => $answer) {
-                $responses[$aid] = new question_possible_response(
-                        question_utils::to_plain_text($answer->answer, $answer->answerformat),
-                        $answer->fraction);
+        $q = $this->make_question($questiondata);
+        $subqs = [];
+        $responses = [];
+        foreach ($q->rows as $rownumber => $row) {
+            foreach ($q->columns as $colnumber => $col) {
+                if (in_array($colnumber, array_keys($row->correctanswers))) {
+                    $fraction = 1;
+                } else {
+                    $fraction = 0;
+                }
+                $responses[$colnumber] = new question_possible_response($row->name . ': ' . $col->name, $fraction);
             }
-
             $responses[null] = question_possible_response::no_response();
-            return [$questiondata->id => $responses];
-        } else {
-            $parts = [];
-
-            foreach ($questiondata->options->answers as $aid => $answer) {
-                $parts[$aid] = [
-                    $aid => new question_possible_response(question_utils::to_plain_text(
-                            $answer->answer, $answer->answerformat), $answer->fraction),
-                ];
-            }
-
-            return $parts;
+            $subqs[$rownumber] = $responses;
         }
+        return $subqs;
     }
 
     public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {

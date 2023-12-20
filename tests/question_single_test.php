@@ -17,6 +17,7 @@
 namespace qtype_oumatrix;
 use question_attempt_step;
 use question_state;
+use question_classified_response;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -58,6 +59,151 @@ class question_single_test extends \advanced_testcase {
 
         $response = ['rowanswers0' => '1', 'rowanswers1' => '1', 'rowanswers2' => '2'];
         $this->assertEquals($question->is_gradable_response($response), $question->is_complete_response($response));
+    }
+
+    public function test_classify_response_single(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'animals_single');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        // All sub-questions are answered correctly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Fish', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Bee: Insects', 1),
+                        2 => new question_classified_response(2, 'Bee: Fish',  0),
+                        3 => new question_classified_response(3, 'Bee: Birds', 0),
+                        4 => new question_classified_response(4, 'Bee: Mammals', 0),
+                ],
+                2 => [
+                        1 => new question_classified_response(1, 'Salmon: Insects', 0),
+                        2 => new question_classified_response(2, 'Salmon: Fish',  1),
+                        3 => new question_classified_response(3, 'Salmon: Birds', 0),
+                        4 => new question_classified_response(4, 'Salmon: Mammals', 0),
+                ],
+                3 => [
+                        1 => new question_classified_response(1, 'Seagull: Insects', 0),
+                        2 => new question_classified_response(2, 'Seagull: Fish',  0),
+                        3 => new question_classified_response(3, 'Seagull: Birds', 1),
+                        4 => new question_classified_response(4, 'Seagull: Mammals', 0),
+                ],
+                4 => [
+                        1 => new question_classified_response(1, 'Dog: Insects', 0),
+                        2 => new question_classified_response(2, 'Dog: Fish',  0),
+                        3 => new question_classified_response(3, 'Dog: Birds', 0),
+                        4 => new question_classified_response(4, 'Dog: Mammals', 1),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+
+        // Three sub-questions are answered correctly and one incorrectly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Bee: Insects', 1),
+                        2 => new question_classified_response(2, 'Bee: Fish',  0),
+                        3 => new question_classified_response(3, 'Bee: Birds', 0),
+                        4 => new question_classified_response(4, 'Bee: Mammals', 0),
+                ],
+                2 => [
+                        1 => new question_classified_response(1, 'Salmon: Insects', 0),
+                        2 => new question_classified_response(2, 'Salmon: Fish',  0),
+                        3 => new question_classified_response(3, 'Salmon: Birds', 0),
+                        4 => new question_classified_response(4, 'Salmon: Mammals', 0),
+                ],
+                3 => [
+                        1 => new question_classified_response(1, 'Seagull: Insects', 0),
+                        2 => new question_classified_response(2, 'Seagull: Fish',  0),
+                        3 => new question_classified_response(3, 'Seagull: Birds', 1),
+                        4 => new question_classified_response(4, 'Seagull: Mammals', 0),
+                ],
+                4 => [
+                        1 => new question_classified_response(1, 'Dog: Insects', 0),
+                        2 => new question_classified_response(2, 'Dog: Fish',  0),
+                        3 => new question_classified_response(3, 'Dog: Birds', 0),
+                        4 => new question_classified_response(4, 'Dog: Mammals', 1),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+
+        // Two sub-questions are answered correctly and two incorrectly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Bee: Insects', 1),
+                        2 => new question_classified_response(2, 'Bee: Fish',  0),
+                        3 => new question_classified_response(3, 'Bee: Birds', 0),
+                        4 => new question_classified_response(4, 'Bee: Mammals', 0),
+                ],
+                2 => [
+                        1 => new question_classified_response(1, 'Salmon: Insects', 0),
+                        2 => new question_classified_response(2, 'Salmon: Fish',  0),
+                        3 => new question_classified_response(3, 'Salmon: Birds', 0),
+                        4 => new question_classified_response(4, 'Salmon: Mammals', 0),
+                ],
+                3 => [
+                        1 => new question_classified_response(1, 'Seagull: Insects', 0),
+                        2 => new question_classified_response(2, 'Seagull: Fish',  0),
+                        3 => new question_classified_response(3, 'Seagull: Birds', 1),
+                        4 => new question_classified_response(4, 'Seagull: Mammals', 0),
+                ],
+                4 => [
+                        1 => new question_classified_response(1, 'Dog: Insects', 0),
+                        2 => new question_classified_response(2, 'Dog: Fish',  0),
+                        3 => new question_classified_response(3, 'Dog: Birds', 0),
+                        4 => new question_classified_response(4, 'Dog: Mammals', 0),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+
+        // Two sub-questions are answered correctly, one incorrectly, and the second sub-question is not answered.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => '', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Bee: Insects', 1),
+                        2 => new question_classified_response(2, 'Bee: Fish',  0),
+                        3 => new question_classified_response(3, 'Bee: Birds', 0),
+                        4 => new question_classified_response(4, 'Bee: Mammals', 0),
+                ],
+                2 => question_classified_response::no_response(),
+                3 => [
+                        1 => new question_classified_response(1, 'Seagull: Insects', 0),
+                        2 => new question_classified_response(2, 'Seagull: Fish',  0),
+                        3 => new question_classified_response(3, 'Seagull: Birds', 1),
+                        4 => new question_classified_response(4, 'Seagull: Mammals', 0),
+                ],
+                4 => [
+                        1 => new question_classified_response(1, 'Dog: Insects', 0),
+                        2 => new question_classified_response(2, 'Dog: Fish',  0),
+                        3 => new question_classified_response(3, 'Dog: Birds', 0),
+                        4 => new question_classified_response(4, 'Dog: Mammals', 0),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+    }
+
+    public function test_prepare_simulated_post_data_single(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'animals_single');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Fish', 'Seagull' => 'Birds', 'Dog' => 'Mammals'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 2, 'rowanswers2' => 3, 'rowanswers3' => 4];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Mammals'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 3, 'rowanswers2' => 3, 'rowanswers3' => 4];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Insects'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 3, 'rowanswers2' => 3, 'rowanswers3' => 1];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
     }
 
     public function test_is_same_response(): void {
@@ -276,7 +422,7 @@ class question_single_test extends \advanced_testcase {
         ];
 
         $oldstep = new question_attempt_step();
-        $oldstep->set_qt_var('_roworder', '12,23,11,14');
+        $oldstep->set_qt_var('_roworder', '2,3,1,4');
         $this->assertEquals(['_roworder' => '22,23,21,24'],
                 $newq->update_attempt_state_data_for_new_version($oldstep, $q));
     }
@@ -288,19 +434,19 @@ class question_single_test extends \advanced_testcase {
         $this->assertTrue($q->has_specific_feedback());
 
         // First row does not have feedback text.
-        $q->rows[11]->feedback = '';
+        $q->rows[1]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // First and second rows do not have feedback text.
-        $q->rows[12]->feedback = '';
+        $q->rows[2]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // First, second and third rows do not have feedback text.
-        $q->rows[13]->feedback = '';
+        $q->rows[3]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // All rows do not have feedback text.
-        $q->rows[14]->feedback = '';
+        $q->rows[4]->feedback = '';
         $this->assertFalse($q->has_specific_feedback());
     }
 }
