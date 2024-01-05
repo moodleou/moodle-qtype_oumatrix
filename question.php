@@ -168,6 +168,20 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
         return $startdata;
     }
+
+    /**
+     * Check whether question has any specific feedback.
+     *
+     * @return bool
+     */
+    public function has_specific_feedback(): bool {
+        foreach ($this->rows as $row) {
+            if (trim($row->feedback) !== '') {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 /**
