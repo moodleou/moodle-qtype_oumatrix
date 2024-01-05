@@ -280,4 +280,27 @@ class question_single_test extends \advanced_testcase {
         $this->assertEquals(['_roworder' => '22,23,21,24'],
                 $newq->update_attempt_state_data_for_new_version($oldstep, $q));
     }
+
+    public function test_has_specific_feedback(): void {
+        $q = \test_question_maker::make_question('oumatrix', 'animals_single');
+
+        // This question has speific feedback for all 4  rows.
+        $this->assertTrue($q->has_specific_feedback());
+
+        // First row does not have feedback text.
+        $q->rows[11]->feedback = '';
+        $this->assertTrue($q->has_specific_feedback());
+
+        // First and second rows do not have feedback text.
+        $q->rows[12]->feedback = '';
+        $this->assertTrue($q->has_specific_feedback());
+
+        // First, second and third rows do not have feedback text.
+        $q->rows[13]->feedback = '';
+        $this->assertTrue($q->has_specific_feedback());
+
+        // All rows do not have feedback text.
+        $q->rows[14]->feedback = '';
+        $this->assertFalse($q->has_specific_feedback());
+    }
 }
