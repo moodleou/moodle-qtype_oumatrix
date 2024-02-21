@@ -46,7 +46,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $incorrectfeedback;
     public $incorrectfeedbackformat;
 
-    /** @var column[] The columns (answers) object. */
+    /** @var column[] The columns (answers) object, indexed by number. */
     public $columns;
 
     /** @var row[] The rows (subquestions) object. */
@@ -185,21 +185,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     /**
-     * Return a colun object.
-     *
-     * @param int $number
-     * @return object column|null
-     */
-    protected function get_column_by_number(int $number): ?qtype_oumatrix\column {
-        foreach ($this->columns as $column) {
-            if ($column->number == $number) {
-                return $column;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Return a row object.
      *
      * @param int $rowid
@@ -313,11 +298,11 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
 
         $choices = [];
         foreach ($selectedchoices as $rowid => $colnumber) {
-            if ($selectedchoices[$rowid] === 0) {
+            if ($colnumber === 0) {
                 $choices[$rowid] = question_classified_response::no_response();
                 continue;
             }
-            $column = $this->get_column_by_number($colnumber);
+            $column = $this->columns[$colnumber];
             if (in_array($colnumber, array_keys($this->rows[$rowid]->correctanswers))) {
                 $fraction = 1;
             } else {
@@ -475,7 +460,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             preg_match('/([\d+])_([\d+])/', $responsekey, $matches);
             $rowid = $this->roworder[$matches[1]];
             $colnumber = $matches[2];
-            $column = $this->get_column_by_number($colnumber);
+            $column = $this->columns[$colnumber];
             $row = $this->get_row_by_id($rowid);
             $rowcorrectanswers = $this->rows[$rowid]->correctanswers;
             if ($responsevalue && in_array($colnumber, array_keys($rowcorrectanswers))) {
