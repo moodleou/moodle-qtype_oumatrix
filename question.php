@@ -49,7 +49,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     /** @var column[] The columns (answers) object, indexed by number. */
     public $columns;
 
-    /** @var row[] The rows (subquestions) object. */
+    /** @var row[] The rows (subquestions) object, indexed by number. */
     public $rows;
 
     /** @var int The number of columns. */
@@ -190,7 +190,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
      * @param int $rowid
      * @return row|null
      */
-    protected function get_row_by_id(int $rowid): ?qtype_oumatrix\row {
+    protected function get_row_by_id(int $rowid): ?row {
         foreach ($this->rows as $row) {
             if ($row->id == $rowid) {
                 return $row;
@@ -314,17 +314,19 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     public function prepare_simulated_post_data($simulatedresponse): array {
+        // Expected structure of $simulatedresponse is Row name => Col name.
+        // Each row must be present, in order.
         $postdata = [];
         $subquestions = array_keys($simulatedresponse);
         $answers = array_values($simulatedresponse);
 
-        foreach ($this->roworder as $key => $rowid) {
+        foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rowid];
             if ($row->name !== $subquestions[$key]) {
                 continue;
             }
             if ($key === ($row->number - 1) && $row->name === $subquestions[$key]) {
-                foreach ($this->columns as $colid => $column) {
+                foreach ($this->columns as $column) {
                     if ($column->name !== $answers[$key]) {
                         continue;
                     }
