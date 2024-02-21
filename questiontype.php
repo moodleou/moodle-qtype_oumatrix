@@ -316,8 +316,8 @@ class qtype_oumatrix extends question_type {
     }
 
     public function get_possible_responses($questiondata) {
-        $question = $this->make_question_instance($questiondata);
-        $this->initialise_question_instance($question, $questiondata);
+        $question = $this->make_question($questiondata);
+
         $subqs = [];
         $responses = [];
         foreach ($question->rows as $rowid => $row) {
