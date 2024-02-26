@@ -18,6 +18,7 @@ namespace qtype_oumatrix;
 
 use question_attempt_step;
 use question_state;
+use question_classified_response;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -99,6 +100,121 @@ class question_multiple_test extends \advanced_testcase {
         $response = ['rowanswers0_1' => '1', 'rowanswers1_1' => '1', 'rowanswers2_1' => '1'];
         $this->assertTrue($question->is_gradable_response($response), $question->is_complete_response($response));
     }
+
+    public function test_classify_response_multiple(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        $response = $question->prepare_simulated_post_data([
+                'Proteins' => [1 => 'Chicken breast', 3 => 'Salmon fillet', 6 => 'Steak'],
+                'Vegetables' => [2 => 'Carrot', 4 => 'Asparagus', 7 => 'Potato'],
+                'Fats' => [5 => 'Olive oil']]);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Proteins: Chicken breast', 1 / 3),
+                        2 => new question_classified_response(2, 'Proteins: Carrot', 0),
+                        3 => new question_classified_response(3, 'Proteins: Salmon fillet', 1 / 3),
+                        4 => new question_classified_response(4, 'Proteins: Asparagus', 0),
+                        5 => new question_classified_response(5, 'Proteins: Olive oil', 0),
+                        6 => new question_classified_response(6, 'Proteins: Steak', 1 / 3),
+                        7 => new question_classified_response(7, 'Proteins: Potato', 0),
+                ],
+                2 => [
+                        1 => new question_classified_response(1, 'Vegetables: Chicken breast', 0),
+                        2 => new question_classified_response(2, 'Vegetables: Carrot', 1 / 3),
+                        3 => new question_classified_response(3, 'Vegetables: Salmon fillet', 0),
+                        4 => new question_classified_response(4, 'Vegetables: Asparagus', 1 / 3),
+                        5 => new question_classified_response(5, 'Vegetables: Olive oil', 0),
+                        6 => new question_classified_response(6, 'Vegetables: Steak', 0),
+                        7 => new question_classified_response(7, 'Vegetables: Potato', 1 / 3),
+                ],
+                3 => [
+                        1 => new question_classified_response(1, 'Fats: Chicken breast', 0),
+                        2 => new question_classified_response(2, 'Fats: Carrot', 0),
+                        3 => new question_classified_response(3, 'Fats: Salmon fillet', 0),
+                        4 => new question_classified_response(4, 'Fats: Asparagus', 0),
+                        5 => new question_classified_response(5, 'Fats: Olive oil', 1),
+                        6 => new question_classified_response(6, 'Fats: Steak', 0),
+                        7 => new question_classified_response(7, 'Fats: Potato', 0),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+
+        $response = $question->prepare_simulated_post_data([
+                'Proteins' => [1 => 'Chicken breast', 3 => 'Salmon fillet'],
+                'Vegetables' => [2 => 'Carrot', 7 => 'Potato'],
+                'Fats' => [5 => 'Olive oil']]);
+        $expected = [
+                1 => [
+                        1 => new question_classified_response(1, 'Proteins: Chicken breast', 1 / 3),
+                        2 => new question_classified_response(2, 'Proteins: Carrot', 0),
+                        3 => new question_classified_response(3, 'Proteins: Salmon fillet', 1 / 3),
+                        4 => new question_classified_response(4, 'Proteins: Asparagus', 0),
+                        5 => new question_classified_response(5, 'Proteins: Olive oil', 0),
+                        6 => new question_classified_response(6, 'Proteins: Steak', 0),
+                        7 => new question_classified_response(7, 'Proteins: Potato', 0),
+                ],
+                2 => [
+                        1 => new question_classified_response(1, 'Vegetables: Chicken breast', 0),
+                        2 => new question_classified_response(2, 'Vegetables: Carrot', 1 / 3),
+                        3 => new question_classified_response(3, 'Vegetables: Salmon fillet', 0),
+                        4 => new question_classified_response(4, 'Vegetables: Asparagus', 0),
+                        5 => new question_classified_response(5, 'Vegetables: Olive oil', 0),
+                        6 => new question_classified_response(6, 'Vegetables: Steak', 0),
+                        7 => new question_classified_response(7, 'Vegetables: Potato', 1 / 3),
+                ],
+                3 => [
+                        1 => new question_classified_response(1, 'Fats: Chicken breast', 0),
+                        2 => new question_classified_response(2, 'Fats: Carrot', 0),
+                        3 => new question_classified_response(3, 'Fats: Salmon fillet', 0),
+                        4 => new question_classified_response(4, 'Fats: Asparagus', 0),
+                        5 => new question_classified_response(5, 'Fats: Olive oil', 1),
+                        6 => new question_classified_response(6, 'Fats: Steak', 0),
+                        7 => new question_classified_response(7, 'Fats: Potato', 0),
+                ],
+        ];
+        $this->assertEquals($expected, $question->classify_response($response));
+    }
+
+    public function test_prepare_simulated_post_data_multiple(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        $response = ['Proteins' => [1 => 'Chicken breast', 3 => 'Salmon fillet', 6 => 'Steak'],
+                'Vegetables' => [2 => 'Carrot', 4 => 'Asparagus', 7 => 'Potato'], 'Fats' => [5 => 'Olive oil']];
+
+        $expected = [
+                'rowanswers0_1' => '1',
+                'rowanswers0_2' => '0',
+                'rowanswers0_3' => '1',
+                'rowanswers0_4' => '0',
+                'rowanswers0_5' => '0',
+                'rowanswers0_6' => '1',
+                'rowanswers0_7' => '0',
+
+                'rowanswers1_1' => '0',
+                'rowanswers1_2' => '1',
+                'rowanswers1_3' => '0',
+                'rowanswers1_4' => '1',
+                'rowanswers1_5' => '0',
+                'rowanswers1_6' => '0',
+                'rowanswers1_7' => '1',
+
+                'rowanswers2_1' => '0',
+                'rowanswers2_2' => '0',
+                'rowanswers2_3' => '0',
+                'rowanswers2_4' => '0',
+                'rowanswers2_5' => '1',
+                'rowanswers2_6' => '0',
+                'rowanswers2_7' => '0',
+        ];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
+    }
+
 
     public function test_is_same_response(): void {
         $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
