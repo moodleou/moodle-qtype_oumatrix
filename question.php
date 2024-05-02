@@ -248,6 +248,51 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return true;
     }
 
+    public function classify_response(array $response): array {
+        $classifiedresponse = [];
+        foreach ($this->roworder as $key => $rownumber) {
+            $row = $this->rows[$rownumber];
+            $partname = format_string($row->name);
+            if (!array_key_exists($this->field($key), $response)) {
+                $classifiedresponse[$partname] = question_classified_response::no_response();
+                continue;
+            }
+
+            $selectedcolumn = $this->columns[$response[$this->field($key)]];
+            $classifiedresponse[$partname] = new question_classified_response(
+                $selectedcolumn->number,
+                format_string($selectedcolumn->name),
+                (int) array_key_exists($response[$this->field($key)], $row->correctanswers),
+            );
+        }
+
+        return $classifiedresponse;
+    }
+
+    public function prepare_simulated_post_data($simulatedresponse): array {
+        // Expected structure of $simulatedresponse is Row field name => Col name.
+        // Each row must be present, in order.
+        $postdata = [];
+        $subquestions = array_keys($simulatedresponse);
+        $answers = array_values($simulatedresponse);
+
+        foreach ($this->roworder as $key => $rownumber) {
+            $row = $this->rows[$rownumber];
+            if ($row->name !== $subquestions[$key]) {
+                continue;
+            }
+            if ($key === ($row->number - 1) && $row->name === $subquestions[$key]) {
+                foreach ($this->columns as $column) {
+                    if ($column->name !== $answers[$key]) {
+                        continue;
+                    }
+                    $postdata[$this->field($key)] = $column->number;
+                }
+            }
+        }
+        return $postdata;
+    }
+
     public function grade_response(array $response): array {
         // Retrieve the number of right responses and the total number of responses.
         [$numrightparts, $total] = $this->get_num_parts_right($response);
@@ -365,6 +410,51 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return true;
+    }
+
+    public function classify_response(array $response) {
+        $classifiedresponse = [];
+        foreach ($this->roworder as $rowkey => $rownumber) {
+            $row = $this->rows[$rownumber];
+            $rowname = format_string($row->name);
+
+            foreach ($this->columns as $column) {
+                if ($this->is_choice_selected($response, $rowkey, $column->number)) {
+                    $classifiedresponse[$rowname . ': ' . format_string($column->name)] =
+                        new question_classified_response(
+                            1,
+                            get_string('selected', 'qtype_oumatrix'),
+                            array_key_exists($column->number, $row->correctanswers) / count($row->correctanswers),
+                        );
+                }
+            }
+        }
+
+        return $classifiedresponse;
+    }
+
+    public function prepare_simulated_post_data($simulatedresponse): array {
+        $postdata = [];
+        $subquestions = array_keys($simulatedresponse);
+        $answers = array_values($simulatedresponse);
+        foreach ($this->roworder as $key => $rowid) {
+            $row = $this->rows[$rowid];
+            $rowanswers = $answers[$key];
+            if ($key === ($row->number - 1) && $row->name === $subquestions[$key]) {
+                foreach ($this->columns as $colid => $column) {
+                    // Set the field to '0' initially.
+                    $postdata[$this->field($key, $column->number)] = '0';
+                    foreach ($rowanswers as $colnumber => $colname) {
+                        if ($row->name === $subquestions[$key] &&
+                                $column->number === $colnumber && $column->name === $colname) {
+                            // Set the field to '1' if it has been ticked..
+                            $postdata[$this->field($key, $column->number)] = '1';
+                        }
+                    }
+                }
+            }
+        }
+        return $postdata;
     }
 
     public function grade_response(array $response): array {

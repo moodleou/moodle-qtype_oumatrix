@@ -15,8 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace qtype_oumatrix;
+
 use question_attempt_step;
 use question_state;
+use question_classified_response;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -58,6 +60,72 @@ class question_single_test extends \advanced_testcase {
 
         $response = ['rowanswers0' => '1', 'rowanswers1' => '1', 'rowanswers2' => '2'];
         $this->assertEquals($question->is_gradable_response($response), $question->is_complete_response($response));
+    }
+
+    public function test_classify_response_single(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'animals_single');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        // All sub-questions are answered correctly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Fish', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
+        $this->assertEquals([
+            'Bee' => new question_classified_response(1, 'Insects', 1),
+            'Salmon' => new question_classified_response(2, 'Fish',  1),
+            'Seagull' => new question_classified_response(3, 'Birds', 1),
+            'Dog' => new question_classified_response(4, 'Mammals', 1),
+        ], $question->classify_response($response));
+
+        // Three sub-questions are answered correctly and one incorrectly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
+        $this->assertEquals([
+            'Bee' => new question_classified_response(1, 'Insects', 1),
+            'Salmon' => new question_classified_response(3, 'Birds', 0),
+            'Seagull' => new question_classified_response(3, 'Birds', 1),
+            'Dog' => new question_classified_response(4, 'Mammals', 1),
+        ], $question->classify_response($response));
+
+        // Two sub-questions are answered correctly and two incorrectly.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
+        $this->assertEquals([
+            'Bee' => new question_classified_response(1, 'Insects', 1),
+            'Salmon' => new question_classified_response(3, 'Birds', 0),
+            'Seagull' => new question_classified_response(3, 'Birds', 1),
+            'Dog' => new question_classified_response(1, 'Insects', 0),
+        ], $question->classify_response($response));
+
+        // Two sub-questions are answered correctly, one incorrectly, and the second sub-question is not answered.
+        $response = $question->prepare_simulated_post_data(
+                ['Bee' => 'Insects', 'Salmon' => '', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
+        $this->assertEquals([
+            'Bee' => new question_classified_response(1, 'Insects', 1),
+            'Salmon' => question_classified_response::no_response(),
+            'Seagull' => new question_classified_response(3, 'Birds', 1),
+            'Dog' => new question_classified_response(1, 'Insects', 0),
+        ], $question->classify_response($response));
+    }
+
+    public function test_prepare_simulated_post_data_single(): void {
+        $this->resetAfterTest();
+        $question = \test_question_maker::make_question('oumatrix', 'animals_single');
+        $question->shuffleanswers = 0;
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Fish', 'Seagull' => 'Birds', 'Dog' => 'Mammals'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 2, 'rowanswers2' => 3, 'rowanswers3' => 4];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Mammals'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 3, 'rowanswers2' => 3, 'rowanswers3' => 4];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
+
+        $response = ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Insects'];
+        $expected = ['rowanswers0' => 1, 'rowanswers1' => 3, 'rowanswers2' => 3, 'rowanswers3' => 1];
+        $this->assertEquals($expected, $question->prepare_simulated_post_data($response));
     }
 
     public function test_is_same_response(): void {

@@ -17,12 +17,14 @@
 namespace qtype_oumatrix;
 
 use qtype_oumatrix;
-use qtype_oumatrix_edit_form;
 use qtype_oumatrix_test_helper;
+use question_bank;
+use question_possible_response;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/oumatrix/tests/helper.php');
 require_once($CFG->dirroot . '/question/type/oumatrix/questiontype.php');
@@ -68,6 +70,81 @@ class questiontype_test extends \advanced_testcase {
         $q = $helper->get_test_question_data('animals_single');
         $q->columns = [];
         $this->assertNull($this->qtype->get_random_guess_score($q));
+    }
+
+    public function test_get_possible_responses_single(): void {
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+
+        $category = $generator->create_question_category([]);
+        $createdquestion = $generator->create_question('oumatrix', 'animals_single',
+                ['category' => $category->id, 'name' => 'Test question']);
+        $q = question_bank::load_question_data($createdquestion->id);
+
+        $expected = [
+            'Bee' => [
+                1 => new question_possible_response('Insects', 1),
+                2 => new question_possible_response('Fish', 0),
+                3 => new question_possible_response('Birds', 0),
+                4 => new question_possible_response('Mammals', 0),
+                null => question_possible_response::no_response(),
+            ],
+            'Salmon' => [
+                1 => new question_possible_response('Insects', 0),
+                2 => new question_possible_response('Fish', 1),
+                3 => new question_possible_response('Birds', 0),
+                4 => new question_possible_response('Mammals', 0),
+                null => question_possible_response::no_response(),
+            ],
+            'Seagull' => [
+                1 => new question_possible_response('Insects', 0),
+                2 => new question_possible_response('Fish', 0),
+                3 => new question_possible_response('Birds', 1),
+                4 => new question_possible_response('Mammals', 0),
+                null => question_possible_response::no_response(),
+            ],
+            'Dog' => [
+                1 => new question_possible_response('Insects', 0),
+                2 => new question_possible_response('Fish', 0),
+                3 => new question_possible_response('Birds', 0),
+                4 => new question_possible_response('Mammals', 1),
+                null => question_possible_response::no_response(),
+            ],
+        ];
+        $this->assertEquals($expected, $this->qtype->get_possible_responses($q));
+    }
+
+    public function test_get_possible_responses_multiple(): void {
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category([]);
+        $createdquestion = $generator->create_question('oumatrix', 'food_multiple',
+                ['category' => $category->id, 'name' => 'Test question']);
+        $q = question_bank::load_question_data($createdquestion->id);
+        $expected = [
+            'Proteins: Chicken breast' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Proteins: Carrot' => [1 => new question_possible_response('Selected', 0)],
+            'Proteins: Salmon fillet' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Proteins: Asparagus' => [1 => new question_possible_response('Selected', 0)],
+            'Proteins: Olive oil' => [1 => new question_possible_response('Selected', 0)],
+            'Proteins: Steak' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Proteins: Potato' => [1 => new question_possible_response('Selected', 0)],
+            'Vegetables: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
+            'Vegetables: Carrot' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Vegetables: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
+            'Vegetables: Asparagus' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Vegetables: Olive oil' => [1 => new question_possible_response('Selected', 0)],
+            'Vegetables: Steak' => [1 => new question_possible_response('Selected', 0)],
+            'Vegetables: Potato' => [1 => new question_possible_response('Selected', 1 / 3)],
+            'Fats: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
+            'Fats: Carrot' => [1 => new question_possible_response('Selected', 0)],
+            'Fats: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
+            'Fats: Asparagus' => [1 => new question_possible_response('Selected', 0)],
+            'Fats: Olive oil' => [1 => new question_possible_response('Selected', 1)],
+            'Fats: Steak' => [1 => new question_possible_response('Selected', 0)],
+            'Fats: Potato' => [1 => new question_possible_response('Selected', 0)],
+        ];
+        $this->assertEquals($expected, $this->qtype->get_possible_responses($q));
     }
 
     public function get_save_question_which() {

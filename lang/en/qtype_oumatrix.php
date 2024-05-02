@@ -69,6 +69,7 @@ $string['row'] = 'Row {$a}';
 $string['rowshdr'] = 'Matrix rows (sub-questions)';
 $string['rowanswerlist'] = 'Select answers';
 $string['rowx'] = 'Row{$a})';
+$string['selected'] = 'Selected';
 $string['shuffleanswers'] = 'Shuffle the items?';
 $string['shuffleanswers_desc'] = 'Whether options should be randomly shuffled for each attempt by default.';
 $string['shuffleanswers_help'] = 'If enabled, the order of the row items is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';

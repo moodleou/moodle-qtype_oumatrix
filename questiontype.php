@@ -316,30 +316,56 @@ class qtype_oumatrix extends question_type {
     }
 
     public function get_possible_responses($questiondata) {
-        if ($questiondata->options->single) {
-            $responses = [];
-
-            // TODO: Sort out this funtion to work with rows and columns, etc.
-            foreach ($questiondata->options->answers as $aid => $answer) {
-                $responses[$aid] = new question_possible_response(
-                        question_utils::to_plain_text($answer->answer, $answer->answerformat),
-                        $answer->fraction);
-            }
-
-            $responses[null] = question_possible_response::no_response();
-            return [$questiondata->id => $responses];
+        if ($questiondata->options->inputtype == 'single') {
+            return $this->get_possible_responses_single($questiondata);
         } else {
-            $parts = [];
+            return $this->get_possible_responses_multiple($questiondata);
+        }
+    }
 
-            foreach ($questiondata->options->answers as $aid => $answer) {
-                $parts[$aid] = [
-                    $aid => new question_possible_response(question_utils::to_plain_text(
-                            $answer->answer, $answer->answerformat), $answer->fraction),
+    /**
+     * Do the radio button case of get_possible_responses.
+     *
+     * @param stdClass $questiondata the question definition data.
+     * @return array as for get_possible_responses.
+     */
+    protected function get_possible_responses_single(stdClass $questiondata): array {
+        $parts = [];
+        foreach ($questiondata->rows as $row) {
+            $responses = [];
+            foreach ($questiondata->columns as $column) {
+                $responses[$column->number] = new question_possible_response(
+                    format_string($column->name),
+                    (int) ($column->number == $row->correctanswers)
+                );
+            }
+            $responses[null] = question_possible_response::no_response();
+            $parts[format_string($row->name)] = $responses;
+        }
+        return $parts;
+    }
+
+    /**
+     * Do the checkbox button case of get_possible_responses.
+     *
+     * @param stdClass $questiondata the question definition data.
+     * @return array as for get_possible_responses.
+     */
+    protected function get_possible_responses_multiple(stdClass $questiondata): array {
+        $parts = [];
+        foreach ($questiondata->rows as $row) {
+            $rowname = format_string($row->name);
+            $correctanswer = explode(',', $row->correctanswers);
+            foreach ($questiondata->columns as $column) {
+                $parts[$rowname . ': ' . format_string($column->name)] = [
+                    1 => new question_possible_response(
+                        get_string('selected', 'qtype_oumatrix'),
+                        in_array($column->number, $correctanswer) / count($correctanswer),
+                    ),
                 ];
             }
-
-            return $parts;
         }
+        return $parts;
     }
 
     public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
