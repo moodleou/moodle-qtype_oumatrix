@@ -148,22 +148,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         return null;
     }
 
-    public function update_attempt_state_data_for_new_version(
-            question_attempt_step $oldstep, question_definition $otherversion) {
-        $startdata = parent::update_attempt_state_data_for_new_version($oldstep, $otherversion);
-
-        $mapping = array_combine(array_keys($otherversion->rows), array_keys($this->rows));
-
-        $oldorder = explode(',', $oldstep->get_qt_var('_roworder'));
-        $neworder = [];
-        foreach ($oldorder as $oldid) {
-            $neworder[] = $mapping[$oldid] ?? $oldid;
-        }
-        $startdata['_roworder'] = implode(',', $neworder);
-
-        return $startdata;
-    }
-
     /**
      * Check whether question has any specific feedback.
      *
