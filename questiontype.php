@@ -34,6 +34,8 @@ require_once($CFG->libdir.'/questionlib.php');
  * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix extends question_type {
+
+    #[\Override]
     public function get_question_options($question) {
         global $DB, $OUTPUT;
         parent::get_question_options($question);
@@ -52,6 +54,7 @@ class qtype_oumatrix extends question_type {
         return true;
     }
 
+    #[\Override]
     public function save_defaults_for_new_questions(stdClass $fromform): void {
         parent::save_defaults_for_new_questions($fromform);
         $this->set_default_value('inputtype', $fromform->inputtype);
@@ -60,6 +63,7 @@ class qtype_oumatrix extends question_type {
         $this->set_default_value('shownumcorrect', $fromform->shownumcorrect);
     }
 
+    #[\Override]
     public function save_question_options($question) {
         global $DB;
         $context = $question->context;
@@ -168,6 +172,7 @@ class qtype_oumatrix extends question_type {
         }
     }
 
+    #[\Override]
     protected function make_question_instance($questiondata) {
         question_bank::load_question_definition_classes($this->name());
         if ($questiondata->options->inputtype === 'single') {
@@ -178,6 +183,7 @@ class qtype_oumatrix extends question_type {
         return new $class();
     }
 
+    #[\Override]
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         $question->grademethod = $questiondata->options->grademethod;
@@ -245,10 +251,12 @@ class qtype_oumatrix extends question_type {
                 explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
     }
 
+    #[\Override]
     protected function make_hint($hint) {
         return question_hint_with_parts::load_from_record($hint);
     }
 
+    #[\Override]
     public function delete_question($questionid, $contextid) {
         global $DB;
         $DB->delete_records('qtype_oumatrix_options', ['questionid' => $questionid]);
@@ -257,6 +265,7 @@ class qtype_oumatrix extends question_type {
         parent::delete_question($questionid, $contextid);
     }
 
+    #[\Override]
     public function get_random_guess_score($questiondata) {
         // We compute the random guess score here on the assumption we are using
         // the deferred feedback behaviour, and the question text tells the
@@ -288,10 +297,11 @@ class qtype_oumatrix extends question_type {
 
     /**
      * Return total number if choices for both (single, multiple) matrix choices.
+     *
      * @param stdClass $questiondata
      * @return int|null
      */
-    public function get_total_number_of_choices(object $questiondata): ?int {
+    public function get_total_number_of_choices(stdClass $questiondata): ?int {
         // If rows or columns are not set return null.
         if (count($questiondata->columns) === 0 || count($questiondata->rows) === 0) {
             return null;
@@ -304,7 +314,7 @@ class qtype_oumatrix extends question_type {
     /**
      * Returns the count of correct answers for the question.
      *
-     * @param stdClass The question data
+     * @param stdClass $questiondata The question data
      * @return int the number of choices that are correct.
      */
     public function get_num_correct_choices(stdClass $questiondata): int {
@@ -315,6 +325,7 @@ class qtype_oumatrix extends question_type {
         return $numright;
     }
 
+    #[\Override]
     public function get_possible_responses($questiondata) {
         if ($questiondata->options->inputtype == 'single') {
             return $this->get_possible_responses_single($questiondata);
@@ -368,6 +379,7 @@ class qtype_oumatrix extends question_type {
         return $parts;
     }
 
+    #[\Override]
     public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'oumatrix') {
             return false;
@@ -465,6 +477,7 @@ class qtype_oumatrix extends question_type {
         }
     }
 
+    #[\Override]
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
         $output = '';
 
@@ -514,6 +527,7 @@ class qtype_oumatrix extends question_type {
         return $output;
     }
 
+    #[\Override]
     public function move_files($questionid, $oldcontextid, $newcontextid) {
         $fs = get_file_storage();
 
@@ -530,8 +544,7 @@ class qtype_oumatrix extends question_type {
     }
 
     /**
-     * Move all the feedback files belonging to each sub-question
-     * when the question is moved from one context to another.
+     * Move the feedback files related to the row feedback.
      *
      * @param int $questionid the question being moved.
      * @param int $oldcontextid the context it is moving from.
@@ -549,6 +562,7 @@ class qtype_oumatrix extends question_type {
         }
     }
 
+    #[\Override]
     protected function delete_files($questionid, $contextid) {
         $fs = get_file_storage();
 

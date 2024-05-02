@@ -66,6 +66,7 @@ class backup_qtype_oumatrix_plugin extends backup_qtype_plugin {
         return $plugin;
     }
 
+    #[\Override]
     public static function get_qtype_fileareas() {
         return [
             'feedback' => 'qtype_oumatrix_rows',

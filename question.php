@@ -34,26 +34,38 @@ defined('MOODLE_INTERNAL') || die();
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class qtype_oumatrix_base extends question_graded_automatically {
-    public $shuffleanswers;
+    /** @var bool whether the rows should be shuffled. */
+    public bool $shuffleanswers;
 
     /** @var string 'All or none' or 'partial' grading method for multiple response. */
-    public $grademethod;
+    public string $grademethod;
 
-    public $correctfeedback;
-    public $correctfeedbackformat;
-    public $partiallycorrectfeedback;
-    public $partiallycorrectfeedbackformat;
-    public $incorrectfeedback;
-    public $incorrectfeedbackformat;
+    /** @var string feedback for any correct response. */
+    public string $correctfeedback;
+
+    /** @var int format of $correctfeedback. */
+    public int $correctfeedbackformat;
+
+    /** @var string feedback for any partially correct response. */
+    public string $partiallycorrectfeedback;
+
+    /** @var int format of $partiallycorrectfeedback. */
+    public int $partiallycorrectfeedbackformat;
+
+    /** @var string feedback for any incorrect response. */
+    public string $incorrectfeedback;
+
+    /** @var int format of $incorrectfeedback. */
+    public int $incorrectfeedbackformat;
 
     /** @var column[] The columns (answers) object, indexed by number. */
-    public $columns;
+    public array $columns;
 
     /** @var row[] The rows (subquestions) object, indexed by number. */
-    public $rows;
+    public array $rows;
 
     /** @var array The order of the rows, key => row number. */
-    protected $roworder = null;
+    protected ?array $roworder = null;
 
     /**
      * Returns true if the response has been selected for that row and column.
@@ -65,10 +77,13 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
      */
     abstract public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool;
 
+    #[\Override]
     abstract public function is_same_response(array $prevresponse, array $newresponse);
 
+    #[\Override]
     abstract public function grade_response(array $response);
 
+    #[\Override]
     public function start_attempt(question_attempt_step $step, $variant) {
         $this->roworder = array_keys($this->rows);
         if ($this->shuffleanswers) {
@@ -77,6 +92,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         $step->set_qt_var('_roworder', implode(',', $this->roworder));
     }
 
+    #[\Override]
     public function apply_attempt_state(question_attempt_step $step) {
         $this->roworder = explode(',', $step->get_qt_var('_roworder'));
     }
@@ -103,10 +119,12 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
     }
 
+    #[\Override]
     public function is_gradable_response(array $response) {
         return $this->is_complete_response($response);
     }
 
+    #[\Override]
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         if ($component == 'question' && in_array($filearea,
                         ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
@@ -124,6 +142,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         }
     }
 
+    #[\Override]
     public function get_validation_error(array $response): string {
         if ($this->is_complete_response($response)) {
             return '';
@@ -131,6 +150,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
         return get_string('pleaseananswerallparts', 'qtype_oumatrix');
     }
 
+    #[\Override]
     public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
         $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
         if ($basemessage) {
@@ -168,10 +188,12 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
  */
 class qtype_oumatrix_single extends qtype_oumatrix_base {
 
+    #[\Override]
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_oumatrix', 'single');
     }
 
+    #[\Override]
     public function get_expected_data(): array {
         $expected = [];
         foreach ($this->rows as $row) {
@@ -180,6 +202,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $expected;
     }
 
+    #[\Override]
     public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool {
         $responsekey = $this->field($rowkey);
         if (array_key_exists($responsekey, $response)) {
@@ -188,6 +211,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return false;
     }
 
+    #[\Override]
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         foreach ($this->roworder as $key => $notused) {
             $fieldname = $this->field($key);
@@ -208,6 +232,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return 'rowanswers' . $rowkey;
     }
 
+    #[\Override]
     public function get_correct_response(): array {
         $response = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -220,6 +245,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $response;
     }
 
+    #[\Override]
     public function summarise_response(array $response): ?string {
         $responsewords = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -238,6 +264,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return implode('; ', $responsewords);
     }
 
+    #[\Override]
     public function is_complete_response(array $response): bool {
         foreach ($this->roworder as $key => $rownumber) {
             $fieldname = $this->field($key);
@@ -248,6 +275,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return true;
     }
 
+    #[\Override]
     public function classify_response(array $response): array {
         $classifiedresponse = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -269,6 +297,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $classifiedresponse;
     }
 
+    #[\Override]
     public function prepare_simulated_post_data($simulatedresponse): array {
         // Expected structure of $simulatedresponse is Row field name => Col name.
         // Each row must be present, in order.
@@ -293,6 +322,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return $postdata;
     }
 
+    #[\Override]
     public function grade_response(array $response): array {
         // Retrieve the number of right responses and the total number of responses.
         [$numrightparts, $total] = $this->get_num_parts_right($response);
@@ -300,6 +330,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         return [$fraction, question_state::graded_state_for_fraction($fraction)];
     }
 
+    #[\Override]
     public function get_num_parts_right(array $response): array {
         $numright = 0;
         foreach ($this->roworder as $key => $rownumber) {
@@ -318,10 +349,12 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
      */
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
+    #[\Override]
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_oumatrix', 'multiple');
     }
 
+    #[\Override]
     public function get_expected_data(): array {
         $expected = [];
         foreach ($this->rows as $row) {
@@ -332,6 +365,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return $expected;
     }
 
+    #[\Override]
     public function is_choice_selected(array $response, int $rowkey, int $colnumber): bool {
         $responsekey = $this->field($rowkey, $colnumber);
         if (array_key_exists($responsekey, $response)) {
@@ -351,6 +385,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return 'rowanswers' . $rowkey . '_' . $columnnumber;
     }
 
+    #[\Override]
     public function is_same_response(array $prevresponse, array $newresponse): bool {
         foreach ($this->roworder as $key => $notused) {
             foreach ($this->columns as $column) {
@@ -363,6 +398,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return true;
     }
 
+    #[\Override]
     public function get_correct_response(): ?array {
         $response = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -375,6 +411,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return $response;
     }
 
+    #[\Override]
     public function summarise_response(array $response): ?string {
         $responsewords = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -396,6 +433,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return implode('; ', $responsewords);
     }
 
+    #[\Override]
     public function is_complete_response(array $response): bool {
         foreach ($this->roworder as $key => $rownumber) {
             $inputresponse = false;
@@ -412,6 +450,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return true;
     }
 
+    #[\Override]
     public function classify_response(array $response) {
         $classifiedresponse = [];
         foreach ($this->roworder as $rowkey => $rownumber) {
@@ -433,6 +472,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return $classifiedresponse;
     }
 
+    #[\Override]
     public function prepare_simulated_post_data($simulatedresponse): array {
         $postdata = [];
         $subquestions = array_keys($simulatedresponse);
@@ -457,6 +497,7 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         return $postdata;
     }
 
+    #[\Override]
     public function grade_response(array $response): array {
         // Retrieve the number of right responses and the total number of responses.
         if ($this->grademethod == 'allnone') {
@@ -527,6 +568,8 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     }
 
     /**
+     * Get the number of selected choices in a response.
+     *
      * @param array $response responses, as returned by
      *      {@link question_attempt_step::get_qt_data()}.
      * @return int the number of choices that were selected in this response.

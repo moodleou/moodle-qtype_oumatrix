@@ -27,6 +27,7 @@ use qtype_oumatrix\row;
  */
 class qtype_oumatrix_test_helper extends question_test_helper {
 
+    #[\Override]
     public function get_test_questions(): array {
         return [
                 'animals_single',
@@ -439,14 +440,6 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
         $qfdata->hintshownumbcorrect = [1, 1];
         return $qfdata;
-    }
-
-    public function get_test_question_data(string $which) {
-        return \test_question_maker::get_question_data('oumatrix', $which);
-    }
-
-    public function get_test_question_form_data(string $which) {
-        return (array)\test_question_maker::get_question_form_data('oumatrix', $which);
     }
 
     /**

@@ -36,6 +36,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
     /**
      * Returns the value as radio/checkbox based on the single choice or multiple response question.
+     *
      * @return string
      */
     abstract protected function get_input_type(): string;
@@ -86,10 +87,12 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return 0;
     }
 
+    #[\Override]
     protected function feedback_class($fraction) {
         return question_state::graded_state_for_fraction($fraction)->get_feedback_class();
     }
 
+    #[\Override]
     protected function feedback_image($fraction, $selected = true) {
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
 
@@ -99,6 +102,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
             ['class' => 'position-absolute ml-1 mt-1']);
     }
 
+    #[\Override]
     public function formulation_and_controls(question_attempt $qa,
             question_display_options $options) {
         $question = $qa->get_question();
@@ -224,12 +228,14 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         return $table;
     }
 
+    #[\Override]
     public function specific_feedback(question_attempt $qa) {
         return $this->combined_feedback($qa);
     }
 
     /**
      * Function returns string based on number of correct answers
+     *
      * @param array $right An Array of correct responses to the current question
      * @return string based on number of correct responses
      */
@@ -253,22 +259,28 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
+
+    #[\Override]
     protected function get_input_type(): string {
         return 'radio';
     }
 
+    #[\Override]
     protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string {
         return $qa->get_qt_field_name('rowanswers' . $rowkey);
     }
 
+    #[\Override]
     protected function get_input_value(int $value): string {
         return $value;
     }
 
+    #[\Override]
     protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string {
         return $qa->get_qt_field_name('rowanswers' . $rowkey . '_' . $columnnumber);
     }
 
+    #[\Override]
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
         $right = [];
@@ -278,6 +290,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         return $this->correct_choices($right);
     }
 
+    #[\Override]
     protected function num_parts_correct(question_attempt $qa): string {
         $a = new stdClass();
         list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right(
@@ -301,22 +314,28 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
+
+    #[\Override]
     protected function get_input_type(): string {
         return 'checkbox';
     }
 
+    #[\Override]
     protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string {
         return $qa->get_qt_field_name('rowanswers' . $rowkey . '_' . $columnnumber);
     }
 
+    #[\Override]
     protected function get_input_value(int $value): string {
         return "1";
     }
 
+    #[\Override]
     protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string {
         return $this->get_input_name($qa, $rowkey, $columnnumber);
     }
 
+    #[\Override]
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
         foreach ($question->rows as $row) {
@@ -334,6 +353,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
         return $this->correct_choices($rightanswers);
     }
 
+    #[\Override]
     protected function num_parts_correct(question_attempt $qa): string {
         if ($qa->get_question()->get_num_selected_choices($qa->get_last_qt_data()) >
                 $qa->get_question()->get_num_correct_choices()) {

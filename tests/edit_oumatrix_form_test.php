@@ -84,8 +84,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_validation_cols_rows_minimum(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
 
         // Minumum number of columns.
@@ -116,8 +115,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_validation_cols_rows_duplicates(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
 
         // Duplicate a column name.
@@ -144,8 +142,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_validation_column_names_empty(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
 
         // Empty columns names (second and third columns are empty).
@@ -168,8 +165,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_validation_rowanswers(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
 
         // Rows without chosen answer(s) are not valid.
@@ -188,10 +184,9 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_validation_rowanswers_on_empty_columns(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
 
         // Single choice test.
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
 
         // Rows with chosen answer on empty columns are not valid(single choice).
@@ -207,7 +202,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $this->assertEquals($expectedanswer, $errors['rowoptions[1]']);
 
         // Multiple response test.
-        $formdata = $helper->get_test_question_form_data('food_multiple');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'food_multiple');
         $formdata['category'] = $category->id;
 
         // Rows with chosen answers on empty columns are not valid(multi response).
@@ -225,10 +220,9 @@ class edit_oumatrix_form_test extends \advanced_testcase {
      */
     public function test_get_illegal_tag_error(): void {
         [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
-        $helper = new qtype_oumatrix_test_helper();
 
         // Single choice test.
-        $formdata = $helper->get_test_question_form_data('animals_single');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
         $formdata['category'] = $category->id;
         $testdata = $formdata;
 

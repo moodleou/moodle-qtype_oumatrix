@@ -39,13 +39,16 @@ require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers    \qtype_oumatrix
  */
-class questiontype_test extends \advanced_testcase {
-    protected $qtype;
+final class questiontype_test extends \advanced_testcase {
+    /** @var qtype_oumatrix|null instance of the question type to use in tests. */
+    protected ?qtype_oumatrix $qtype;
 
+    #[\Override]
     protected function setUp(): void {
         $this->qtype = new qtype_oumatrix();
     }
 
+    #[\Override]
     protected function tearDown(): void {
         $this->qtype = null;
     }
@@ -54,20 +57,17 @@ class questiontype_test extends \advanced_testcase {
         $this->assertEquals($this->qtype->name(), 'oumatrix');
     }
 
-
     public function test_get_random_guess_score(): void {
-        $helper = new qtype_oumatrix_test_helper();
 
-        $qdata = $helper->get_test_question_data('animals_single');
+        $qdata = \test_question_maker::get_question_data('oumatrix', 'animals_single');
         $this->assertEquals(0.25, $this->qtype->get_random_guess_score($qdata));
 
-        $qdata = $helper->get_test_question_data('food_multiple');
+        $qdata = \test_question_maker::get_question_data('oumatrix', 'food_multiple');
         $this->assertEquals(null, $this->qtype->get_random_guess_score($qdata));
     }
 
     public function test_get_random_guess_score_broken_question(): void {
-        $helper = new qtype_oumatrix_test_helper();
-        $q = $helper->get_test_question_data('animals_single');
+        $q = \test_question_maker::get_question_data('oumatrix', 'animals_single');
         $q->columns = [];
         $this->assertNull($this->qtype->get_random_guess_score($q));
     }
@@ -145,10 +145,6 @@ class questiontype_test extends \advanced_testcase {
             'Fats: Potato' => [1 => new question_possible_response('Selected', 0)],
         ];
         $this->assertEquals($expected, $this->qtype->get_possible_responses($q));
-    }
-
-    public function get_save_question_which() {
-        return [['animals_single'], ['oumatrix_multiple']];
     }
 
     public function test_load_question(): void {

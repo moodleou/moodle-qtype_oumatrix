@@ -27,22 +27,22 @@ use qtype_oumatrix\column;
 class qtype_oumatrix_edit_form extends question_edit_form {
 
     /** The default starting number of columns (answers). */
-    private const COL_NUM_START = 3;
+    protected const COL_NUM_START = 3;
 
     /** The number of columns (answers) that get added at a time. */
-    private const COL_NUM_ADD = 2;
+    protected const COL_NUM_ADD = 2;
 
     /** The default starting number of rows (question row). */
-    private const ROW_NUM_START = 4;
+    protected const ROW_NUM_START = 4;
 
     /** The number of rows (question row) that get added at a time.*/
-    private const ROW_NUM_ADD = 2;
+    protected const ROW_NUM_ADD = 2;
 
     /** @var int Number of columns. */
-    private $numcolumns;
+    protected int $numcolumns;
 
     /** @var string inputtype of rows. */
-    private $inputtype;
+    protected string $inputtype;
 
     /** @var array of HTML tags allowed in column and row names. */
     protected $allowedhtmltags = [
@@ -54,10 +54,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     ];
 
     /** @var string regex to match HTML open tags. */
-    private $htmltstarttagsandattributes = '~<\s*\w+\b[^>]*>~';
+    protected string $htmltstarttagsandattributes = '~<\s*\w+\b[^>]*>~';
 
     /** @var string regex to match HTML close tags or br. */
-    private $htmltclosetags = '~<\s*/\s*\w+\b[^>]*>~';
+    protected string $htmltclosetags = '~<\s*/\s*\w+\b[^>]*>~';
 
     /**
      * Set the inputtype and number of rows and columns method.
@@ -81,6 +81,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $this->numcolumns = $columns ? count($columns) : $this->numcolumns;
     }
 
+    #[\Override]
     protected function definition_inner($mform) {
 
         // Set the number of columns and rows.
@@ -210,6 +211,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return $repeated;
     }
 
+    #[\Override]
     public function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);
         $question = $this->data_preprocessing_options($question);
@@ -310,6 +312,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return $question;
     }
 
+    #[\Override]
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
@@ -448,8 +451,8 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     }
 
     /**
-     * Vaidate some input to make sure it does not contain any tags other than
-     * $this->allowedhtmltags.
+     * Validate some input to make sure it does not contain any tags other than $this->allowedhtmltags.
+     *
      * @param string $text the input to validate.
      * @return string any validation errors.
      */
@@ -506,12 +509,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         return implode(', ', $allowedtaglist);
     }
 
-
-    /**
-     * Returns the question type name.
-     *
-     * @return string The question type name.
-     */
+    #[\Override]
     public function qtype(): string {
         return 'oumatrix';
     }
