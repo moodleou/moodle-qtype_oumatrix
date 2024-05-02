@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Test duplicating a quiz containing a Numerical question
+Feature: Test duplicating a quiz containing an OU matrix question
   As a teacher
-  In order re-use my courses containing Numerical questions
+  In order re-use my courses containing an OU matrix questions
   I need to be able to backup and restore them
 
   Background:

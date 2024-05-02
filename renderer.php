@@ -144,8 +144,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $table .= html_writer::tag('th', '', ['scope' => 'col', 'class' => 'subquestion']);
         $index = 0;
         foreach ($question->columns as $value) {
-            $colname[$index] = $value->name;
-            $table .= html_writer::tag('th', html_writer::span($colname[$index], 'answer_col', ['id' => 'col' . $index]),
+            $table .= html_writer::tag('th', html_writer::span(format_string($value->name), 'answer_col', ['id' => 'col' . $index]),
                 ['scope' => 'col', 'class' => 'align-middle text-center']);
             $index += 1;
         }
@@ -165,16 +164,16 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         // Adding table rows for the sub-questions.
         foreach ($question->get_order($qa) as $rowkey => $rowid) {
+
             $row = $question->rows[$rowid];
-            $rowname = $row->name;
             $rownewid = 'row'. $rowkey;
             $feedback = '';
 
             $table .= html_writer::start_tag('tr');
-            $table .= html_writer::tag('th', html_writer::span($rowname, '', ['id' => $rownewid]),
+            $table .= html_writer::tag('th', html_writer::span(format_string($row->name), '', ['id' => $rownewid]),
                 ['class' => 'subquestion align-middle', 'scope' => 'row']);
 
-            for ($c = 1; $c <= count($colname); $c++) {
+            for ($c = 1; $c <= count($question->columns); $c++) {
                 $inputattributes['name'] = $this->get_input_name($qa, $rowkey, $c);
                 $inputattributes['value'] = $this->get_input_value($c);
                 $inputattributes['id'] = $this->get_input_id($qa, $rowkey, $c);

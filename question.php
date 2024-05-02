@@ -46,19 +46,13 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     public $incorrectfeedback;
     public $incorrectfeedbackformat;
 
-    /** @var column[] The columns (answers) object. */
+    /** @var column[] The columns (answers) object, indexed by number. */
     public $columns;
 
-    /** @var row[] The rows (subquestions) object. */
+    /** @var row[] The rows (subquestions) object, indexed by number. */
     public $rows;
 
-    /** @var int The number of columns. */
-    public $numcolumns;
-
-    /** @var int The number of rows. */
-    public $numrows;
-
-    /** @var array The order of the rows. */
+    /** @var array The order of the rows, key => row number. */
     protected $roworder = null;
 
     /**
@@ -89,6 +83,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     /**
      * Returns the roworder of the question being displayed.
+     *
      * @param question_attempt $qa
      * @return array|null
      */
@@ -413,25 +408,23 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         foreach ($this->roworder as $rowkey => $rownumber) {
             $row = $this->rows[$rownumber];
             $rowrightresponse = 0;
-            if (isset($row->correctanswers)) {
-                foreach ($this->columns as $column) {
-                    $reponsekey = $this->field($rowkey, $column->number);
-                    if (array_key_exists($reponsekey, $response)) {
-                        if (array_key_exists($column->number, $row->correctanswers)) {
-                            // Add to the count of correct responses.
-                            $rowrightresponse++;
-                        } else {
-                            // Check if there are too many responses selected.
-                            // Then set it to -1 so marks are not allotted for it.
-                            $rowrightresponse = -1;
-                            break;
-                        }
+            foreach ($this->columns as $column) {
+                $reponsekey = $this->field($rowkey, $column->number);
+                if (array_key_exists($reponsekey, $response)) {
+                    if (array_key_exists($column->number, $row->correctanswers)) {
+                        // Add to the count of correct responses.
+                        $rowrightresponse++;
+                    } else {
+                        // Check if there are too many responses selected.
+                        // Then set it to -1 so marks are not allotted for it.
+                        $rowrightresponse = -1;
+                        break;
                     }
                 }
-                // Check if the row has the correct response.
-                if ($rowrightresponse == count($row->correctanswers)) {
-                    $numright++;
-                }
+            }
+            // Check if the row has the correct response.
+            if ($rowrightresponse == count($row->correctanswers)) {
+                $numright++;
             }
         }
         return [$numright, count($this->rows)];
@@ -448,15 +441,13 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
         $rightresponse = 0;
         foreach ($this->roworder as $rowkey => $rownumber) {
             $row = $this->rows[$rownumber];
-            if ($row->correctanswers != '' ) {
-                foreach ($this->columns as $column) {
-                    $reponsekey = $this->field($rowkey, $column->number);
-                    if (array_key_exists($reponsekey, $response) && array_key_exists($column->number, $row->correctanswers)) {
-                        $rightresponse++;
-                    }
+            foreach ($this->columns as $column) {
+                $reponsekey = $this->field($rowkey, $column->number);
+                if (array_key_exists($reponsekey, $response) && array_key_exists($column->number, $row->correctanswers)) {
+                    $rightresponse++;
                 }
-                $numcorrectanswers += count($row->correctanswers);
             }
+            $numcorrectanswers += count($row->correctanswers);
         }
         return [$rightresponse, $numcorrectanswers];
     }

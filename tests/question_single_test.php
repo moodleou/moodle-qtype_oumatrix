@@ -241,9 +241,9 @@ class question_single_test extends \advanced_testcase {
         $newq = clone($q);
         $newq->id = 456;
         $newq->columns = [
-            21 => new column($newq->id, 1, 'Insects', 21),
-            22 => new column($newq->id, 2, 'Fish', 22),
-            23 => new column($newq->id, 3, 'Birds', 23),
+            1 => new column($newq->id, 1, 'Insects', 21),
+            2 => new column($newq->id, 2, 'Fish', 22),
+            3 => new column($newq->id, 3, 'Birds', 23),
         ];
 
         $oldstep = new question_attempt_step();
@@ -258,26 +258,26 @@ class question_single_test extends \advanced_testcase {
         $newq = clone($q);
         $newq->id = 456;
         $newq->columns = [
-            21 => new column($newq->id, 1, 'Insects', 21),
-            22 => new column($newq->id, 2, 'Fish', 22),
-            23 => new column($newq->id, 3, 'Birds', 23),
-            24 => new column($newq->id, 4, 'Mammals', 24),
+            1 => new column($newq->id, 1, 'Insects', 21),
+            2 => new column($newq->id, 2, 'Fish', 22),
+            3 => new column($newq->id, 3, 'Birds', 23),
+            4 => new column($newq->id, 4, 'Mammals', 24),
         ];
 
         $newq->rows = [
-            21 => new row(21, $newq->id, 1, 'Bee', [1 => '1'],
+            1 => new row(21, $newq->id, 1, 'Bee', [1 => '1'],
                     'Fly, Bee and spider are insects.', FORMAT_HTML),
-            22 => new row(22, $newq->id, 2, 'Salmon', [2 => '1'],
+            2 => new row(22, $newq->id, 2, 'Salmon', [2 => '1'],
                     'Cod, Salmon and Trout are fish.', FORMAT_HTML),
-            23 => new row(23, $newq->id, 3, 'Seagull', [3 => '1'],
+            3 => new row(23, $newq->id, 3, 'Seagull', [3 => '1'],
                     'Gulls and Owls are birds.', FORMAT_HTML),
-            24 => new row(24, $newq->id, 4, 'Dog', [4 => '1'],
+            4 => new row(24, $newq->id, 4, 'Dog', [4 => '1'],
                     'Cow, Dog and Horse are mammals.', FORMAT_HTML),
         ];
 
         $oldstep = new question_attempt_step();
-        $oldstep->set_qt_var('_roworder', '12,23,11,14');
-        $this->assertEquals(['_roworder' => '22,23,21,24'],
+        $oldstep->set_qt_var('_roworder', '2,3,1,4');
+        $this->assertEquals(['_roworder' => '2,3,1,4'],
                 $newq->update_attempt_state_data_for_new_version($oldstep, $q));
     }
 
@@ -288,19 +288,19 @@ class question_single_test extends \advanced_testcase {
         $this->assertTrue($q->has_specific_feedback());
 
         // First row does not have feedback text.
-        $q->rows[11]->feedback = '';
+        $q->rows[1]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // First and second rows do not have feedback text.
-        $q->rows[12]->feedback = '';
+        $q->rows[2]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // First, second and third rows do not have feedback text.
-        $q->rows[13]->feedback = '';
+        $q->rows[3]->feedback = '';
         $this->assertTrue($q->has_specific_feedback());
 
         // All rows do not have feedback text.
-        $q->rows[14]->feedback = '';
+        $q->rows[4]->feedback = '';
         $this->assertFalse($q->has_specific_feedback());
     }
 }
