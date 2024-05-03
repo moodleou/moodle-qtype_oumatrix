@@ -5,6 +5,8 @@ Feature: Test duplicating a quiz containing an OU matrix question
   I need to be able to backup and restore them
 
   Background:
+    Given the following config values are set as admin:
+      | enableasyncbackup | 0 |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
