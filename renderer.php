@@ -134,7 +134,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $response = $qa->get_last_qt_data();
         $caption = $options->add_question_identifier_to_label(get_string('answer'), false, true);
 
-        $table = html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow visual-scroll-x']);
+        $table = html_writer::start_tag('fieldset', ['class' => 'ablock no-overflow']);
         $table .= html_writer::tag('legend', $caption, ['class' => 'sr-only']);
         $table .= html_writer::start_tag('div', ['class' => 'answer']);
 

@@ -45,12 +45,14 @@ final class questiontype_test extends \advanced_testcase {
 
     #[\Override]
     protected function setUp(): void {
+        parent::setUp();
         $this->qtype = new qtype_oumatrix();
     }
 
     #[\Override]
     protected function tearDown(): void {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     public function test_name(): void {
