@@ -120,16 +120,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     #[\Override]
-    public function is_complete_response(array $response): bool {
-        return $this->validate_response_fields($response, true);
-    }
-
-    #[\Override]
-    public function is_gradable_response(array $response): bool {
-        return $this->validate_response_fields($response, false);
-    }
-
-    #[\Override]
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         if ($component == 'question' && in_array($filearea,
                         ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
@@ -184,22 +174,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
                 return true;
             }
         }
-        return false;
-    }
-
-    /**
-     * Validates the presence of response fields based on the provided condition.
-     * This function checks whether the fields in `$response` match the required fields in `$this->roworder`.
-     * If `$requireall` is true, it ensures that all required fields are present.
-     * If `$requireall` is false, it checks if at least one required field is present.
-     *
-     * @param array $response The response array to be checked.
-     * @param bool $requireall Whether all fields must be present (true) or if at least one field is sufficient (false).
-     * @return bool Returns true if the response satisfies the required condition:
-     * - If `$requireall` is true, returns true if all fields in `$this->roworder` are present in the response.
-     * - If `$requireall` is false, returns true if at least one field is present in the response.
-     */
-    protected function validate_response_fields(array $response, bool $requireall): bool {
         return false;
     }
 }
@@ -286,6 +260,29 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 
     #[\Override]
+    public function is_complete_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            $fieldname = $this->field($key);
+            if (!array_key_exists($fieldname, $response)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    #[\Override]
+    public function is_gradable_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            $fieldname = $this->field($key);
+            if (array_key_exists($fieldname, $response)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    #[\Override]
     public function classify_response(array $response): array {
         $classifiedresponse = [];
         foreach ($this->roworder as $key => $rownumber) {
@@ -351,22 +348,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
             }
         }
         return [$numright, count($this->rows)];
-    }
-
-    #[\Override]
-    protected function validate_response_fields(array $response, bool $requireall): bool {
-        foreach ($this->roworder as $key => $rownumber) {
-            $fieldname = $this->field($key);
-            $answerexist = array_key_exists($fieldname, $response);
-            if ($requireall && !$answerexist) {
-                return false;
-            }
-            if (!$requireall && $answerexist) {
-                return true;
-            }
-        }
-
-        return $requireall;
     }
 }
 
@@ -457,6 +438,36 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return implode('; ', $responsewords);
+    }
+
+    #[\Override]
+    public function is_complete_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            $inputresponse = false;
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($key, $column->number);
+                if (array_key_exists($fieldname, $response)) {
+                    $inputresponse = true;
+                }
+            }
+            if (!$inputresponse) {
+                return $inputresponse;
+            }
+        }
+        return true;
+    }
+
+    #[\Override]
+    public function is_gradable_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($key, $column->number);
+                if (array_key_exists($fieldname, $response)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #[\Override]
@@ -605,27 +616,5 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             $numcorrect += count($row->correctanswers);
         }
         return $numcorrect;
-    }
-
-    #[\Override]
-    protected function validate_response_fields(array $response, bool $requireall): bool {
-        foreach ($this->roworder as $key => $rownumber) {
-            $inputresponse = false;
-            foreach ($this->columns as $column) {
-                $fieldname = $this->field($key, $column->number);
-                if (array_key_exists($fieldname, $response)) {
-                    $inputresponse = true;
-                }
-            }
-            if ($requireall && !$inputresponse) {
-                return false;
-            }
-
-            if (!$requireall && $inputresponse) {
-                return true;
-            }
-        }
-
-        return $requireall;
     }
 }
