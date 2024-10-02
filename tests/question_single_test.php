@@ -56,10 +56,16 @@ class question_single_test extends \advanced_testcase {
         $question->start_attempt(new question_attempt_step(), 1);
 
         $response = ['rowanswers0' => '1', 'rowanswers1' => '1', 'rowanswers2' => '2', 'rowanswers3' => '2'];
-        $this->assertEquals($question->is_gradable_response($response), $question->is_complete_response($response));
+        $this->assertTrue($question->is_gradable_response($response));
 
         $response = ['rowanswers0' => '1', 'rowanswers1' => '1', 'rowanswers2' => '2'];
-        $this->assertEquals($question->is_gradable_response($response), $question->is_complete_response($response));
+        $this->assertTrue($question->is_gradable_response($response));
+
+        $response = ['rowanswers0' => '1'];
+        $this->assertTrue($question->is_gradable_response($response));
+
+        $response = [];
+        $this->assertFalse($question->is_gradable_response($response));
     }
 
     public function test_classify_response_single(): void {

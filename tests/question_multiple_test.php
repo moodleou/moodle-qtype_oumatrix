@@ -92,13 +92,16 @@ class question_multiple_test extends \advanced_testcase {
 
         // If all rows (sub-questions) are answered then the response is gradable.
         $response = ['rowanswers0_1' => '1'];
-        $this->assertFalse($question->is_gradable_response($response), $question->is_complete_response($response));
+        $this->assertTrue($question->is_gradable_response($response));
 
         $response = ['rowanswers0_1' => '1', 'rowanswers1_2' => '1'];
-        $this->assertFalse($question->is_gradable_response($response), $question->is_complete_response($response));
+        $this->assertTrue($question->is_gradable_response($response));
 
         $response = ['rowanswers0_1' => '1', 'rowanswers1_1' => '1', 'rowanswers2_1' => '1'];
-        $this->assertTrue($question->is_gradable_response($response), $question->is_complete_response($response));
+        $this->assertTrue($question->is_gradable_response($response));
+
+        $response = [];
+        $this->assertFalse($question->is_gradable_response($response));
     }
 
     public function test_classify_response_multiple(): void {

@@ -120,11 +120,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
     }
 
     #[\Override]
-    public function is_gradable_response(array $response) {
-        return $this->is_complete_response($response);
-    }
-
-    #[\Override]
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
         if ($component == 'question' && in_array($filearea,
                         ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
@@ -273,6 +268,18 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
             }
         }
         return true;
+    }
+
+    #[\Override]
+    public function is_gradable_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            $fieldname = $this->field($key);
+            if (array_key_exists($fieldname, $response)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #[\Override]
@@ -448,6 +455,19 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
             }
         }
         return true;
+    }
+
+    #[\Override]
+    public function is_gradable_response(array $response): bool {
+        foreach ($this->roworder as $key => $rownumber) {
+            foreach ($this->columns as $column) {
+                $fieldname = $this->field($key, $column->number);
+                if (array_key_exists($fieldname, $response)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #[\Override]
