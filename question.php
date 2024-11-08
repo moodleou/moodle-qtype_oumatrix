@@ -287,7 +287,7 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $classifiedresponse = [];
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            $partname = format_string($row->name);
+            $partname = shorten_text($row->number . '. ' . format_string($row->name), 100);
             if (!array_key_exists($this->field($key), $response)) {
                 $classifiedresponse[$partname] = question_classified_response::no_response();
                 continue;
@@ -479,11 +479,12 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
 
             foreach ($this->columns as $column) {
                 if ($this->is_choice_selected($response, $rowkey, $column->number)) {
-                    $classifiedresponse[$rowname . ': ' . format_string($column->name)] =
+                    $classifiedresponse[shorten_text($row->number . '. ' . format_string($rowname), 50) .
+                            shorten_text(': ' . format_string($column->name), 50)] =
                         new question_classified_response(
                             1,
                             get_string('selected', 'qtype_oumatrix'),
-                            array_key_exists($column->number, $row->correctanswers) / count($row->correctanswers),
+                            (int) array_key_exists($column->number, $row->correctanswers) / count($row->correctanswers),
                         );
                 }
             }
