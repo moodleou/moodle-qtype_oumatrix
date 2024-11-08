@@ -116,13 +116,13 @@ class question_multiple_test extends \advanced_testcase {
                 'Vegetables' => [2 => 'Carrot', 4 => 'Asparagus', 7 => 'Potato'],
                 'Fats' => [5 => 'Olive oil']]);
         $this->assertEquals([
-               "Proteins: Chicken breast" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Proteins: Salmon fillet" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Proteins: Steak" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Vegetables: Carrot" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Vegetables: Asparagus" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Vegetables: Potato" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Fats: Olive oil" => new question_classified_response(1, 'Selected', 1),
+               "1. Proteins: Chicken breast" => new question_classified_response(1, 'Selected', 1 / 3),
+               "1. Proteins: Salmon fillet" => new question_classified_response(1, 'Selected', 1 / 3),
+               "1. Proteins: Steak" => new question_classified_response(1, 'Selected', 1 / 3),
+               "2. Vegetables: Carrot" => new question_classified_response(1, 'Selected', 1 / 3),
+               "2. Vegetables: Asparagus" => new question_classified_response(1, 'Selected', 1 / 3),
+               "2. Vegetables: Potato" => new question_classified_response(1, 'Selected', 1 / 3),
+               "3. Fats: Olive oil" => new question_classified_response(1, 'Selected', 1),
         ], $question->classify_response($response));
 
         // Test a partial response.
@@ -131,11 +131,11 @@ class question_multiple_test extends \advanced_testcase {
                 'Vegetables' => [2 => 'Carrot', 1 => 'Chicken breast'],
                 'Fats' => [5 => 'Olive oil']]);
         $this->assertEquals([
-               "Proteins: Chicken breast" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Proteins: Asparagus" => new question_classified_response(1, 'Selected', 0),
-               "Vegetables: Chicken breast" => new question_classified_response(1, 'Selected', 0),
-               "Vegetables: Carrot" => new question_classified_response(1, 'Selected', 1 / 3),
-               "Fats: Olive oil" => new question_classified_response(1, 'Selected', 1),
+               "1. Proteins: Chicken breast" => new question_classified_response(1, 'Selected', 1 / 3),
+               "1. Proteins: Asparagus" => new question_classified_response(1, 'Selected', 0),
+               "2. Vegetables: Chicken breast" => new question_classified_response(1, 'Selected', 0),
+               "2. Vegetables: Carrot" => new question_classified_response(1, 'Selected', 1 / 3),
+               "3. Fats: Olive oil" => new question_classified_response(1, 'Selected', 1),
         ], $question->classify_response($response));
     }
 

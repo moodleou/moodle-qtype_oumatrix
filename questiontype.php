@@ -351,7 +351,7 @@ class qtype_oumatrix extends question_type {
                 );
             }
             $responses[null] = question_possible_response::no_response();
-            $parts[format_string($row->name)] = $responses;
+            $parts[shorten_text($row->number . '. ' . format_string($row->name), 100)] = $responses;
         }
         return $parts;
     }
@@ -368,10 +368,11 @@ class qtype_oumatrix extends question_type {
             $rowname = format_string($row->name);
             $correctanswer = explode(',', $row->correctanswers);
             foreach ($questiondata->columns as $column) {
-                $parts[$rowname . ': ' . format_string($column->name)] = [
+                $parts[shorten_text($row->number . '. ' . format_string($rowname), 50) .
+                        shorten_text(': ' . format_string($column->name), 50)] = [
                     1 => new question_possible_response(
                         get_string('selected', 'qtype_oumatrix'),
-                        in_array($column->number, $correctanswer) / count($correctanswer),
+                        (int) in_array($column->number, $correctanswer) / count($correctanswer),
                     ),
                 ];
             }

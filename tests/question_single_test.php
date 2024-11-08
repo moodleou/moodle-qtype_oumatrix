@@ -78,40 +78,40 @@ class question_single_test extends \advanced_testcase {
         $response = $question->prepare_simulated_post_data(
                 ['Bee' => 'Insects', 'Salmon' => 'Fish', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
         $this->assertEquals([
-            'Bee' => new question_classified_response(1, 'Insects', 1),
-            'Salmon' => new question_classified_response(2, 'Fish',  1),
-            'Seagull' => new question_classified_response(3, 'Birds', 1),
-            'Dog' => new question_classified_response(4, 'Mammals', 1),
+            '1. Bee' => new question_classified_response(1, 'Insects', 1),
+            '2. Salmon' => new question_classified_response(2, 'Fish',  1),
+            '3. Seagull' => new question_classified_response(3, 'Birds', 1),
+            '4. Dog' => new question_classified_response(4, 'Mammals', 1),
         ], $question->classify_response($response));
 
         // Three sub-questions are answered correctly and one incorrectly.
         $response = $question->prepare_simulated_post_data(
                 ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Mammals']);
         $this->assertEquals([
-            'Bee' => new question_classified_response(1, 'Insects', 1),
-            'Salmon' => new question_classified_response(3, 'Birds', 0),
-            'Seagull' => new question_classified_response(3, 'Birds', 1),
-            'Dog' => new question_classified_response(4, 'Mammals', 1),
+            '1. Bee' => new question_classified_response(1, 'Insects', 1),
+            '2. Salmon' => new question_classified_response(3, 'Birds', 0),
+            '3. Seagull' => new question_classified_response(3, 'Birds', 1),
+            '4. Dog' => new question_classified_response(4, 'Mammals', 1),
         ], $question->classify_response($response));
 
         // Two sub-questions are answered correctly and two incorrectly.
         $response = $question->prepare_simulated_post_data(
                 ['Bee' => 'Insects', 'Salmon' => 'Birds', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
         $this->assertEquals([
-            'Bee' => new question_classified_response(1, 'Insects', 1),
-            'Salmon' => new question_classified_response(3, 'Birds', 0),
-            'Seagull' => new question_classified_response(3, 'Birds', 1),
-            'Dog' => new question_classified_response(1, 'Insects', 0),
+            '1. Bee' => new question_classified_response(1, 'Insects', 1),
+            '2. Salmon' => new question_classified_response(3, 'Birds', 0),
+            '3. Seagull' => new question_classified_response(3, 'Birds', 1),
+            '4. Dog' => new question_classified_response(1, 'Insects', 0),
         ], $question->classify_response($response));
 
         // Two sub-questions are answered correctly, one incorrectly, and the second sub-question is not answered.
         $response = $question->prepare_simulated_post_data(
                 ['Bee' => 'Insects', 'Salmon' => '', 'Seagull' => 'Birds', 'Dog' => 'Insects']);
         $this->assertEquals([
-            'Bee' => new question_classified_response(1, 'Insects', 1),
-            'Salmon' => question_classified_response::no_response(),
-            'Seagull' => new question_classified_response(3, 'Birds', 1),
-            'Dog' => new question_classified_response(1, 'Insects', 0),
+            '1. Bee' => new question_classified_response(1, 'Insects', 1),
+            '2. Salmon' => question_classified_response::no_response(),
+            '3. Seagull' => new question_classified_response(3, 'Birds', 1),
+            '4. Dog' => new question_classified_response(1, 'Insects', 0),
         ], $question->classify_response($response));
     }
 

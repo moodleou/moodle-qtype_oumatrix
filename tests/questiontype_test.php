@@ -84,28 +84,28 @@ final class questiontype_test extends \advanced_testcase {
         $q = question_bank::load_question_data($createdquestion->id);
 
         $expected = [
-            'Bee' => [
+            '1. Bee' => [
                 1 => new question_possible_response('Insects', 1),
                 2 => new question_possible_response('Fish', 0),
                 3 => new question_possible_response('Birds', 0),
                 4 => new question_possible_response('Mammals', 0),
                 null => question_possible_response::no_response(),
             ],
-            'Salmon' => [
+            '2. Salmon' => [
                 1 => new question_possible_response('Insects', 0),
                 2 => new question_possible_response('Fish', 1),
                 3 => new question_possible_response('Birds', 0),
                 4 => new question_possible_response('Mammals', 0),
                 null => question_possible_response::no_response(),
             ],
-            'Seagull' => [
+            '3. Seagull' => [
                 1 => new question_possible_response('Insects', 0),
                 2 => new question_possible_response('Fish', 0),
                 3 => new question_possible_response('Birds', 1),
                 4 => new question_possible_response('Mammals', 0),
                 null => question_possible_response::no_response(),
             ],
-            'Dog' => [
+            '4. Dog' => [
                 1 => new question_possible_response('Insects', 0),
                 2 => new question_possible_response('Fish', 0),
                 3 => new question_possible_response('Birds', 0),
@@ -124,27 +124,27 @@ final class questiontype_test extends \advanced_testcase {
                 ['category' => $category->id, 'name' => 'Test question']);
         $q = question_bank::load_question_data($createdquestion->id);
         $expected = [
-            'Proteins: Chicken breast' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Proteins: Carrot' => [1 => new question_possible_response('Selected', 0)],
-            'Proteins: Salmon fillet' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Proteins: Asparagus' => [1 => new question_possible_response('Selected', 0)],
-            'Proteins: Olive oil' => [1 => new question_possible_response('Selected', 0)],
-            'Proteins: Steak' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Proteins: Potato' => [1 => new question_possible_response('Selected', 0)],
-            'Vegetables: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
-            'Vegetables: Carrot' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Vegetables: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
-            'Vegetables: Asparagus' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Vegetables: Olive oil' => [1 => new question_possible_response('Selected', 0)],
-            'Vegetables: Steak' => [1 => new question_possible_response('Selected', 0)],
-            'Vegetables: Potato' => [1 => new question_possible_response('Selected', 1 / 3)],
-            'Fats: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
-            'Fats: Carrot' => [1 => new question_possible_response('Selected', 0)],
-            'Fats: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
-            'Fats: Asparagus' => [1 => new question_possible_response('Selected', 0)],
-            'Fats: Olive oil' => [1 => new question_possible_response('Selected', 1)],
-            'Fats: Steak' => [1 => new question_possible_response('Selected', 0)],
-            'Fats: Potato' => [1 => new question_possible_response('Selected', 0)],
+            '1. Proteins: Chicken breast' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '1. Proteins: Carrot' => [1 => new question_possible_response('Selected', 0)],
+            '1. Proteins: Salmon fillet' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '1. Proteins: Asparagus' => [1 => new question_possible_response('Selected', 0)],
+            '1. Proteins: Olive oil' => [1 => new question_possible_response('Selected', 0)],
+            '1. Proteins: Steak' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '1. Proteins: Potato' => [1 => new question_possible_response('Selected', 0)],
+            '2. Vegetables: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
+            '2. Vegetables: Carrot' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '2. Vegetables: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
+            '2. Vegetables: Asparagus' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '2. Vegetables: Olive oil' => [1 => new question_possible_response('Selected', 0)],
+            '2. Vegetables: Steak' => [1 => new question_possible_response('Selected', 0)],
+            '2. Vegetables: Potato' => [1 => new question_possible_response('Selected', 1 / 3)],
+            '3. Fats: Chicken breast' => [1 => new question_possible_response('Selected', 0)],
+            '3. Fats: Carrot' => [1 => new question_possible_response('Selected', 0)],
+            '3. Fats: Salmon fillet' => [1 => new question_possible_response('Selected', 0)],
+            '3. Fats: Asparagus' => [1 => new question_possible_response('Selected', 0)],
+            '3. Fats: Olive oil' => [1 => new question_possible_response('Selected', 1)],
+            '3. Fats: Steak' => [1 => new question_possible_response('Selected', 0)],
+            '3. Fats: Potato' => [1 => new question_possible_response('Selected', 0)],
         ];
         $this->assertEquals($expected, $this->qtype->get_possible_responses($q));
     }
