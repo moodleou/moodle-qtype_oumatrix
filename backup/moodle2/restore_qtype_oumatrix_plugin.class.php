@@ -46,6 +46,38 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
         return $paths; // And we return the interesting paths.
     }
+    
+    #[\Override]
+    public static function convert_backup_to_questiondata(array $backupdata): \stdClass {
+        $questiondata = parent::convert_backup_to_questiondata($backupdata);
+        $qtype = $questiondata->qtype;
+        if (isset($backupdata["plugin_qtype_{$qtype}_question"]['oumatrix'])) {
+            $questiondata->options = (object) array_merge(
+                (array) $questiondata->options,
+                $backupdata["plugin_qtype_{$qtype}_question"]['oumatrix'][0],
+            );
+        }
+
+        $questiondata->columns = [];
+        foreach ($backupdata["plugin_qtype_{$qtype}_question"]['columns']['column'] as $column) {
+            $questiondata->columns[] = (object) $column;
+        }
+        $questiondata->rows = [];
+        foreach ($backupdata["plugin_qtype_{$qtype}_question"]['rows']['row'] as $row) {
+            $questiondata->rows[] = (object) $row;
+        }
+        return $questiondata;
+    }
+
+    #[\Override]
+    protected function define_excluded_identity_hash_fields(): array {
+        return [
+            'columns/questionid',
+            'columns/id',
+            'rows/questionid',
+            'rows/id',
+        ];
+    }
 
     /**
      *
