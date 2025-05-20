@@ -44,9 +44,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     /**
      * Returns the name for the row.
      *
-     * @param question_attempt The question attempt
-     * @param int The row key
-     * @param int The column number
+     * @param question_attempt $qa The question attempt
+     * @param int $rowkey The row key
+     * @param int $columnnumber The column number
      * @return string
      */
     abstract protected function get_input_name(question_attempt $qa, int $rowkey, int $columnnumber): string;
@@ -54,7 +54,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     /**
      * Returns the value for the radio/checkbox.
      *
-     * @param int The column number
+     * @param int $value The column number
      * @return string
      */
     abstract protected function get_input_value(int $value): string;
@@ -62,9 +62,9 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     /**
      * Returns the id's attribute for the radio/checkbox.
      *
-     * @param question_attempt The question attempt
-     * @param int The row key
-     * @param int The column number
+     * @param question_attempt $qa The question attempt
+     * @param int $rowkey The row key
+     * @param int $columnnumber The column number
      * @return string
      */
     abstract protected function get_input_id(question_attempt $qa, int $rowkey, int $columnnumber): string;

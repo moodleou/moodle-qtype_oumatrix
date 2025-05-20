@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/question/type/oumatrix/questiontype.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \qtype_oumatrix_multiple
  */
-class question_multiple_test extends \advanced_testcase {
+final class question_multiple_test extends \advanced_testcase {
 
     public function test_get_expected_data(): void {
         $question = \test_question_maker::make_question('oumatrix', 'food_multiple');

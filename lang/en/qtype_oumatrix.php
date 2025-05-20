@@ -23,19 +23,19 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+$string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['answerlabel'] = 'Column {$a}';
 $string['answerlabelshort'] = 'A{$a}';
-$string['addmoreblanks'] = 'Blanks for {no} more {$a}';
 $string['blankcolumnsnotallowed'] = 'Empty column name is not allowed.';
 $string['columnshdr'] = 'Matrix columns (answers)';
 $string['correctanswer'] = 'Correct answer';
 $string['correctanswererror'] = '\'{$a->answerlabel}\' is empty so \'{$a->answerlabelshort}\' cannot be chosen as the correct answer.';
 $string['correctansweris'] = 'The correct answer is: {$a}';
-$string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswers'] = 'Correct answers';
+$string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctanswerserror'] = '\'{$a->answerlabel}\' is empty so \'{$a->answerlabelshort}\' cannot be chosen as a correct answer.';
 $string['duplicates'] = 'Duplicate answer ({$a}) is not allowed.';
+$string['gradeallornothing'] = 'All-or-nothing';
 $string['grademethod'] = 'Grading type';
 $string['grademethod_desc'] = 'Give partial credit (default): each correct response in the body cells are worth one point, so students score a percentage of the total correct responses.
 All or nothing: students must get every response correct, otherwise they score zero.';
@@ -43,7 +43,6 @@ $string['grademethod_help'] = 'Give partial credit (default): each correct respo
 
 All or nothing: students must get every response correct, otherwise they score zero.';
 $string['gradepartialcredit'] = 'Give partial credit';
-$string['gradeallornothing'] = 'All-or-nothing';
 $string['inputtype'] = 'One or multiple answers?';
 $string['inputtype_desc'] = 'One or multiple answers? can be either \'Single choice\' or \'Multiple response\' for each row in the matrix table.';
 $string['inputtypemultiple'] = 'Multiple response';
@@ -59,15 +58,15 @@ $string['pluginnameediting'] = 'Editing a Matrix question';
 $string['pluginnamesummary'] = 'A multi-row table that can use single choice or multiple response inputs.';
 $string['privacy:metadata'] = 'Matrix question type plugin allows question authors to set default options as user preferences.';
 $string['privacy:preference:defaultmark'] = 'The default mark set for a given question.';
-$string['privacy:preference:penalty'] = 'The penalty for each incorrect try when questions are run using the \'Interactive with multiple tries\' or \'Adaptive mode\' behaviour.';
-$string['privacy:preference:inputtype'] = 'Whether the \'One or multiple answers?\' should be \'Single choice\' or \'Multiple response\'.';
 $string['privacy:preference:grademethod'] = 'Whether the Grading type should be \'All-or-nothing\' or \'Give partial credit\' for \'Multiple response\'. This option is diabled for \'Single choice\'.';
+$string['privacy:preference:inputtype'] = 'Whether the \'One or multiple answers?\' should be \'Single choice\' or \'Multiple response\'.';
+$string['privacy:preference:penalty'] = 'The penalty for each incorrect try when questions are run using the \'Interactive with multiple tries\' or \'Adaptive mode\' behaviour.';
 $string['privacy:preference:shuffleanswers'] = 'Whether the answers should be automatically shuffled.';
 $string['regradeissuenumcolumnschanged'] = 'The number of columns has changed.';
 $string['regradeissuenumrowschanged'] = 'The number of rows has changed.';
 $string['row'] = 'Row {$a}';
-$string['rowshdr'] = 'Matrix rows (sub-questions)';
 $string['rowanswerlist'] = 'Select answers';
+$string['rowshdr'] = 'Matrix rows (sub-questions)';
 $string['rowx'] = 'Row{$a})';
 $string['selected'] = 'Selected';
 $string['shuffleanswers'] = 'Shuffle the items?';
@@ -80,6 +79,6 @@ $string['toomanyquestionrows'] = 'You can have maximum {$a} sub-questions.';
 $string['toomanyselected'] = 'You have selected too many options.';
 $string['updateform'] = 'Update the response matrix';
 $string['yougot1right'] = 'You have correctly selected one option.';
-$string['yougotnright'] = 'You have correctly selected {$a->num} options.';
 $string['yougot1rightsubquestion'] = 'You have correctly selected one row.';
+$string['yougotnright'] = 'You have correctly selected {$a->num} options.';
 $string['yougotnrightsubquestion'] = 'You have correctly selected {$a->num} rows.';
