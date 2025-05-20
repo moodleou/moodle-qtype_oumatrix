@@ -46,7 +46,7 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
 
         return $paths; // And we return the interesting paths.
     }
-    
+
     #[\Override]
     public static function convert_backup_to_questiondata(array $backupdata): \stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);

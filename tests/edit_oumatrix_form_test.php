@@ -28,13 +28,6 @@ require_once($CFG->dirroot . '/question/type/oumatrix/questiontype.php');
 require_once($CFG->dirroot . '/question/type/edit_question_form.php');
 require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
 
-/**
- * Unit tests for the OU matrix question definition class.
- *
- * @package   qtype_oumatrix
- * @copyright 2023 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 
 /**
  * Unit tests for oumatrix question edit form.
@@ -44,7 +37,7 @@ require_once($CFG->dirroot . '/question/type/oumatrix/edit_oumatrix_form.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \qtype_oumatrix_edit_form
  */
-class edit_oumatrix_form_test extends \advanced_testcase {
+final class edit_oumatrix_form_test extends \advanced_testcase {
 
     /**
      * Helper method.
@@ -58,11 +51,18 @@ class edit_oumatrix_form_test extends \advanced_testcase {
     protected function get_form(string $classname): array {
         $this->setAdminUser();
         $this->resetAfterTest();
-        $syscontext = \context_system::instance();
-        $category = question_make_default_categories([$syscontext]);
+        if (\core_plugin_manager::instance()->get_plugin_info('mod_qbank')) {
+            $course = self::getDataGenerator()->create_course();
+            $qbank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+            $context = \context_module::instance($qbank->cmid);
+            $category = question_get_default_category($context->id, true);
+        } else {
+            $context = \context_system::instance();
+            $category = question_make_default_categories([$context]);
+        }
         $fakequestion = new stdClass();
         $fakequestion->qtype = 'oumatrix';
-        $fakequestion->contextid = $syscontext->id;
+        $fakequestion->contextid = $context->id;
         $fakequestion->createdby = 2;
         $fakequestion->category = $category->id;
         $fakequestion->questiontext = 'Animal classification. Please answer the sub questions in all 4 rows.';
@@ -74,7 +74,7 @@ class edit_oumatrix_form_test extends \advanced_testcase {
         $fakequestion->inputs = null;
 
         $form = new $classname(new \moodle_url('/'), $fakequestion, $category,
-                new \core_question\local\bank\question_edit_contexts($syscontext));
+                new \core_question\local\bank\question_edit_contexts($context));
 
         return [$form, $category];
     }

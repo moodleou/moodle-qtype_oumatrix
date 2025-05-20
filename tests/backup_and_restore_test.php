@@ -33,7 +33,7 @@ require_once($CFG->libdir . "/phpunit/classes/restore_date_testcase.php");
  * @copyright 2023 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-class backup_and_restore_test extends \restore_date_testcase {
+final class backup_and_restore_test extends \restore_date_testcase {
 
     /**
      * Duplicate quiz with an oumatrix question for testing backup and restore.
@@ -122,21 +122,41 @@ class backup_and_restore_test extends \restore_date_testcase {
      */
     public function test_restore_create_qtype_oumatrix_multiple(): void {
         global $DB;
-
+        $this->resetAfterTest();
         // Create a course with one oumatrix question in its question bank.
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($course->id));
-        $category = question_make_default_categories($contexts->all());
+        if (\core_plugin_manager::instance()->get_plugin_info('mod_qbank')) {
+            $qbank = $generator->create_module('qbank', ['course' => $course->id]);
+            $context = \context_module::instance($qbank->cmid);
+            $contexts = new \core_question\local\bank\question_edit_contexts($context);
+            $category = question_get_default_category($context->id, true);
+        } else {
+            $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($course->id));
+            $category = question_make_default_categories($contexts->all());
+        }
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $oumatrix = $questiongenerator->create_question('oumatrix', 'food_multiple', ['category' => $category->id]);
 
         // Do backup and restore the course.
         $newcourseid = $this->backup_and_restore($course);
-
+        if (\core_plugin_manager::instance()->get_plugin_info('mod_qbank')) {
+            $modinfo = get_fast_modinfo($newcourseid);
+            $cms = $modinfo->get_cms();
+            $newqbank = '';
+            foreach ($cms as $cm) {
+                if ($cm->modname == 'qbank') {
+                    $newqbank = $cm;
+                    break;
+                }
+            }
+            $context = \context_module::instance($newqbank->id);
+            $newcategory = question_get_default_category($context->id, true);
+        } else {
+            $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($newcourseid));
+            $newcategory = question_make_default_categories($contexts->all());
+        }
         // Verify that the restored question has the extra data such as options, columns, rows.
-        $contexts = new \core_question\local\bank\question_edit_contexts(\context_course::instance($newcourseid));
-        $newcategory = question_make_default_categories($contexts->all());
         $newoumatrix = $DB->get_record_sql('SELECT q.*
                                               FROM {question} q
                                               JOIN {question_versions} qv ON qv.questionid = q.id
