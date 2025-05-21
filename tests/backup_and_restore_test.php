@@ -142,14 +142,8 @@ final class backup_and_restore_test extends \restore_date_testcase {
         $newcourseid = $this->backup_and_restore($course);
         if (\core_plugin_manager::instance()->get_plugin_info('mod_qbank')) {
             $modinfo = get_fast_modinfo($newcourseid);
-            $cms = $modinfo->get_cms();
-            $newqbank = '';
-            foreach ($cms as $cm) {
-                if ($cm->modname == 'qbank') {
-                    $newqbank = $cm;
-                    break;
-                }
-            }
+            $qbanks = $modinfo->get_instances_of('qbank');
+            $newqbank = reset($qbanks);
             $context = \context_module::instance($newqbank->id);
             $newcategory = question_get_default_category($context->id, true);
         } else {
