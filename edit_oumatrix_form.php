@@ -29,7 +29,6 @@ require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_edit_form extends question_edit_form {
-
     /** The default starting number of columns (answers). */
     protected const COL_NUM_START = 3;
 
@@ -71,8 +70,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
     protected function set_current_settings(): void {
         $inputtype = optional_param('inputtype', '', PARAM_ALPHA);
         if ($inputtype == '') {
-            $inputtype = $this->question->options->inputtype ?? $this->get_default_value('inputtype',
-                            get_config('qtype_oumatrix', 'inputtype'));
+            $inputtype = $this->question->options->inputtype ?? $this->get_default_value(
+                'inputtype',
+                get_config('qtype_oumatrix', 'inputtype')
+            );
         }
         $this->inputtype = $inputtype;
 
@@ -95,8 +96,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 'multiple' => get_string('inputtypemultiple', 'qtype_oumatrix'),
         ];
         $mform->addElement('select', 'inputtype', get_string('inputtype', 'qtype_oumatrix'), $inputtypemenu);
-        $mform->setDefault('inputtype', $this->get_default_value('inputtype',
-                get_config('qtype_oumatrix', 'inputtype')));
+        $mform->setDefault(
+            'inputtype',
+            $this->get_default_value(
+                'inputtype',
+                get_config('qtype_oumatrix', 'inputtype')
+            )
+        );
 
         $grademethodmenu = [
             'partial' => get_string('gradepartialcredit', 'qtype_oumatrix'),
@@ -104,18 +110,33 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         ];
         $mform->addElement('select', 'grademethod', get_string('grademethod', 'qtype_oumatrix'), $grademethodmenu);
         $mform->addHelpButton('grademethod', 'grademethod', 'qtype_oumatrix');
-        $mform->setDefault('grademethod', $this->get_default_value('grademethod',
-                get_config('qtype_oumatrix', 'grademethod')));
+        $mform->setDefault(
+            'grademethod',
+            $this->get_default_value(
+                'grademethod',
+                get_config('qtype_oumatrix', 'grademethod')
+            )
+        );
         $mform->disabledIf('grademethod', 'inputtype', 'eq', 'single');
 
-        $mform->addElement('select', 'shuffleanswers', get_string('shuffleanswers', 'qtype_oumatrix'),
-                utils::shuffle_select_option());
+        $mform->addElement(
+            'select',
+            'shuffleanswers',
+            get_string('shuffleanswers', 'qtype_oumatrix'),
+            utils::shuffle_select_option()
+        );
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_oumatrix');
-        $mform->setDefault('shuffleanswers', $this->get_default_value('shuffleanswers',
-                get_config('qtype_oumatrix', 'shuffleanswers')));
+        $mform->setDefault(
+            'shuffleanswers',
+            $this->get_default_value('shuffleanswers', get_config('qtype_oumatrix', 'shuffleanswers'))
+        );
 
-        $mform->addElement('select', 'questionnumbering',
-            get_string('questionnumbering', 'qtype_oumatrix'), qtype_multichoice::get_numbering_styles());
+        $mform->addElement(
+            'select',
+            'questionnumbering',
+            get_string('questionnumbering', 'qtype_oumatrix'),
+            qtype_multichoice::get_numbering_styles()
+        );
         $mform->setDefault('questionnumbering', 'none');
 
         // Add update field.
@@ -141,10 +162,16 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $mform->setExpanded('columnshdr', 1);
         $repeatedoptions = [];
 
-        $this->repeat_elements($this->get_per_column_fields($mform, $label, $repeatedoptions),
-            $this->numcolumns, $repeatedoptions,
-            'nocolumns', 'addcolumns', self::COL_NUM_ADD,
-            get_string('addmoreblanks', 'qtype_oumatrix', 'columns'), true);
+        $this->repeat_elements(
+            $this->get_per_column_fields($mform, $label, $repeatedoptions),
+            $this->numcolumns,
+            $repeatedoptions,
+            'nocolumns',
+            'addcolumns',
+            self::COL_NUM_ADD,
+            get_string('addmoreblanks', 'qtype_oumatrix', 'columns'),
+            true
+        );
     }
 
     /**
@@ -180,10 +207,16 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $repeatsatstart = self::ROW_NUM_START;
         }
 
-        $this->repeat_elements($this->get_per_row_fields($mform, $label, $repeatedoptions),
-                $repeatsatstart, $repeatedoptions,
-                'norows', 'addrows', self::ROW_NUM_ADD,
-                get_string('addmoreblanks', 'qtype_oumatrix', 'rows'), true);
+        $this->repeat_elements(
+            $this->get_per_row_fields($mform, $label, $repeatedoptions),
+            $repeatsatstart,
+            $repeatedoptions,
+            'norows',
+            'addrows',
+            self::ROW_NUM_ADD,
+            get_string('addmoreblanks', 'qtype_oumatrix', 'rows'),
+            true
+        );
     }
 
     /**
@@ -213,9 +246,21 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $rowanswerlistlabel = ($this->inputtype === 'single') ?
                 get_string('correctanswer', 'qtype_oumatrix') :
                 get_string('correctanswers', 'qtype_oumatrix');
-        $repeated[] = $mform->createElement('group', 'rowoptions', $rowanswerlistlabel, $rowoptions, null, false);
-        $repeated[] = $mform->createElement('editor', 'feedback',
-                get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
+        $repeated[] = $mform->createElement(
+            'group',
+            'rowoptions',
+            $rowanswerlistlabel,
+            $rowoptions,
+            null,
+            false
+        );
+        $repeated[] = $mform->createElement(
+            'editor',
+            'feedback',
+            get_string('feedback', 'question'),
+            ['rows' => 2],
+            $this->editoroptions
+        );
         $repeatedoptions['rowname']['type'] = PARAM_RAW;
         return $repeated;
     }
@@ -304,13 +349,13 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             $feedback[$key] = [];
             $feedbackdraftitemid = file_get_submitted_draft_itemid('feedback[' . $key . ']');
             $feedback[$key]['text'] = file_prepare_draft_area(
-                    $feedbackdraftitemid,
-                    $this->context->id,
-                    'qtype_oumatrix',
-                    'feedback',
-                    $itemid,
-                    $this->fileoptions,
-                    $row->feedback
+                $feedbackdraftitemid,
+                $this->context->id,
+                'qtype_oumatrix',
+                'feedback',
+                $itemid,
+                $this->fileoptions,
+                $row->feedback
             );
             $feedback[$key]['itemid'] = $feedbackdraftitemid;
             $feedback[$key]['format'] = $row->feedbackformat ?? FORMAT_HTML;
@@ -329,8 +374,11 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         // Validate minimum required number of columns.
         $filteredcolscount = count(array_filter($data['columnname']));
         if ($filteredcolscount < column::MIN_NUMBER_OF_COLUMNS) {
-            $errors['columnname[' . $filteredcolscount . ']'] = get_string('notenoughanswercols', 'qtype_oumatrix',
-                    column::MIN_NUMBER_OF_COLUMNS);
+            $errors['columnname[' . $filteredcolscount . ']'] = get_string(
+                'notenoughanswercols',
+                'qtype_oumatrix',
+                column::MIN_NUMBER_OF_COLUMNS
+            );
         }
 
         // Validate duplication of columns.
@@ -366,9 +414,14 @@ class qtype_oumatrix_edit_form extends question_edit_form {
 
         // Validate minimum required number of rows.
         $countrows = count(array_filter($data['rowname']));
-        if ($countrows < row::MIN_NUMBER_OF_ROWS) {
-            $errors['rowname[' . $countrows . ']'] = get_string('notenoughquestionrows', 'qtype_oumatrix',
-                    row::MIN_NUMBER_OF_ROWS);
+        if (
+            $countrows < row::MIN_NUMBER_OF_ROWS
+        ) {
+            $errors['rowname[' . $countrows . ']'] = get_string(
+                'notenoughquestionrows',
+                'qtype_oumatrix',
+                row::MIN_NUMBER_OF_ROWS
+            );
         }
 
         // Validate duplication of rows.
@@ -392,18 +445,43 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                 }
             }
         } else {
-            // Validate if correct answers have been input for oumatrix multiple choice question.
-            foreach ($nonemptyrows as $rowkey => $rowname) {
-                $answerfound = false;
-                foreach ($data['columnname'] as $colkey => $unused) {
-                    $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
-                    if (isset($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
-                        $answerfound = true;
-                        break;
-                    }
+            $nonemptycolumns = array_filter($data['columnname']);
+            $rowcount = count($nonemptyrows);
+            $columncount = count($nonemptycolumns);
+            $anyanswerselected = false;
+            // Check if ANY answer exists in the whole matrix.
+            foreach ($nonemptycolumns as $colkey => $unused) {
+                $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
+
+                if (!empty($data[$rowanswerslabel])) {
+                    $anyanswerselected = true;
+                    break;
                 }
-                if (!$answerfound) {
-                    $errors['rowoptions[' . $rowkey . ']'] = get_string('noinputanswer', 'qtype_oumatrix');
+            }
+            // Prevent completely empty matrix.
+            if (!$anyanswerselected) {
+                // Just put the error on the first row.
+                $errors['rowoptions[' . 0 . ']'] = get_string(
+                    'noinputanswer',
+                    'qtype_oumatrix'
+                );
+                return $errors;
+            }
+            // Enforce per-row only if matrix is < 2x2.
+            if ($rowcount < 2 || $columncount < 2) {
+                foreach ($nonemptyrows as $rowkey => $rowname) {
+                    $answerfound = false;
+                    foreach ($nonemptycolumns as $colkey => $unused) {
+                        $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
+                        if (!empty($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
+                            $answerfound = true;
+                            break;
+                        }
+                    }
+                    if (!$answerfound) {
+                        $errors['rowoptions[' . $rowkey . ']'] =
+                            get_string('noinputanswer', 'qtype_oumatrix');
+                    }
                 }
             }
         }

@@ -77,3 +77,49 @@ Feature: Preview a OUMatrix question
     And I should see "Proteins → Chicken breast, Salmon fillet, Steak"
     And I should see "Vegetables → Carrot, Asparagus, Potato"
     And I should see "Fats → Olive oil"
+
+  @javascript
+  Scenario: Column and row headers must support and correctly render subscript, superscript.
+    Given I am on the "Course 1" "core_question > course question bank" page logged in as teacher
+    And I add a "Matrix" question filling the form with:
+      | Question name                      | Matrix-single-001                                  |
+      | Question text                      | Please evaluate the following chemical parameters: |
+      | id_status                          | Ready                                              |
+      | id_defaultmark                     | 1                                                  |
+      | id_inputtype                       | single                                             |
+      | id_columnname_0                    | pH<sub>acidic</sub>                                |
+      | id_columnname_1                    | Temp<sup>C</sup>                                   |
+      | id_columnname_2                    | Conductivity<sub>S/cm</sub>                        |
+      | id_rowname_0                       | pH<sub>25C</sub>                                   |
+      | id_rowanswers_0_a1                 | 1                                                  |
+      | id_rowname_1                       | Density (g/cm<sup>3</sup>)                         |
+      | id_rowanswers_1_a2                 | 1                                                  |
+      | id_rowname_2                       | Solubility (mol/L)<sup>sat</sup>                   |
+      | id_rowanswers_2_a3                 | 1                                                  |
+      | id_questionnumbering               | abc                                                |
+      | For any correct response           | Correct feedback                                   |
+      | For any partially correct response | Partially correct feedback.                        |
+      | For any incorrect response         | Incorrect feedback.                                |
+      | Hint 1                             | First hint                                         |
+      | Hint 2                             | Second hint                                        |
+    And I should see "Matrix-single-001"
+    When I am on the "Matrix-single-001" "core_question > preview" page
+    And I should see "Please evaluate the following chemical parameters:"
+    Then "#col0 sub" "css_element" should exist
+    And "#col1 sup" "css_element" should exist
+    And "#col2 sub" "css_element" should exist
+    And "#row0 sub" "css_element" should exist
+    And "#row1 sup" "css_element" should exist
+    And "#row2 sup" "css_element" should exist
+
+  @javascript
+  Scenario: Preview a Matrix question with multiple response with distractor rows.
+    Given I am on the "Multiple matrix 001" "core_question > edit" page logged in as teacher
+    And I set the following fields to these values:
+      | Question name     | Multiple matrix 001 updated |
+      | id_rowanswersa5_2 | 0                           |
+    And I press "id_submitbutton"
+    When I am on the "Multiple matrix 001 updated" "core_question > preview" page
+    And I click on "Fill in correct responses" "button"
+    And I click on "Submit and finish" "button"
+    Then I should see "Fats → (None)"

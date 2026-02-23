@@ -19,7 +19,7 @@ use qtype_oumatrix\row;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/questionlib.php');
+require_once($CFG->libdir . '/questionlib.php');
 
 /**
  * Class that represents the oumatrix question type.
@@ -34,7 +34,6 @@ require_once($CFG->libdir.'/questionlib.php');
  * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix extends question_type {
-
     #[\Override]
     public function get_question_options($question) {
         global $DB, $OUTPUT;
@@ -165,8 +164,13 @@ class qtype_oumatrix extends question_type {
             $questionrow->id = $DB->insert_record('qtype_oumatrix_rows', $questionrow);
 
             if ($question->feedback[$i]['text'] != '') {
-                $questionrow->feedback = $this->import_or_save_files($question->feedback[$i],
-                    $context, 'qtype_oumatrix', 'feedback', $questionrow->id);
+                $questionrow->feedback = $this->import_or_save_files(
+                    $question->feedback[$i],
+                    $context,
+                    'qtype_oumatrix',
+                    'feedback',
+                    $questionrow->id
+                );
                 $questionrow->feedbackformat = $question->feedback[$i]['format'];
 
                 $DB->update_record('qtype_oumatrix_rows', $questionrow);
@@ -230,7 +234,7 @@ class qtype_oumatrix extends question_type {
             $newrow = $this->make_row($row);
             $correctanswers = [];
             foreach ($questiondata->columns as $column) {
-                if (in_array($column->number,  $newrow->correctanswers)) {
+                if (in_array($column->number, $newrow->correctanswers)) {
                     if ($questiondata->options->inputtype == 'single') {
                         $anslabel = 'a' . $column->number;
                         $correctanswers[$column->number] = $anslabel;
@@ -251,8 +255,15 @@ class qtype_oumatrix extends question_type {
      * @return row
      */
     public function make_row(stdClass $rowdata): row {
-        return new row($rowdata->id, $rowdata->questionid, $rowdata->number, $rowdata->name,
-                explode(',', $rowdata->correctanswers), $rowdata->feedback, $rowdata->feedbackformat);
+        return new row(
+            $rowdata->id,
+            $rowdata->questionid,
+            $rowdata->number,
+            $rowdata->name,
+            explode(',', $rowdata->correctanswers),
+            $rowdata->feedback,
+            $rowdata->feedbackformat
+        );
     }
 
     #[\Override]
@@ -290,8 +301,10 @@ class qtype_oumatrix extends question_type {
             return null;
 
             // The follwoing code within 'else' is not excuted(It should not get to here.).
-            if (!$this->get_num_correct_choices($questiondata) ||
-                    !$this->get_total_number_of_choices($questiondata)) {
+            if (
+                !$this->get_num_correct_choices($questiondata) ||
+                !$this->get_total_number_of_choices($questiondata)
+            ) {
                 return null;
             }
             return $this->get_num_correct_choices($questiondata) / $this->get_total_number_of_choices($questiondata);
@@ -394,9 +407,11 @@ class qtype_oumatrix extends question_type {
         $question->qtype = 'oumatrix';
 
         $question->inputtype = $format->import_text(
-            $format->getpath($data, ['#', 'inputtype'], 'single'));
+            $format->getpath($data, ['#', 'inputtype'], 'single')
+        );
         $question->grademethod = $format->import_text(
-            $format->getpath($data, ['#', 'grademethod'], 'partial'));
+            $format->getpath($data, ['#', 'grademethod'], 'partial')
+        );
         $shuffleanswers = $format->getpath($data, ['#', 'shuffleanswers', 0, '#'], 1);
         $question->shuffleanswers = $shuffleanswers === 'false' || $shuffleanswers === 'true'
             ? $format->trans_single($shuffleanswers) : $shuffleanswers;
@@ -413,8 +428,13 @@ class qtype_oumatrix extends question_type {
         }
 
         $format->import_combined_feedback($question, $data, true);
-        $format->import_hints($question, $data, true, true,
-                $format->get_format($question->questiontextformat));
+        $format->import_hints(
+            $question,
+            $data,
+            true,
+            true,
+            $format->get_format($question->questiontextformat)
+        );
 
         // Get extra choicefeedback setting from each hint.
         if (!empty($question->hintoptions)) {
@@ -493,8 +513,8 @@ class qtype_oumatrix extends question_type {
         $output .= '    <grademethod>' . $format->xml_escape($question->options->grademethod)
                 . "</grademethod>\n";
         $output .= "    <shuffleanswers>" . $question->options->shuffleanswers . "</shuffleanswers>\n";
-        $output .= "    <questionnumbering>" . $format->xml_escape(
-                $question->options->questionnumbering) . "</questionnumbering>\n";
+        $output .= "    <questionnumbering>" . $format->xml_escape($question->options->questionnumbering)
+                . "</questionnumbering>\n";
 
         // Export columns data.
         $output .= "    <columns>\n";
@@ -529,9 +549,7 @@ class qtype_oumatrix extends question_type {
             $output .= "      </row>\n";
         }
         $output .= "    </rows>\n";
-        $output .= $format->write_combined_feedback($question->options,
-                $question->id,
-                $question->contextid);
+        $output .= $format->write_combined_feedback($question->options, $question->id, $question->contextid);
         return $output;
     }
 
@@ -543,12 +561,27 @@ class qtype_oumatrix extends question_type {
         $this->move_files_in_row_feedback($questionid, $oldcontextid, $newcontextid);
         $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 
-        $fs->move_area_files_to_new_context($oldcontextid,
-            $newcontextid, 'question', 'correctfeedback', $questionid);
-        $fs->move_area_files_to_new_context($oldcontextid,
-            $newcontextid, 'question', 'partiallycorrectfeedback', $questionid);
-        $fs->move_area_files_to_new_context($oldcontextid,
-            $newcontextid, 'question', 'incorrectfeedback', $questionid);
+        $fs->move_area_files_to_new_context(
+            $oldcontextid,
+            $newcontextid,
+            'question',
+            'correctfeedback',
+            $questionid
+        );
+        $fs->move_area_files_to_new_context(
+            $oldcontextid,
+            $newcontextid,
+            'question',
+            'partiallycorrectfeedback',
+            $questionid
+        );
+        $fs->move_area_files_to_new_context(
+            $oldcontextid,
+            $newcontextid,
+            'question',
+            'incorrectfeedback',
+            $questionid
+        );
     }
 
     /**
@@ -562,11 +595,20 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $fs = get_file_storage();
 
-        $rowids = $DB->get_records_menu('qtype_oumatrix_rows',
-            ['questionid' => $questionid], 'id', 'id,1');
+        $rowids = $DB->get_records_menu(
+            'qtype_oumatrix_rows',
+            ['questionid' => $questionid],
+            'id',
+            'id,1'
+        );
         foreach ($rowids as $rowid => $notused) {
-            $fs->move_area_files_to_new_context($oldcontextid,
-                $newcontextid, 'qtype_oumatrix', 'feedback', $rowid);
+            $fs->move_area_files_to_new_context(
+                $oldcontextid,
+                $newcontextid,
+                'qtype_oumatrix',
+                'feedback',
+                $rowid
+            );
         }
     }
 
@@ -592,8 +634,7 @@ class qtype_oumatrix extends question_type {
         global $DB;
         $fs = get_file_storage();
 
-        $rowids = $DB->get_records_menu('qtype_oumatrix_rows',
-                ['questionid' => $questionid], 'id', 'id,1');
+        $rowids = $DB->get_records_menu('qtype_oumatrix_rows', ['questionid' => $questionid], 'id', 'id,1');
         foreach ($rowids as $rowid => $notused) {
             $fs->delete_area_files($contextid, 'qtype_oumatrix', 'feedback', $rowid);
         }

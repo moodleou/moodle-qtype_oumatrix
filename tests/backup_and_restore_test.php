@@ -34,7 +34,6 @@ require_once($CFG->libdir . "/phpunit/classes/restore_date_testcase.php");
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 final class backup_and_restore_test extends \restore_date_testcase {
-
     /**
      * Duplicate quiz with an oumatrix question for testing backup and restore.
      * @covers \backup_qtype_oumatrix_plugin

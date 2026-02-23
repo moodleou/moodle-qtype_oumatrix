@@ -26,7 +26,6 @@ use qtype_oumatrix\row;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_test_helper extends question_test_helper {
-
     #[\Override]
     public function get_test_questions(): array {
         return [
@@ -485,14 +484,42 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
 
         $question->rows = [
-            1 => new row(11, $question->id, 1, 'Bee', [1 => '1'],
-                    'Flies and Bees are insects.', FORMAT_HTML),
-            2 => new row(12, $question->id, 2, 'Salmon', [2 => '1'],
-                    'Cod, Salmon and Trout are fish.', FORMAT_HTML),
-            3 => new row(13, $question->id, 3, 'Seagull', [3 => '1'],
-                    'Gulls and Owls are birds.', FORMAT_HTML),
-            4 => new row(14, $question->id, 4, 'Dog', [4 => '1'],
-                    'Cows, Dogs and Horses are mammals.', FORMAT_HTML),
+            1 => new row(
+                11,
+                $question->id,
+                1,
+                'Bee',
+                [1 => '1'],
+                'Flies and Bees are insects.',
+                FORMAT_HTML
+            ),
+            2 => new row(
+                12,
+                $question->id,
+                2,
+                'Salmon',
+                [2 => '1'],
+                'Cod, Salmon and Trout are fish.',
+                FORMAT_HTML
+            ),
+            3 => new row(
+                13,
+                $question->id,
+                3,
+                'Seagull',
+                [3 => '1'],
+                'Gulls and Owls are birds.',
+                FORMAT_HTML
+            ),
+            4 => new row(
+                14,
+                $question->id,
+                4,
+                'Dog',
+                [4 => '1'],
+                'Cows, Dogs and Horses are mammals.',
+                FORMAT_HTML
+            ),
         ];
 
         return $question;
@@ -545,12 +572,33 @@ class qtype_oumatrix_test_helper extends question_test_helper {
         ];
 
         $question->rows = [
-            1 => new row(21, $question->id, 1, 'Proteins', [1 => '1', 3 => '1', 6 => '1'],
-                    'Chicken, fish and red meat containing proteins.', FORMAT_HTML),
-            2 => new row(22, $question->id, 2, 'Vegetables', [2 => '1', 4 => '1', 7 => '1'],
-                    'Carrot, Asparagus, Potato are vegetables.', FORMAT_HTML),
-            3 => new row(23, $question->id, 3, 'Fats', [5 => '1'],
-                    'Olive oil contains fat.', FORMAT_HTML),
+            1 => new row(
+                21,
+                $question->id,
+                1,
+                'Proteins',
+                [1 => '1', 3 => '1', 6 => '1'],
+                'Chicken, fish and red meat containing proteins.',
+                FORMAT_HTML
+            ),
+            2 => new row(
+                22,
+                $question->id,
+                2,
+                'Vegetables',
+                [2 => '1', 4 => '1', 7 => '1'],
+                'Carrot, Asparagus, Potato are vegetables.',
+                FORMAT_HTML
+            ),
+            3 => new row(
+                23,
+                $question->id,
+                3,
+                'Fats',
+                [5 => '1'],
+                'Olive oil contains fat.',
+                FORMAT_HTML
+            ),
         ];
 
         $question->hints = [

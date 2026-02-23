@@ -33,7 +33,6 @@ function xmldb_qtype_oumatrix_upgrade($oldversion) {
     $dbman = $DB->get_manager();
     // Put any upgrade step following this.
     if ($oldversion < 2025090200) {
-
         // Define field questionnumbering to be added to qtype_oumatrix_options.
         $table = new xmldb_table('qtype_oumatrix_options');
         $field = new xmldb_field('questionnumbering', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'none', 'shownumcorrect');

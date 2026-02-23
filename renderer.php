@@ -22,9 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use qtype_oumatrix\column;
-use question_utils;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,7 +31,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback_renderer {
-
     /**
      * Returns the value as radio/checkbox based on the single choice or multiple response question.
      *
@@ -99,13 +95,19 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
         // We have to add position-absolute to the class attribute to keep checkboxes/radio buttons aligned
         // when the feedback icon is displayed.
-        return $this->output->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'), '',
-            ['class' => 'position-absolute ml-1 mt-1']);
+        return $this->output->pix_icon(
+            'i/grade_' . $feedbackclass,
+            get_string($feedbackclass, 'question'),
+            '',
+            ['class' => 'position-absolute ml-1 mt-1']
+        );
     }
 
     #[\Override]
-    public function formulation_and_controls(question_attempt $qa,
-            question_display_options $options) {
+    public function formulation_and_controls(
+        question_attempt $qa,
+        question_display_options $options
+    ) {
         $question = $qa->get_question();
         $result = '';
 
@@ -115,8 +117,13 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $result .= $this->matrix_table($qa, $options);
 
         if ($qa->get_state() == question_state::$invalid) {
-            $result .= html_writer::nonempty_tag('div',
-                $question->get_validation_error($qa->get_last_qt_data()), ['class' => 'validationerror']);
+            $result .= html_writer::nonempty_tag(
+                'div',
+                $question->get_validation_error(
+                    $qa->get_last_qt_data()
+                ),
+                ['class' => 'validationerror']
+            );
         }
 
         return $result;
@@ -150,14 +157,28 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         $index = 0;
         foreach ($question->get_colorder($qa) as $colkey => $colid) {
             $column = $question->columns[$colid];
-            $table .= html_writer::tag('th', html_writer::span(format_string($column->name), 'answer_col', ['id' => 'col' . $index]),
-                ['scope' => 'col', 'class' => 'align-middle text-center']);
+            $table .= html_writer::tag(
+                'th',
+                html_writer::span(
+                    question_utils::format_question_fragment($column->name, $this->page->context),
+                    'answer_col',
+                    ['id' => 'col' . $index]
+                ),
+                ['scope' => 'col', 'class' => 'align-middle text-center']
+            );
             $index += 1;
         }
         // Add feedback header only when specific feedback is set to be displayed and provided at least for one row.
         if ($options->feedback && $question->has_specific_feedback()) {
-            $table .= html_writer::tag('th', html_writer::span(get_string('feedback', 'question'),
-                'answer_col', ['id' => 'col' . $index]), ['scope' => 'col', 'class' => 'rowfeedback align-middle']);
+            $table .= html_writer::tag(
+                'th',
+                html_writer::span(
+                    get_string('feedback', 'question'),
+                    'answer_col',
+                    ['id' => 'col' . $index]
+                ),
+                ['scope' => 'col', 'class' => 'rowfeedback align-middle']
+            );
         }
         $table .= html_writer::end_tag('tr');
         $table .= html_writer::end_tag('thead');
@@ -171,16 +192,26 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         // Adding table rows for the sub-questions.
         $columncount = 0;
         foreach ($question->get_roworder($qa) as $rowkey => $rowid) {
-
             $row = $question->rows[$rowid];
-            $rownewid = 'row'. $rowkey;
+            $rownewid = 'row' . $rowkey;
             $feedback = '';
 
             $table .= html_writer::start_tag('tr');
-            $table .= html_writer::tag('th', html_writer::span(
-                $this->number_in_style($columncount, $question->questionnumbering) .
-                format_string($row->name), '', ['id' => $rownewid]),
-                ['class' => 'subquestion align-middle', 'scope' => 'row']);
+            $table .= html_writer::tag(
+                'th',
+                html_writer::span(
+                    $this->number_in_style(
+                        $columncount,
+                        $question->questionnumbering
+                    ) . question_utils::format_question_fragment(
+                        $row->name,
+                        $this->page->context
+                    ),
+                    '',
+                    ['id' => $rownewid]
+                ),
+                ['class' => 'subquestion align-middle', 'scope' => 'row']
+            );
 
             foreach ($question->get_colorder($qa) as $colkey => $colid) {
                 $column = $question->columns[$colid];
@@ -192,12 +223,24 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 $isselected = $question->is_choice_selected($response, $rowkey, $column->number);
 
                 // Get the row per feedback.
-                if ($options->feedback && $feedback == '' &&
-                        $isselected && trim($row->feedback)) {
-                    $feedback = html_writer::tag('div',
-                        $question->make_html_inline($question->format_text($row->feedback, $row->feedbackformat,
-                            $qa, 'qtype_oumatrix', 'feedback', $row->id)),
-                        ['class' => 'specificfeedback text-left px-2 m-0']);
+                if (
+                    $options->feedback && $feedback == '' &&
+                    $isselected && trim($row->feedback)
+                ) {
+                    $feedback = html_writer::tag(
+                        'div',
+                        $question->make_html_inline(
+                            $question->format_text(
+                                $row->feedback,
+                                $row->feedbackformat,
+                                $qa,
+                                'qtype_oumatrix',
+                                'feedback',
+                                $row->id
+                            )
+                        ),
+                        ['class' => 'specificfeedback text-left px-2 m-0']
+                    );
                 }
 
                 $class = '';
@@ -207,8 +250,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 if ($isselected) {
                     $inputattributes['checked'] = 'checked';
                     if ($options->correctness) {
-                        $feedbackimg = html_writer::span($this->feedback_image($this->is_right($question,
-                            $rowid, $column->number)));
+                        $feedbackimg = html_writer::span(
+                            $this->feedback_image(
+                                $this->is_right($question, $rowid, $column->number)
+                            )
+                        );
                         $class .= ' ' . $this->feedback_class($this->is_right($question, $rowid, $column->number));
                     }
                 } else {
@@ -217,8 +263,11 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
 
                 // Write row and its attributes.
                 $button = html_writer::empty_tag('input', $inputattributes);
-                $answered = html_writer::tag('label', $button . $feedbackimg,
-                    ['class' => "position-relative d-inline-block w-100 m-0"]);
+                $answered = html_writer::tag(
+                    'label',
+                    $button . $feedbackimg,
+                    ['class' => "position-relative d-inline-block w-100 m-0"]
+                );
 
                 $table .= html_writer::tag('td', $answered, ['class' => "$class matrixanswer align-middle text-center"]);
             }
@@ -267,7 +316,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
      * @return string the number $num in the requested style.
      */
     protected function number_in_style(int $num, string $style): string {
-        switch($style) {
+        switch ($style) {
             case 'abc':
                 $number = chr(ord('a') + $num);
                 break;
@@ -309,7 +358,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
-
     #[\Override]
     protected function get_input_type(): string {
         return 'radio';
@@ -343,8 +391,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     #[\Override]
     protected function num_parts_correct(question_attempt $qa): string {
         $a = new stdClass();
-        list($a->num, $a->outof) = $qa->get_question()->get_num_parts_right(
-                $qa->get_last_qt_data());
+        [$a->num, $a->outof] = $qa->get_question()->get_num_parts_right($qa->get_last_qt_data());
         if (is_null($a->outof)) {
             return '';
         } else if ($a->num == 1) {
@@ -364,7 +411,6 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
-
     #[\Override]
     protected function get_input_type(): string {
         return 'checkbox';
@@ -396,7 +442,11 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
                 foreach ($row->correctanswers as $columnnumber => $notused) {
                     $answers[] = $question->columns[$columnnumber]->name;
                 }
-                $rowanswer .= implode(', ', $answers);
+                if ($answers) {
+                    $rowanswer .= implode(', ', $answers);
+                } else {
+                    $rowanswer .= get_string('none', 'qtype_oumatrix');
+                }
                 $rightanswers[] = $rowanswer;
             }
         }
@@ -405,14 +455,14 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
 
     #[\Override]
     protected function num_parts_correct(question_attempt $qa): string {
-        if ($qa->get_question()->get_num_selected_choices($qa->get_last_qt_data()) >
-                $qa->get_question()->get_num_correct_choices()) {
+        $numchoices = $qa->get_question()->get_num_selected_choices($qa->get_last_qt_data());
+        if ($numchoices > $qa->get_question()->get_num_correct_choices()) {
             return html_writer::tag('p', get_string('toomanyselected', 'qtype_oumatrix'));
         }
 
         $a = new stdClass();
         if ($qa->get_question()->grademethod == 'allnone') {
-            list($a->num, $a->outof) = $qa->get_question()->get_num_grade_allornone($qa->get_last_qt_data());
+            [$a->num, $a->outof] = $qa->get_question()->get_num_grade_allornone($qa->get_last_qt_data());
             if (is_null($a->outof)) {
                 return '';
             }
@@ -423,7 +473,7 @@ class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
             $a->num = $f->format($a->num);
             return html_writer::tag('p', get_string('yougotnrightsubquestion', 'qtype_oumatrix', $a));
         } else {
-            list($a->num, $a->outof) = $qa->get_question()->get_num_parts_grade_partial($qa->get_last_qt_data());
+            [$a->num, $a->outof] = $qa->get_question()->get_num_parts_grade_partial($qa->get_last_qt_data());
             if (is_null($a->outof)) {
                 return '';
             }

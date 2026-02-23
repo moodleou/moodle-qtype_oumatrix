@@ -59,8 +59,15 @@ class row {
      * @param string $feedback the row feedback
      * @param string $feedbackformat the row feedback format
      */
-    public function __construct(int $id, int $questionid, int $number, string $name, array $correctanswers,
-            string $feedback = '', string $feedbackformat = FORMAT_HTML) {
+    public function __construct(
+        int $id,
+        int $questionid,
+        int $number,
+        string $name,
+        array $correctanswers,
+        string $feedback = '',
+        string $feedbackformat = FORMAT_HTML
+    ) {
         $this->questionid = $questionid;
         $this->number = $number;
         $this->name = $name;
@@ -70,4 +77,3 @@ class row {
         $this->id = $id;
     }
 }
-

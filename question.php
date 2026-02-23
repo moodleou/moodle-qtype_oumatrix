@@ -160,19 +160,17 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     #[\Override]
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-        if ($component == 'question' && in_array($filearea,
-                        ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
+        if (
+            $component == 'question' &&
+            in_array($filearea, ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])
+        ) {
             return $this->check_combined_feedback_file_access($qa, $options, $filearea, $args);
-
         } else if ($component == 'qtype_oumatrix' && $filearea == 'feedback') {
             return $options->feedback;
-
         } else if ($component == 'question' && $filearea == 'hint') {
             return $this->check_hint_file_access($qa, $options, $args);
-
         } else {
-            return parent::check_file_access($qa, $options, $component, $filearea,
-                    $args, $forcedownload);
+            return parent::check_file_access($qa, $options, $component, $filearea, $args, $forcedownload);
         }
     }
 
@@ -221,7 +219,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
  * Class that represents an oumatrix question for single choice.
  */
 class qtype_oumatrix_single extends qtype_oumatrix_base {
-
     #[\Override]
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_oumatrix', 'single');
@@ -383,8 +380,10 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
         $numright = 0;
         foreach ($this->roworder as $key => $rownumber) {
             $row = $this->rows[$rownumber];
-            if (array_key_exists($this->field($key), $response) &&
-                    array_key_exists($response[$this->field($key)], $row->correctanswers)) {
+            if (
+                array_key_exists($this->field($key), $response) &&
+                array_key_exists($response[$this->field($key)], $row->correctanswers)
+            ) {
                 $numright++;
             }
         }
@@ -396,7 +395,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
      * Class that represents a oumatrix question for multiple response.
      */
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
-
     #[\Override]
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_oumatrix', 'multiple');
@@ -487,6 +485,11 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     #[\Override]
     public function is_complete_response(array $response): bool {
         foreach ($this->roworder as $key => $rownumber) {
+            // Skip distractor rows (no correct answers defined).
+            $row = $this->rows[$rownumber];
+            if (empty($row->correctanswers)) {
+                continue;
+            }
             $inputresponse = false;
             foreach ($this->colorder as $colkey => $colnumber) {
                 $column = $this->columns[$colnumber];
@@ -552,8 +555,11 @@ class qtype_oumatrix_multiple extends qtype_oumatrix_base {
                     // Set the field to '0' initially.
                     $postdata[$this->field($key, $column->number)] = '0';
                     foreach ($rowanswers as $colnumber => $colname) {
-                        if ($row->name === $subquestions[$key] &&
-                                $column->number === $colnumber && $column->name === $colname) {
+                        if (
+                            $row->name === $subquestions[$key] &&
+                            $column->number === $colnumber &&
+                            $column->name === $colname
+                        ) {
                             // Set the field to '1' if it has been ticked..
                             $postdata[$this->field($key, $column->number)] = '1';
                         }

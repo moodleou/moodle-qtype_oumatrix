@@ -22,7 +22,6 @@
  * @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
-
     /**
      * Returns the paths to be handled by the plugin at question level.
      *
@@ -121,8 +120,10 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
         $oldid = $data->id;
 
         // Detect if the question is created or mapped.
-        $questioncreated = $this->get_mappingid('question_created',
-                $this->get_old_parentid('question'));
+        $questioncreated = $this->get_mappingid(
+            'question_created',
+            $this->get_old_parentid('question')
+        );
 
         // If the question has been created by restore, we need to create its question_oumatrix too.
         if ($questioncreated) {
@@ -140,10 +141,16 @@ class restore_qtype_oumatrix_plugin extends restore_qtype_plugin {
      */
     public static function define_decode_contents(): array {
         $contents = [];
-        $contents[] = new restore_decode_content('qtype_oumatrix_options',
-            ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'], 'qtype_oumatrix_options');
-        $contents[] = new restore_decode_content('qtype_oumatrix_rows',
-            ['feedback'], 'qtype_oumatrix_rows');
+        $contents[] = new restore_decode_content(
+            'qtype_oumatrix_options',
+            ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'],
+            'qtype_oumatrix_options'
+        );
+        $contents[] = new restore_decode_content(
+            'qtype_oumatrix_rows',
+            ['feedback'],
+            'qtype_oumatrix_rows'
+        );
         return $contents;
     }
 }

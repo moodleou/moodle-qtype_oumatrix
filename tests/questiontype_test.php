@@ -79,8 +79,11 @@ final class questiontype_test extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
         $category = $generator->create_question_category([]);
-        $createdquestion = $generator->create_question('oumatrix', 'animals_single',
-                ['category' => $category->id, 'name' => 'Test question']);
+        $createdquestion = $generator->create_question(
+            'oumatrix',
+            'animals_single',
+            ['category' => $category->id, 'name' => 'Test question']
+        );
         $q = question_bank::load_question_data($createdquestion->id);
 
         $expected = [
@@ -120,8 +123,11 @@ final class questiontype_test extends \advanced_testcase {
         $this->resetAfterTest();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $generator->create_question_category([]);
-        $createdquestion = $generator->create_question('oumatrix', 'food_multiple',
-                ['category' => $category->id, 'name' => 'Test question']);
+        $createdquestion = $generator->create_question(
+            'oumatrix',
+            'food_multiple',
+            ['category' => $category->id, 'name' => 'Test question']
+        );
         $q = question_bank::load_question_data($createdquestion->id);
         $expected = [
             '1. Proteins: Chicken breast' => [1 => new question_possible_response('Selected', 1 / 3)],
@@ -155,8 +161,11 @@ final class questiontype_test extends \advanced_testcase {
         /** @var \core_question_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $generator->create_question_category([]);
-        $createdquestion = $generator->create_question('oumatrix', null,
-            ['category' => $category->id, 'name' => 'Test question']);
+        $createdquestion = $generator->create_question(
+            'oumatrix',
+            null,
+            ['category' => $category->id, 'name' => 'Test question']
+        );
 
         $question = \question_bank::load_question_data($createdquestion->id);
         $this->assertEquals($createdquestion->id, $question->id);

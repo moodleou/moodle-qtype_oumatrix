@@ -31,19 +31,37 @@ if ($ADMIN->fulltree) {
             'single' => new lang_string('inputtypesingle', 'qtype_oumatrix'),
             'multiple' => new lang_string('inputtypemultiple', 'qtype_oumatrix'),
     ];
-    $settings->add(new admin_setting_configselect('qtype_oumatrix/inputtype',
+    $settings->add(
+        new admin_setting_configselect(
+            'qtype_oumatrix/inputtype',
             new lang_string('inputtype', 'qtype_oumatrix'),
-            new lang_string('inputtype_desc', 'qtype_oumatrix'), 'single', $inputtype));
+            new lang_string('inputtype_desc', 'qtype_oumatrix'),
+            'single',
+            $inputtype
+        )
+    );
 
     $grademethod = [
             'partial' => new lang_string('gradepartialcredit', 'qtype_oumatrix'),
             'allnone' => new lang_string('gradeallornothing', 'qtype_oumatrix'),
     ];
-    $settings->add(new admin_setting_configselect('qtype_oumatrix/grademethod',
+    $settings->add(
+        new admin_setting_configselect(
+            'qtype_oumatrix/grademethod',
             new lang_string('grademethod', 'qtype_oumatrix'),
-            new lang_string('grademethod_desc', 'qtype_oumatrix'), 'partial', $grademethod));
+            new lang_string('grademethod_desc', 'qtype_oumatrix'),
+            'partial',
+            $grademethod
+        )
+    );
 
-    $settings->add(new admin_setting_configselect('qtype_oumatrix/shuffleanswers',
+    $settings->add(
+        new admin_setting_configselect(
+            'qtype_oumatrix/shuffleanswers',
             new lang_string('shuffleanswers', 'qtype_oumatrix'),
-            new lang_string('shuffleanswers_desc', 'qtype_oumatrix'), '0', utils::shuffle_select_option()));
+            new lang_string('shuffleanswers_desc', 'qtype_oumatrix'),
+            '0',
+            utils::shuffle_select_option()
+        )
+    );
 }

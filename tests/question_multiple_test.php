@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/question/type/oumatrix/questiontype.php');
  * @covers \qtype_oumatrix_multiple
  */
 final class question_multiple_test extends \advanced_testcase {
-
     public function test_get_expected_data(): void {
         $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
         $question->start_attempt(new question_attempt_step(), 1);
@@ -48,7 +47,7 @@ final class question_multiple_test extends \advanced_testcase {
                 $expected['rowanswers' . ($row->number - 1) . '_' . $column->number] = PARAM_INT;
             }
         }
-        $this->assertEquals($expected , $question->get_expected_data());
+        $this->assertEquals($expected, $question->get_expected_data());
     }
 
     public function test_is_complete_response(): void {
@@ -83,6 +82,30 @@ final class question_multiple_test extends \advanced_testcase {
                 'rowanswers1_7' => '1',
                 'rowanswers2_5' => '1',
         ];
+        $this->assertTrue($question->is_complete_response($response));
+    }
+
+    /**
+     * Test that distractor rows are skipped when checking for complete response.
+     */
+    public function test_is_complete_response_skips_distractor_row(): void {
+        $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
+        // Make the row 2 a distractor.
+        $question->rows[2]->correctanswers = [];
+        $question->start_attempt(new question_attempt_step(), 1);
+
+        $this->assertFalse($question->is_complete_response([]));
+
+        // Only first row answered still incomplete.
+        $response = ['rowanswers0_1' => '1'];
+        $this->assertFalse($question->is_complete_response($response));
+
+        // Answer row 1 and row 3 (skip distractor row 2).
+        $response = [
+            'rowanswers0_1' => '1',
+            'rowanswers2_1' => '1',
+        ];
+
         $this->assertTrue($question->is_complete_response($response));
     }
 
@@ -181,21 +204,36 @@ final class question_multiple_test extends \advanced_testcase {
         $question = \test_question_maker::make_question('oumatrix', 'food_multiple');
         $question->start_attempt(new question_attempt_step(), 1);
 
-        $this->assertTrue($question->is_same_response(
+        $this->assertTrue(
+            $question->is_same_response(
                 ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1'],
-                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1']));
-        $this->assertFalse($question->is_same_response(
+                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1']
+            )
+        );
+        $this->assertFalse(
+            $question->is_same_response(
                 ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1'],
-                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_1' => '1']));
-        $this->assertTrue($question->is_same_response(
+                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_1' => '1']
+            )
+        );
+        $this->assertTrue(
+            $question->is_same_response(
                 ['rowanswers0_1' => '1', 'rowanswers0_2' => '1', 'rowanswers0_3' => '1'],
-                ['rowanswers0_1' => '1', 'rowanswers0_2' => '1', 'rowanswers0_3' => '1']));
-        $this->assertFalse($question->is_same_response(
+                ['rowanswers0_1' => '1', 'rowanswers0_2' => '1', 'rowanswers0_3' => '1']
+            )
+        );
+        $this->assertFalse(
+            $question->is_same_response(
                 ['rowanswers0_2' => '1', 'rowanswers1_3' => '1', 'rowanswers2_4' => '1'],
-                ['rowanswers0_2' => '1', 'rowanswers1_3' => '1', 'rowanswers2_3' => '1']));
-        $this->assertTrue($question->is_same_response(
+                ['rowanswers0_2' => '1', 'rowanswers1_3' => '1', 'rowanswers2_3' => '1']
+            )
+        );
+        $this->assertTrue(
+            $question->is_same_response(
                 ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '1'],
-                ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '1']));
+                ['rowanswers0' => '1', 'rowanswers1' => '2', 'rowanswers2' => '3', 'rowanswers3' => '1']
+            )
+        );
 
         $correctresponse = [
                 'rowanswers0_1' => '1',
@@ -259,8 +297,10 @@ final class question_multiple_test extends \advanced_testcase {
         $question->start_attempt(new question_attempt_step(), 1);
 
         $expected = '/Proteins → Chicken breast, Salmon fillet, Steak/';
-        $this->assertMatchesRegularExpression($expected, $question->summarise_response(
-                ['rowanswers0_1' => '1', 'rowanswers0_3' => '1', 'rowanswers0_6' => '1']));
+        $this->assertMatchesRegularExpression(
+            $expected,
+            $question->summarise_response(['rowanswers0_1' => '1', 'rowanswers0_3' => '1', 'rowanswers0_6' => '1'])
+        );
 
         $expected = '/Proteins → Chicken breast, Salmon fillet, Steak; Vegetables → Carrot, Asparagus, Potato/';
         $this->assertMatchesRegularExpression($expected, $question->summarise_response([
@@ -284,8 +324,10 @@ final class question_multiple_test extends \advanced_testcase {
         ]));
 
         $expected = '/Proteins → Chicken breast; Vegetables → Carrot; Fats → Salmon fillet/';
-        $this->assertMatchesRegularExpression($expected, $question->summarise_response(
-                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1']));
+        $this->assertMatchesRegularExpression(
+            $expected,
+            $question->summarise_response(['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_3' => '1'])
+        );
     }
 
     public function test_grade_response(): void {
@@ -312,8 +354,11 @@ final class question_multiple_test extends \advanced_testcase {
                 'rowanswers2_7' => '1',
                 'rowanswers2_5' => '1',
         ];
-        $this->assertEqualsWithDelta([0.7142857, question_state::$gradedpartial],
-                $question->grade_response($expectedpartiallycorrectresponse), 0.0000001);
+        $this->assertEqualsWithDelta(
+            [0.7142857, question_state::$gradedpartial],
+            $question->grade_response($expectedpartiallycorrectresponse),
+            0.0000001
+        );
 
         $expectedpartialresponse = [
                 'rowanswers0_1' => '1',
@@ -322,8 +367,11 @@ final class question_multiple_test extends \advanced_testcase {
                 'rowanswers1_1' => '1',
                 'rowanswers2_2' => '1',
         ];
-        $this->assertEqualsWithDelta([0.4285714, question_state::$gradedpartial],
-                $question->grade_response($expectedpartialresponse), 0.0000001);
+        $this->assertEqualsWithDelta(
+            [0.4285714, question_state::$gradedpartial],
+            $question->grade_response($expectedpartialresponse),
+            0.0000001
+        );
 
         $expectedwrongresponse = [
                 'rowanswers0_2' => '1',
@@ -422,8 +470,12 @@ final class question_multiple_test extends \advanced_testcase {
         ]));
 
         // Three responsess are given and all are correct.
-        $this->assertEquals([3, 7], $question->get_num_parts_grade_partial(
-                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_5' => '1']));
+        $this->assertEquals(
+            [3, 7],
+            $question->get_num_parts_grade_partial(
+                ['rowanswers0_1' => '1', 'rowanswers1_2' => '1', 'rowanswers2_5' => '1']
+            )
+        );
 
         // Two responsess are given and both are correct (Third row has not been answered).
         $this->assertEquals([2, 7], $question->get_num_parts_grade_partial(['rowanswers0_1' => '1', 'rowanswers1_2' => '1']));
