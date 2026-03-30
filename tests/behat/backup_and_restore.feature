@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Test duplicating a quiz containing an OU matrix question
+Feature: Test duplicating a quiz containing an OUMatrix question
   As a teacher
-  In order re-use my courses containing an OU matrix questions
+  In order re-use my courses containing an OUMatrix questions
   I need to be able to backup and restore them
 
   Background:
@@ -16,7 +16,7 @@ Feature: Test duplicating a quiz containing an OU matrix question
     And the following "questions" exist:
       | questioncategory | qtype    | name              | template       |
       | Test questions   | oumatrix | OUMatrix single   | animals_single |
-      | Test questions   | oumatrix | OUMatrix multiple | food_multiple |
+      | Test questions   | oumatrix | OUMatrix multiple | food_multiple  |
     And the following "activities" exist:
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
