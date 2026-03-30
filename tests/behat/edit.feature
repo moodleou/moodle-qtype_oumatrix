@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix @javascript
-Feature: Test editing an ouMatrix question
+Feature: Test editing an OU matrix question
   As a teacher
-  In order to be able to update my Matrix question
+  In order to be able to update my OU matrix question
   I need to edit them
 
   Background:
