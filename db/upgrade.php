@@ -42,7 +42,7 @@ function xmldb_qtype_oumatrix_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Oumatrix savepoint reached.
+        // OU matrix savepoint reached.
         upgrade_plugin_savepoint(true, 2025090200, 'qtype', 'oumatrix');
     }
 

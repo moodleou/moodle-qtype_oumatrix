@@ -160,10 +160,7 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 
     #[\Override]
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
-        if (
-            $component == 'question' &&
-            in_array($filearea, ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])
-        ) {
+        if ($component == 'question' && in_array($filearea, ['correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback'])) {
             return $this->check_combined_feedback_file_access($qa, $options, $filearea, $args);
         } else if ($component == 'qtype_oumatrix' && $filearea == 'feedback') {
             return $options->feedback;
@@ -397,10 +394,9 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     }
 }
 
-    /**
-     * Class that represents a oumatrix question for multiple response.
-     */
-
+/**
+ * Class that represents a oumatrix question for multiple response.
+ */
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses,moodle.Commenting.MissingDocblock.Class
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     #[\Override]

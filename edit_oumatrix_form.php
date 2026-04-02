@@ -19,6 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 use qtype_oumatrix\row;
 use qtype_oumatrix\column;
 use qtype_oumatrix\utils;
+global $CFG;
 require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
 
 /**
@@ -246,6 +247,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $rowanswerlistlabel = ($this->inputtype === 'single') ?
                 get_string('correctanswer', 'qtype_oumatrix') :
                 get_string('correctanswers', 'qtype_oumatrix');
+        if ($this->inputtype === 'single') {
+            $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', get_string('none', 'qtype_oumatrix'), 0);
+        }
         $repeated[] = $mform->createElement(
             'group',
             'rowoptions',
