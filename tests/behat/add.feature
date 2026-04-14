@@ -1,8 +1,8 @@
 @qtype @qtype_oumatrix
-Feature: Test creating an OUMatrix question
+Feature: Test creating an OU matrix question
   As a teacher
   In order to test my students
-  I need to be able to create an OUMatrix question
+  I need to be able to create an OU matrix question
 
   Background:
     Given the following "users" exist:
@@ -18,7 +18,7 @@ Feature: Test creating an OUMatrix question
   @javascript
   Scenario: Create a Matrix question with single choice option
     Given I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    When I add a "OUMatrix" question filling the form with:
+    When I add a "OU matrix" question filling the form with:
       | Question name                      | Matrix-single-001                          |
       | Question text                      | Choose a correct answer for each row.      |
       | General feedback                   | Salmon(Fish), Chicken(Bird), Lamb(Mammal) |
@@ -48,7 +48,7 @@ Feature: Test creating an OUMatrix question
     And I press "Create a new question ..."
     And I set the field "item_qtype_oumatrix" to "1"
     And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
-    And I should see "Adding an OUMatrix question"
+    And I should see "Adding an OU matrix question"
     And I expand all fieldsets
     And I set the following fields to these values:
       | Question name    | Matrix-multiple-002                    |

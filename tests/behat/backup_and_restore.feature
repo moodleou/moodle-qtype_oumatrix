@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Test duplicating a quiz containing an OUMatrix question
+Feature: Test duplicating a quiz containing an OU matrix question
   As a teacher
-  In order re-use my courses containing an OUMatrix questions
+  In order re-use my courses containing an OU matrix questions
   I need to be able to backup and restore them
 
   Background:
@@ -15,16 +15,16 @@ Feature: Test duplicating a quiz containing an OUMatrix question
       | Course       | C1        | Test questions |
     And the following "questions" exist:
       | questioncategory | qtype    | name              | template       |
-      | Test questions   | oumatrix | OUMatrix single   | animals_single |
-      | Test questions   | oumatrix | OUMatrix multiple | food_multiple  |
+      | Test questions   | oumatrix | OU matrix single   | animals_single |
+      | Test questions   | oumatrix | OU matrix multiple | food_multiple  |
     And the following "activities" exist:
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And quiz "Test quiz" contains the following questions:
-      | OUMatrix single | 1 |
+      | OU matrix single | 1 |
 
   @javascript
-  Scenario: Backup and restore a course containing an OUMatrix question
+  Scenario: Backup and restore a course containing an OU matrix question
     When I am on the "Course 1" course page logged in as admin
     And I backup "Course 1" course using this options:
       | Confirmation | Filename | test_backup.mbz |
@@ -32,9 +32,9 @@ Feature: Test duplicating a quiz containing an OUMatrix question
       | Schema | Course name       | Course 2 |
       | Schema | Course short name | C2       |
     And I am on the "Course 2" "core_question > course question bank" page
-    And I choose "Edit question" action for "OUMatrix single" in the question bank
+    And I choose "Edit question" action for "OU matrix single" in the question bank
     Then the following fields match these values:
-      | Question name     | OUMatrix single                                                       |
+      | Question name     | OU matrix single                                                       |
       | Question text     | Animal classification. Please answer the sub questions in all 4 rows. |
       | General feedback  | We are recognising different type of animals.                         |
       | Default mark      | 1                                                                     |

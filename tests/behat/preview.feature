@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Preview a OUMatrix question
+Feature: Preview a OU matrix question
   As a teacher
-  In order to check my OUMatrix questions will work for students
+  In order to check my OU matrix questions will work for students
   I need to preview them
 
   Background:
