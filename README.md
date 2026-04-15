@@ -1,4 +1,4 @@
-# OU matrix question type
+# Matrix question type
 
 A matrix question type for Moodle.
 

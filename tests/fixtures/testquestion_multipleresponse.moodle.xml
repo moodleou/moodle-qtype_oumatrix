@@ -3,7 +3,7 @@
   <!-- question: 513  -->
   <question type="oumatrix">
     <name>
-      <text>OU matrix multiple choice</text>
+      <text>OUMatrix multiple choice</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p>Select the true statements for each of the materials by ticking the boxes in the table.</p>]]></text>

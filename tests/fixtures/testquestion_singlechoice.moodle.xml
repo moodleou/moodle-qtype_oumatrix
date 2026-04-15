@@ -3,7 +3,7 @@
   <!-- question: 512  -->
   <question type="oumatrix">
     <name>
-      <text>OU matrix single choice</text>
+      <text>OUMatrix single choice</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p>Select the correct option for each of the animals and the family they belong to.</p>]]></text>

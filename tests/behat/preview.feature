@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Preview a OU matrix question
+Feature: Preview a OUMatrix question
   As a teacher
-  In order to check my OU matrix questions will work for students
+  In order to check my OUMatrix questions will work for students
   I need to preview them
 
   Background:
@@ -113,7 +113,7 @@ Feature: Preview a OU matrix question
     And "#row2 sup" "css_element" should exist
 
   @javascript
-  Scenario: Preview a multiple Matrix question with multiple response with distractor rows.
+  Scenario: Preview a Matrix question with multiple response with distractor rows.
     Given I am on the "Multiple matrix 001" "core_question > edit" page logged in as teacher
     And I set the following fields to these values:
       | Question name     | Multiple matrix 001 updated |
@@ -123,15 +123,3 @@ Feature: Preview a OU matrix question
     And I click on "Fill in correct responses" "button"
     And I click on "Submit and finish" "button"
     Then I should see "Fats → (None)"
-
-  @javascript
-  Scenario: Preview a single Matrix question with response and distractor rows.
-    Given I am on the "Single matrix 001" "core_question > edit" page logged in as teacher
-    And I set the following fields to these values:
-      | Question name     | Single matrix 001 updated |
-      | id_rowanswers_0_0 | 1                         |
-    And I press "id_submitbutton"
-    When I am on the "Single matrix 001 updated" "core_question > preview" page
-    And I click on "Fill in correct responses" "button"
-    And I click on "Submit and finish" "button"
-    Then I should see "Bee → (None)"

@@ -357,7 +357,6 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
  * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses,moodle.Commenting.MissingDocblock.Class
 class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
     #[\Override]
     protected function get_input_type(): string {
@@ -384,18 +383,7 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
         $question = $qa->get_question();
         $right = [];
         foreach ($question->rows as $row) {
-            $columnname = null;
-            if (!empty($row->correctanswers) && is_array($row->correctanswers)) {
-                $key = array_key_first($row->correctanswers);
-                if (
-                    $key !== null &&
-                    isset($question->columns[$key]) &&
-                    !empty($question->columns[$key]->name)
-                ) {
-                    $columnname = $question->columns[$key]->name;
-                }
-            }
-            $right[] = $row->name . ' → ' . ($columnname ?? get_string('none', 'qtype_oumatrix'));
+            $right[] = $row->name . ' → ' . $question->columns[array_key_first($row->correctanswers)]->name;
         }
         return $this->correct_choices($right);
     }
@@ -422,7 +410,6 @@ class qtype_oumatrix_single_renderer extends qtype_oumatrix_renderer_base {
  * @copyright  2023 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses,moodle.Commenting.MissingDocblock.Class
 class qtype_oumatrix_multiple_renderer extends qtype_oumatrix_renderer_base {
     #[\Override]
     protected function get_input_type(): string {

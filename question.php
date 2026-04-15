@@ -218,7 +218,6 @@ abstract class qtype_oumatrix_base extends question_graded_automatically {
 /**
  * Class that represents an oumatrix question for single choice.
  */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses,moodle.Commenting.MissingDocblock.Class
 class qtype_oumatrix_single extends qtype_oumatrix_base {
     #[\Override]
     public function get_renderer(moodle_page $page) {
@@ -300,11 +299,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     #[\Override]
     public function is_complete_response(array $response): bool {
         foreach ($this->roworder as $key => $rownumber) {
-            $row = $this->rows[$rownumber];
-            // Skip distractor rows (no correct answers defined).
-            if (empty($row->correctanswers)) {
-                continue;
-            }
             $fieldname = $this->field($key);
             if (!array_key_exists($fieldname, $response)) {
                 return false;
@@ -400,8 +394,6 @@ class qtype_oumatrix_single extends qtype_oumatrix_base {
     /**
      * Class that represents a oumatrix question for multiple response.
      */
-
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses,moodle.Commenting.MissingDocblock.Class
 class qtype_oumatrix_multiple extends qtype_oumatrix_base {
     #[\Override]
     public function get_renderer(moodle_page $page) {

@@ -227,31 +227,6 @@ final class question_single_test extends \advanced_testcase {
         )); // Incorrect.
     }
 
-    /**
-     * Test that distractor rows are skipped when checking complete response (single choice).
-     */
-    public function test_is_complete_response_skips_distractor_row_single(): void {
-        $question = \test_question_maker::make_question('oumatrix', 'animals_single');
-
-        // Make row 2 a distractor.
-        $question->rows[2]->correctanswers = [];
-
-        $question->start_attempt(new question_attempt_step(), 1);
-
-        // Empty response -> incomplete.
-        $this->assertFalse($question->is_complete_response([]));
-
-        // Only first row answered -> still incomplete.
-        $this->assertFalse($question->is_complete_response(['rowanswers0' => '1']));
-
-        // Answer required rows (skip distractor row 2).
-        $this->assertTrue(
-            $question->is_complete_response(
-                ['rowanswers0' => '1', 'rowanswers2' => '3', 'rowanswers3' => '4']
-            )
-        );
-    }
-
     public function test_grade_response(): void {
         $question = \test_question_maker::make_question('oumatrix', 'animals_single');
         $question->start_attempt(new question_attempt_step(), 1);
