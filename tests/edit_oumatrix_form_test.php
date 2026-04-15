@@ -344,4 +344,41 @@ final class edit_oumatrix_form_test extends \advanced_testcase {
 
         $this->assertEmpty($errors);
     }
+
+    /**
+     * Test single matrix allows a distractor row (no correct answers in that row).
+     */
+    public function test_validation_single_distractor_row_allowed(): void {
+        [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
+        $formdata['category'] = $category->id;
+
+        // Make row 2 a distractor (no correct answer defined).
+        // Remove its selected answer from form data.
+        unset($formdata['rowanswers'][1]);
+
+        $errors = $form->validation($formdata, []);
+
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * Test single matrix fails validation when a column has no correct answers at all.
+     */
+    public function test_validation_single_distractor_column_error(): void {
+        [$form, $category] = $this->get_form('qtype_oumatrix_edit_form');
+        $formdata = (array) \test_question_maker::get_question_form_data('oumatrix', 'animals_single');
+        $formdata['category'] = $category->id;
+
+        // Clear all answers first.
+        $formdata['rowanswers'] = [];
+
+        // Assign all rows to column 0 only.
+        foreach ($formdata['rowname'] as $rowkey => $unused) {
+            $formdata['rowanswers'][$rowkey] = 0;
+        }
+        // Now column 1 (and others if exist) becomes a distractor column.
+        $errors = $form->validation($formdata, []);
+        $this->assertArrayHasKey('rowoptions[0]', $errors);
+    }
 }

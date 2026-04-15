@@ -1,7 +1,7 @@
 @qtype @qtype_oumatrix
-Feature: Test importing OUMatrix questions
+Feature: Test importing OU matrix questions
   As a teacher
-  In order to reuse OUMatrix questions
+  In order to reuse OU matrix questions
   I need to import them
 
   Background:
@@ -16,7 +16,7 @@ Feature: Test importing OUMatrix questions
       | teacher | C1     | editingteacher |
 
   @javascript @_file_upload
-  Scenario: Import OUMatrix single choice question.
+  Scenario: Import OU matrix single choice question.
     Given I am on the "Course 1" "core_question > course question import" page logged in as teacher
     When I set the field "id_format_xml" to "1"
     And I upload "question/type/oumatrix/tests/fixtures/testquestion_singlechoice.moodle.xml" file to "Import" filemanager
@@ -25,10 +25,10 @@ Feature: Test importing OUMatrix questions
     And I should see "Importing 1 questions from file"
     And I should see "1. Select the correct option for each of the animals and the family they belong to."
     And I press "Continue"
-    And I should see "OUMatrix single choice"
+    And I should see "OU matrix single choice"
 
   @javascript @_file_upload
-  Scenario: Import OUMatrix multiple response question.
+  Scenario: Import OU matrix multiple response question.
     Given I am on the "Course 1" "core_question > course question import" page logged in as teacher
     When I set the field "id_format_xml" to "1"
     And I upload "question/type/oumatrix/tests/fixtures/testquestion_multipleresponse.moodle.xml" file to "Import" filemanager
@@ -37,4 +37,4 @@ Feature: Test importing OUMatrix questions
     And I should see "Importing 1 questions from file"
     And I should see "1. Select the true statements for each of the materials by ticking the boxes in the table."
     And I press "Continue"
-    And I should see "OUMatrix multiple choice"
+    And I should see "OU matrix multiple choice"

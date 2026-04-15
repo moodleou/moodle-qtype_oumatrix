@@ -461,7 +461,7 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             // Prevent completely empty matrix.
             if (!$anyanswerselected) {
                 // Just put the error on the first row.
-                $errors['rowoptions[' . 0 . ']'] = get_string(
+                $errors['rowoptions[0]'] = get_string(
                     'noinputanswer',
                     'qtype_oumatrix'
                 );
