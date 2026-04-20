@@ -104,13 +104,10 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
     }
 
     #[\Override]
-    public function formulation_and_controls(
-        question_attempt $qa,
-        question_display_options $options
-    ) {
+    public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
         $question = $qa->get_question();
-        $result = '';
 
+        $result = '';
         $result .= html_writer::tag('div', $question->format_questiontext($qa), ['class' => 'qtext']);
 
         // Display the matrix.
@@ -119,9 +116,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
         if ($qa->get_state() == question_state::$invalid) {
             $result .= html_writer::nonempty_tag(
                 'div',
-                $question->get_validation_error(
-                    $qa->get_last_qt_data()
-                ),
+                $question->get_validation_error($qa->get_last_qt_data()),
                 ['class' => 'validationerror']
             );
         }
@@ -223,10 +218,7 @@ abstract class qtype_oumatrix_renderer_base extends qtype_with_combined_feedback
                 $isselected = $question->is_choice_selected($response, $rowkey, $column->number);
 
                 // Get the row per feedback.
-                if (
-                    $options->feedback && $feedback == '' &&
-                    $isselected && trim($row->feedback)
-                ) {
+                if ($options->feedback && $feedback == '' && $isselected && trim($row->feedback)) {
                     $feedback = html_writer::tag(
                         'div',
                         $question->make_html_inline(

@@ -19,6 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 use qtype_oumatrix\row;
 use qtype_oumatrix\column;
 use qtype_oumatrix\utils;
+global $CFG;
 require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
 
 /**
@@ -246,6 +247,9 @@ class qtype_oumatrix_edit_form extends question_edit_form {
         $rowanswerlistlabel = ($this->inputtype === 'single') ?
                 get_string('correctanswer', 'qtype_oumatrix') :
                 get_string('correctanswers', 'qtype_oumatrix');
+        if ($this->inputtype === 'single') {
+            $rowoptions[] = $mform->createElement('radio', 'rowanswers', '', get_string('none', 'qtype_oumatrix'), 0);
+        }
         $repeated[] = $mform->createElement(
             'group',
             'rowoptions',
@@ -436,20 +440,23 @@ class qtype_oumatrix_edit_form extends question_edit_form {
             }
         }
 
-        // Validate if correct answers have been input for oumatrix single choice question.
         $nonemptyrows = array_filter($data['rowname']);
-        if ($data['inputtype'] == 'single') {
-            foreach ($nonemptyrows as $key => $rowname) {
-                if (!isset($data['rowanswers']) || !array_key_exists($key, $data['rowanswers'])) {
-                    $errors['rowoptions[' . $key . ']'] = get_string('noinputanswer', 'qtype_oumatrix');
+        $nonemptycolumns = array_filter($data['columnname']);
+        $rowcount = count($nonemptyrows);
+        $columncount = count($nonemptycolumns);
+        $anyanswerselected = false;
+
+        // Check if ANY answer exists in the whole matrix.
+        if ($data['inputtype'] === 'single') {
+            if (!empty($data['rowanswers'])) {
+                foreach ($data['rowanswers'] as $rowkey => $colvalue) {
+                    if (!empty($colvalue)) {
+                        $anyanswerselected = true;
+                        break;
+                    }
                 }
             }
         } else {
-            $nonemptycolumns = array_filter($data['columnname']);
-            $rowcount = count($nonemptyrows);
-            $columncount = count($nonemptycolumns);
-            $anyanswerselected = false;
-            // Check if ANY answer exists in the whole matrix.
             foreach ($nonemptycolumns as $colkey => $unused) {
                 $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
 
@@ -458,19 +465,32 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                     break;
                 }
             }
-            // Prevent completely empty matrix.
-            if (!$anyanswerselected) {
-                // Just put the error on the first row.
-                $errors['rowoptions[0]'] = get_string(
-                    'noinputanswer',
-                    'qtype_oumatrix'
-                );
-                return $errors;
-            }
-            // Enforce per-row only if matrix is < 2x2.
-            if ($rowcount < 2 || $columncount < 2) {
-                foreach ($nonemptyrows as $rowkey => $rowname) {
-                    $answerfound = false;
+        }
+        // Prevent completely empty matrix.
+        if (!$anyanswerselected) {
+            // Just put the error on the first row.
+            $errors['rowoptions[' . 0 . ']'] = get_string(
+                'noinputanswer',
+                'qtype_oumatrix'
+            );
+            return $errors;
+        }
+        // Enforce per-row only if matrix is < 2x2.
+        if ($rowcount < 2 || $columncount < 2) {
+            foreach ($nonemptyrows as $rowkey => $rowname) {
+                $answerfound = false;
+                if ($data['inputtype'] === 'single') {
+                    // Validate if correct answers have been input for oumatrix single choice question.
+                    // For single input type, the answer should be selected for each row.
+                    if (
+                        !empty($data['rowanswers']) &&
+                        array_key_exists($rowkey, $data['rowanswers']) &&
+                        !empty($data['rowanswers'][$rowkey])
+                    ) {
+                        $answerfound = true;
+                    }
+                } else {
+                    // For multiple input type, at least one answer should be selected for each row.
                     foreach ($nonemptycolumns as $colkey => $unused) {
                         $rowanswerslabel = "rowanswers" . 'a' . ($colkey + 1);
                         if (!empty($data[$rowanswerslabel]) && array_key_exists($rowkey, $data[$rowanswerslabel])) {
@@ -478,10 +498,10 @@ class qtype_oumatrix_edit_form extends question_edit_form {
                             break;
                         }
                     }
-                    if (!$answerfound) {
-                        $errors['rowoptions[' . $rowkey . ']'] =
-                            get_string('noinputanswer', 'qtype_oumatrix');
-                    }
+                }
+                if (!$answerfound) {
+                    $errors['rowoptions[' . $rowkey . ']'] =
+                        get_string('noinputanswer', 'qtype_oumatrix');
                 }
             }
         }

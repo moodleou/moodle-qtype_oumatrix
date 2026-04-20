@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Version information for the matrix question type.
+ * Version information for the OU matrix question type.
  *
  * @package     qtype_oumatrix
  * @copyright   2023 The Open University
@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2025090200;
-$plugin->release = '0.1.0';
+$plugin->version = 2026041400;
 $plugin->component = 'qtype_oumatrix';
-$plugin->requires = 2023041800;
+$plugin->requires = 2024042200;
+$plugin->release = '1.0 for Moodle 4.5+';

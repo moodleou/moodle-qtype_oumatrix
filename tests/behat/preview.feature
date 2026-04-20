@@ -81,7 +81,7 @@ Feature: Preview a OU matrix question
   @javascript
   Scenario: Column and row headers must support and correctly render subscript, superscript.
     Given I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    And I add a "Matrix" question filling the form with:
+    And I add a "OU matrix" question filling the form with:
       | Question name                      | Matrix-single-001                                  |
       | Question text                      | Please evaluate the following chemical parameters: |
       | id_status                          | Ready                                              |
@@ -113,7 +113,7 @@ Feature: Preview a OU matrix question
     And "#row2 sup" "css_element" should exist
 
   @javascript
-  Scenario: Preview a multiple Matrix question with multiple response with distractor rows.
+  Scenario: Preview a multiple OU matrix question with multiple response with distractor rows.
     Given I am on the "Multiple matrix 001" "core_question > edit" page logged in as teacher
     And I set the following fields to these values:
       | Question name     | Multiple matrix 001 updated |
@@ -125,7 +125,7 @@ Feature: Preview a OU matrix question
     Then I should see "Fats → (None)"
 
   @javascript
-  Scenario: Preview a single Matrix question with response and distractor rows.
+  Scenario: Preview a single OU matrix question with response and distractor rows.
     Given I am on the "Single matrix 001" "core_question > edit" page logged in as teacher
     And I set the following fields to these values:
       | Question name     | Single matrix 001 updated |

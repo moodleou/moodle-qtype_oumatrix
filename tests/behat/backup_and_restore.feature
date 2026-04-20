@@ -14,14 +14,14 @@ Feature: Test duplicating a quiz containing an OU matrix question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype    | name              | template       |
-      | Test questions   | oumatrix | OU matrix single   | animals_single |
-      | Test questions   | oumatrix | OU matrix multiple | food_multiple  |
+      | questioncategory | qtype    | name            | template        |
+      | Test questions   | oumatrix | Matrix single    | animals_single |
+      | Test questions   | oumatrix | Mmatrix multiple | food_multiple  |
     And the following "activities" exist:
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And quiz "Test quiz" contains the following questions:
-      | OU matrix single | 1 |
+      | Matrix single | 1 |
 
   @javascript
   Scenario: Backup and restore a course containing an OU matrix question
@@ -32,9 +32,9 @@ Feature: Test duplicating a quiz containing an OU matrix question
       | Schema | Course name       | Course 2 |
       | Schema | Course short name | C2       |
     And I am on the "Course 2" "core_question > course question bank" page
-    And I choose "Edit question" action for "OU matrix single" in the question bank
+    And I choose "Edit question" action for "Matrix single" in the question bank
     Then the following fields match these values:
-      | Question name     | OU matrix single                                                       |
+      | Question name     | Matrix single                                                         |
       | Question text     | Animal classification. Please answer the sub questions in all 4 rows. |
       | General feedback  | We are recognising different type of animals.                         |
       | Default mark      | 1                                                                     |

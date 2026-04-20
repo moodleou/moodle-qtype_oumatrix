@@ -18,9 +18,9 @@ Feature: Test exporting OU matrix questions
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype    | name              | template       |
-      | Test questions   | oumatrix | OU matrix-001      | animals_single |
-      | Test questions   | oumatrix | OU matrix multiple | food_multiple  |
+      | questioncategory | qtype    | name               | template       |
+      | Test questions   | oumatrix | Matrix-001      | animals_single |
+      | Test questions   | oumatrix | Matrix multiple | food_multiple  |
 
   @javascript
   Scenario: Export an OU matrix question
